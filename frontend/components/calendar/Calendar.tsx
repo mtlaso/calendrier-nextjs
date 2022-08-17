@@ -23,9 +23,15 @@ import SmallTitle from "../../utils/events-small-title";
  *
  */
 /** */
-const Calendar = ({ dateDisplay, paddingDays, days, calendarEvents, onAddEvent, onUpdateEvent }: TypeCalendar) => {
-  const today = new Date();
-
+const Calendar = ({
+  today,
+  dateDisplay,
+  paddingDays,
+  days,
+  calendarEvents,
+  onAddEvent,
+  onUpdateEvent,
+}: TypeCalendar) => {
   // Setup la date sur le header
   useEffect(() => {
     const headerDate = document.getElementById("header-date");
@@ -148,9 +154,12 @@ function RenderDay(
   onUpdateEvent: (event: TypeEvent) => void
 ) {
   if (day.dayName === dayName) {
-    if (day.isCurrentDay && day.month === today.getMonth()) {
+    if (day.isCurrentDay && day.month === today.getMonth() && day.year === today.getFullYear()) {
       return (
-        <div className={`${calendarStyles.container_column_box} ${calendarStyles.current_day}`} key={index}>
+        <div
+          className={`${calendarStyles.container_column_box} ${calendarStyles.current_day}`}
+          key={index}
+          onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
           <p>{day.date}</p>
           {calendarEvents.map((evnt, index) => {
             const currentDay = day.date;

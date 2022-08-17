@@ -7,6 +7,11 @@ import { TypeEvent } from "./TypeEvent";
  */
 export type TypeCalendar = {
   /**
+   * Garde en mémoire la date d'aujourd'hui
+   */
+  today: Date;
+
+  /**
    * Date à afficher sur le header
    */
   dateDisplay: string;

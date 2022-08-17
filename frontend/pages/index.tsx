@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRecoilState } from "recoil";
 
 import Header from "../components/header/Header";
@@ -25,6 +25,9 @@ import { MAX_LENGTH_EVENT } from "../config/config";
 
 const Home: NextPage = () => {
   const dt = new Date();
+  const today = useMemo(() => {
+    return new Date();
+  }, []);
 
   // Charger les événements du calendrier (Recoil Js)
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
@@ -290,6 +293,7 @@ const Home: NextPage = () => {
             calendarEvents={calendarEvents}
             onAddEvent={OpenAddEventModal}
             onUpdateEvent={OpenUpdateEventModal}
+            today={today}
           />
         )}
       </main>
