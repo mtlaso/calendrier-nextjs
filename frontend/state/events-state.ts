@@ -22,5 +22,5 @@ const localStorageEffect =
 export const eventsState = atom<TypeEvent[]>({
   key: "events-state",
   default: [],
-  // effects: [localStorageEffect("user_events")],
+  effects: [localStorageEffect("user_events")],
 });
