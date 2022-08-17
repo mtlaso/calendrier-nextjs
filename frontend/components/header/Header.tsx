@@ -34,7 +34,7 @@ const Header = (props: { clickBack: () => void; clickNext: () => void; showInfoM
         </button>
 
         {/* lien login */}
-        <Link className="link" href={"/login"}>
+        <Link className="link" href={"/auth/login"}>
           login
         </Link>
       </div>

@@ -17,7 +17,6 @@ authRouter.post("/register", async (req, res) => {
 
   pool.query("SELECT now();", (err, result) => {
     console.log(err, result);
-    pool.end();
   });
 
   // Vérifier si le username existe

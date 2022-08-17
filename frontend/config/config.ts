@@ -12,3 +12,11 @@ export const AUTH_VALIDATION = {
   password_max_length: 60,
   password_min_length: 8,
 };
+
+/**
+ * Urls de l'API
+ */
+export const API_URLS = {
+  register: "http://localhost:4000/auth/register",
+  login: "http://localhost:4000/auth/login",
+};
