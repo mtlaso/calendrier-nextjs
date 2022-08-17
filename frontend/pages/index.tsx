@@ -3,6 +3,7 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 
 import Header from "../components/header/Header";
+import GuideModal from "../components/modals/guide_modal/GuideModal";
 
 import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
@@ -12,6 +13,8 @@ import { LoadCalendar } from "../utils/load-calendar";
 
 const Home: NextPage = () => {
   const dt = new Date();
+
+  const [showInfoModal, setShowInfoModal] = useState<"flex" | "none">("none");
 
   const [days, setDays] = useState<TypeDay[]>([]);
   const [paddingDays, setPaddingDays] = useState<TypeWeekDays[]>([]);
@@ -63,9 +66,16 @@ const Home: NextPage = () => {
       </Head>
 
       {/* Header */}
-      <Header clickBack={ClickBack} clickNext={ClickNext} showInfoModal={() => {}} />
+      <Header
+        clickBack={() => ClickBack}
+        clickNext={() => ClickNext}
+        showInfoModal={() => setShowInfoModal((prev) => (prev === "flex" ? "none" : "flex"))}
+      />
 
-      <main>{isLoading ? <span>loading...</span> : <span>{paddingDays}</span>}</main>
+      {/* Guide modal */}
+      <GuideModal display={showInfoModal} CloseModal={() => setShowInfoModal("none")} />
+
+      <main>{isLoading ? <span>loading...</span> : <span>{dateDisplay}</span>}</main>
     </>
   );
 };
