@@ -3,9 +3,9 @@ import { TypeDay } from "./TypeDay";
 import { TypeEvent } from "./TypeEvent";
 
 /**
- * Interface du calendrier
+ * Types du calendrier
  */
-export interface ICalendar {
+export type TypeCalendar = {
   /**
    * Date à afficher sur le header
    */
@@ -19,7 +19,7 @@ export interface ICalendar {
   /**
    * Liste des padding days (cases vides avant le premier jour du mois)
    */
-  paddingDays: TypeDay[];
+  paddingDays: TypeWeekDays[];
 
   /**
    * Évènements à afficher sur le calendrier
@@ -35,4 +35,4 @@ export interface ICalendar {
    * Fonction appelée lors de la modification d'un évènement
    */
   onUpdateEvent: (event: TypeEvent) => void;
-}
+};

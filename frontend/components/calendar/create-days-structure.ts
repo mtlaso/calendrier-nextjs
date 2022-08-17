@@ -1,38 +1,55 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
+
+const DATA_TO_RENDER: any[] = [];
+
+export function CreateCalendarStructure(calendarStyles: any): any[] {
+  // DATA_TO_RENDER.push(CreateSundayStructure(calendarStyles));
+  // DATA_TO_RENDER.push(CreateMondayStructure(calendarStyles));
+
+  return DATA_TO_RENDER;
+}
+
 /**
  * Créer la colonne "Sunday"
  */
-export function CreateSundayStructure() {
-  const div = document.createElement("div");
-  div.id = "container-column-sun";
-  div.classList.add("container-column");
+export function CreateSundayStructure(calendarStyles: any) {
+  const p = React.createElement("p", { key: "p-sun" }, "sun.");
+  const hr = React.createElement("hr", { key: "hr-sun" }, null);
 
-  const p = document.createElement("p");
-  p.appendChild(document.createTextNode("sun."));
+  const div = React.createElement("div", { className: calendarStyles.container_column, id: "container-column-sun" }, [
+    p,
+    hr,
+  ]);
 
-  const hr = document.createElement("hr");
+  return div;
 
-  div.appendChild(p);
-  div.appendChild(hr);
-  document.getElementById("container")?.appendChild(div);
+  // Render elements
+  // const container = document.getElementById("container");
+  // const root = createRoot(container!);
+  // root.render(div);
+  // ReactDOM.render([div], document.getElementById("container"));
+  // DATA_TO_RENDER.push(div);
 }
 
 /**
  * Créer la colonne "Monday"
  */
-export function CreateMondayStructure() {
-  const div = document.createElement("div");
-  div.id = "container-column-mon";
-  div.classList.add("container-column");
+export function CreateMondayStructure(calendarStyles: any) {
+  const p = React.createElement("p", null, "mon.");
+  const hr = React.createElement("hr", null, null);
 
-  const p = document.createElement("p");
-  p.appendChild(document.createTextNode("mon."));
+  const div = React.createElement("div", { className: calendarStyles.container_column, id: "container-column-mon" }, [
+    p,
+    hr,
+  ]);
 
-  const hr = document.createElement("hr");
+  return div;
 
-  div.appendChild(p);
-  div.appendChild(hr);
-
-  document.getElementById("container")?.appendChild(div);
+  // Render elements
+  // ReactDOM.render(div, document.getElementById("container"));
+  // DATA_TO_RENDER.push(div);
 }
 
 /**

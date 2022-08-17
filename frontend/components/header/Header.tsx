@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-import styles from "./header.module.scss";
+import styles from "./header.module.sass";
 
 const Header = (props: { clickBack: () => void; clickNext: () => void; showInfoModal: () => void }) => {
   return (

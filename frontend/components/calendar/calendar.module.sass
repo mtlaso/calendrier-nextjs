@@ -1,0 +1,36 @@
+.container
+  display: grid
+  grid-template-columns: repeat(7, 1fr)
+  grid-template-areas: "col1 col2 col3 col4 col5 col6"
+  height: 100vh
+  width: 100%
+
+  &_column > p
+    padding: 1rem
+
+  &_column_box
+    display: flex
+    flex-direction: column
+    justify-content: flex-start
+    align-items: flex-start
+    align-content: flex-start
+
+    height: 20vh
+    padding: 1rem 0 0 1rem
+    border-bottom: 0.1rem solid var(--color-lightgray)
+    overflow: auto
+
+  &_column_box:hover
+    background-color: var(--color-overlay)
+    color: var(--color-black)
+    transition: 0.3s
+
+  &_column_box.current_day
+    background-color: var(--color-overlay)
+
+  &_column_box_empty
+    border-bottom: 0.1rem solid var(--color-lightgray)
+    height: 20vh
+
+  &_column_box_empty::before
+    content: "\00a0"

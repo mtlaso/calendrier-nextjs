@@ -23,17 +23,17 @@ export type TypeEvent = {
   createdAtYear: string;
 
   /**
-   * Pour qu'elle date l'évènement a été crée
+   * Pour quelle date l'évènement a été crée
    */
   createdForDate: string;
 
   /**
-   * Pour qu'elle mois l'évènement a été crée
+   * Pour quel mois l'évènement a été crée
    */
   createdForMonth: string;
 
   /**
-   * Pour qu'elle année l'évènement a été crée
+   * Pour quelle année l'évènement a été crée
    */
   createdForYear: string;
 

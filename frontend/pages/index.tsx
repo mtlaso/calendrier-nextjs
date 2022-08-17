@@ -1,18 +1,24 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
 
 import Header from "../components/header/Header";
 import GuideModal from "../components/modals/guide_modal/GuideModal";
+import Calendar from "../components/calendar/Calendar";
 
 import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
 import { TypeWeekDays } from "../types/TypeWeekDays";
 
 import { LoadCalendar } from "../utils/load-calendar";
+import { eventsState } from "../state/events-state";
 
 const Home: NextPage = () => {
   const dt = new Date();
+
+  // Charger les événements du calendrier (Recoil Js)
+  const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
 
   const [showInfoModal, setShowInfoModal] = useState<"flex" | "none">("none");
 
@@ -75,7 +81,22 @@ const Home: NextPage = () => {
       {/* Guide modal */}
       <GuideModal display={showInfoModal} CloseModal={() => setShowInfoModal("none")} />
 
-      <main>{isLoading ? <span>loading...</span> : <span>{dateDisplay}</span>}</main>
+      {/* Calendrier */}
+      <main id="calendar-root">
+        {isLoading ? (
+          <span>loading...</span>
+        ) : (
+          // TODO: passer les events de ce mois seulement, pas tous.
+          <Calendar
+            dateDisplay={dateDisplay}
+            paddingDays={paddingDays}
+            days={days}
+            calendarEvents={calendarEvents}
+            onAddEvent={() => {}}
+            onUpdateEvent={() => {}}
+          />
+        )}
+      </main>
     </>
   );
 };
