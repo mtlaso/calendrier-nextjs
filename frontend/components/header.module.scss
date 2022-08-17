@@ -1,0 +1,20 @@
+.header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--color-black);
+  width: 100vw;
+
+  button.info_icon {
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+  }
+  hr {
+    color: var(--color-grey);
+  }
+  p {
+    color: var(--color-white);
+    
+  }
+}
