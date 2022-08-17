@@ -6,7 +6,7 @@
 
 # Calendrier
 
-Calendrier créé nextjs, avec possibilité de créer des évènements.
+Calendrier créé avec Nextjs, avec possibilité de créer des évènements.
 
 # Utilisation
 
