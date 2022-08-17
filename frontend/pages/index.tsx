@@ -7,7 +7,11 @@ import Header from "../components/header/Header";
 import GuideModal from "../components/modals/guide_modal/GuideModal";
 import Calendar from "../components/calendar/Calendar";
 import AddEventModal from "../components/modals/add_modal/AddEventModal";
+import AddEventModalContent from "../components/modals/add_modal/AddEventModalContent";
+import AddEventModalButtons from "../components/modals/add_modal/AddEventModalButtons";
 import UpdateEventModal from "../components/modals/update_modal/UpdateEventModal";
+import UpdateEventModalContent from "../components/modals/update_modal/UpdateEventModalContent";
+import UpdateEventModalButtons from "../components/modals/update_modal/UpdateEventModalButtons";
 
 import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
@@ -192,7 +196,7 @@ const Home: NextPage = () => {
 
       {/* Add event modal */}
       <AddEventModal display={showAddEventModal}>
-        <div className="modal-content">
+        <AddEventModalContent>
           <h1>Add event for {`${dateOfEvent?.month}/${dateOfEvent?.date}/${dateOfEvent?.year}`}</h1>
           <textarea
             value={addModalText}
@@ -203,9 +207,10 @@ const Home: NextPage = () => {
               setAddModalText(e.target.value);
             }}
           />
-        </div>
+        </AddEventModalContent>
         <hr />
-        <div className="modal-buttons">
+
+        <AddEventModalButtons>
           <button
             className="button-cancel"
             onClick={() => {
@@ -219,12 +224,12 @@ const Home: NextPage = () => {
             }}>
             OK
           </button>
-        </div>
+        </AddEventModalButtons>
       </AddEventModal>
 
       {/* Update event modal */}
       <UpdateEventModal display={showUpdateEventModal}>
-        <div className="modal-content">
+        <UpdateEventModalContent>
           <h1>Update event</h1>
           <p>
             Event created on {DateToMonthName(Number(updateModal?.createdForMonth))}, {updateModal?.createdForDate}{" "}
@@ -240,9 +245,9 @@ const Home: NextPage = () => {
               setUpdateModalText(e.target.value);
             }}
           />
-        </div>
+        </UpdateEventModalContent>
         <hr />
-        <div className="modal-buttons">
+        <UpdateEventModalButtons>
           <button
             className="button-delete"
             onClick={(e) => {
@@ -266,7 +271,7 @@ const Home: NextPage = () => {
             }}>
             OK
           </button>
-        </div>
+        </UpdateEventModalButtons>
       </UpdateEventModal>
 
       {/* Guide modal */}
@@ -283,8 +288,8 @@ const Home: NextPage = () => {
             paddingDays={paddingDays}
             days={days}
             calendarEvents={calendarEvents}
-            onAddEvent={() => {}}
-            onUpdateEvent={() => {}}
+            onAddEvent={OpenAddEventModal}
+            onUpdateEvent={OpenUpdateEventModal}
           />
         )}
       </main>
