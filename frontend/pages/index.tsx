@@ -189,8 +189,8 @@ const Home: NextPage = () => {
 
       {/* Header */}
       <Header
-        clickBack={() => ClickBack}
-        clickNext={() => ClickNext}
+        clickBack={() => ClickBack()}
+        clickNext={() => ClickNext()}
         showInfoModal={() => setShowInfoModal((prev) => (prev === "flex" ? "none" : "flex"))}
       />
 

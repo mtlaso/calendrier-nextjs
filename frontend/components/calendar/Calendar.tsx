@@ -32,7 +32,7 @@ const Calendar = ({ dateDisplay, paddingDays, days, calendarEvents, onAddEvent, 
     if (headerDate) {
       headerDate.textContent = dateDisplay;
     }
-  }, []);
+  }, [dateDisplay]);
 
   return (
     <div id="container" className={calendarStyles.container}>
