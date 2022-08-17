@@ -1,16 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { createRoot } from "react-dom/client";
-
-import {
-  CreateFridayStructure,
-  CreateMondayStructure,
-  CreateSaturdayStructure,
-  CreateSundayStructure,
-  CreateThursdayStructure,
-  CreateTuesdayStructure,
-  CreateWednesayStructure,
-  CreateCalendarStructure,
-} from "./create-days-structure";
 
 import { TypeCalendar } from "../../types/TypeCalendar";
 import { TypeDay } from "../../types/TypeDay";
