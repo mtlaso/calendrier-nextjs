@@ -15,7 +15,7 @@ Calendrier créé nextjs, avec possibilité de créer des évènements.
 3. Section frontend
    1. Cd dans le dossier frontend `cd frontend`
    2. Télécharger paquets nécessaires `npm install`
-   3. Lancer l'application `npm start`
+   3. Lancer l'application `npm run dev`
 
 # Fonctionnalités
 
