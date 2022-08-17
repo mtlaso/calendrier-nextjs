@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 import styles from "./header.module.scss";
 
@@ -33,9 +34,9 @@ const Header = (props: { clickBack: () => void; clickNext: () => void; showInfoM
         </button>
 
         {/* lien login */}
-        {/* <Link className="link" to="/login">
+        <Link className="link" href={"/login"}>
           login
-        </Link> */}
+        </Link>
       </div>
     </header>
   );

@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 
-import Header from "../components/Header";
+import Header from "../components/header/Header";
 
 const Home: NextPage = () => {
   return (
@@ -13,7 +13,7 @@ const Home: NextPage = () => {
       </Head>
 
       {/* Header */}
-      <Header clickBack={() => {} } clickNext={() => {}} showInfoModal={() => {}} />
+      <Header clickBack={() => {}} clickNext={() => {}} showInfoModal={() => {}} />
 
       <main>
         <h1>hello mom!</h1>
