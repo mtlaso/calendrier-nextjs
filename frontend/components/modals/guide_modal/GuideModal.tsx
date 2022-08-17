@@ -60,7 +60,7 @@ const GuideModal = (props: { display: "flex" | "none"; CloseModal: () => void })
         <h2>4. Source code</h2>
         <p>
           Find the source code on{" "}
-          <a href="https://github.com/euuuuh/calendar" rel="noreferrer" target={"_blank"}>
+          <a href="https://github.com/euuuuh/calendrier-nextjs" rel="noreferrer" target={"_blank"}>
             GitHub
           </a>
           .
