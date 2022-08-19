@@ -1,41 +1,48 @@
+$max-text-width: 30vw
+
 .container_auth
   background-color: var(--color-black)
   display: flex
-  flex-direction: column
+  flex-direction: row
+  justify-content: space-around
   align-items: center
   align-content: center
-  justify-content: center
+  flex-wrap: wrap
   height: 100vh
+  margin: 2rem
 
   div
-    margin: 5rem
 
-  h1, h2, p
+  h1, h2, p, span
     color: var(--color-white)
   h1
     font-size: 3.5rem
     margin-bottom: 1rem
-    text-align: center
+
+  h1.text_title
+    text-align: start
 
   p
     margin-bottom: 1rem
-    text-align: justify
     color: var(--color-lightergrey)
+    text-align: start
 
   form
-    display: flex
-    flex-direction: column
-    margin-top: 1rem
-    padding: 2rem
+    display: block
+    padding: 3rem
     background-color: var(--color-lightblack)
     border-radius: 1rem
     box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.14)
 
     label
+      display: block
+      width: 100%
       margin: 0.5rem 0 0.5rem 0
       color: var(--color-lightergrey)
 
     input
+      display: block
+      width: 100%
       background-color: var(--color-lightblack)
       color: var(--color-white)
       padding: 0.5rem
@@ -46,14 +53,31 @@
       color: var(--color-white)
 
     a
+      display: block
       margin-top: 1rem
 
     button
+      display: block
       margin-left: 0
       margin-top: 1rem
       width: 5rem
 
-    span.error
+    h2
+      display: block
+      font-size: 2rem
+
+    span
+      display: block
+      text-align: justify
+
+    .error
       color: var(--color-red)
+      list-style: noneMiddlewareHandleErrorsDev
+      margin-top: 0.3rem
+      text-align: start
+
+    .success
+      color: var(--color-green)
       list-style: none
       margin-top: 0.3rem
+      max-width: $max-text-width

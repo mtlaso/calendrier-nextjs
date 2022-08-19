@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 import styles from "./auth.module.sass";
 
@@ -9,15 +10,32 @@ import { API_URLS, AUTH_VALIDATION } from "../../config/config";
  * Page de création de compte
  */
 export default function Login() {
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const [loginMessage, setLoginMessage] = useState("");
 
   const [usernameError, setUsernameError] = useState<TypeError>();
   const [passwordError, setPasswordError] = useState<TypeError>();
 
+  // Récupérer les query string envoyé depuis le dashboard
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    let queryMessage = router.query.message;
+    if (!queryMessage) return;
+    if (queryMessage instanceof Array) queryMessage = queryMessage[0];
+
+    queryMessage = decodeURIComponent(queryMessage);
+
+    setLoginMessage(queryMessage);
+  }, [router.isReady]);
+
   // Validation du formulaire
-  const ValidateForm = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const ValidateForm = async () => {
+    setLoginMessage("");
 
     // Vider les erreurs
     setUsernameError({ empty: true });
@@ -48,7 +66,6 @@ export default function Login() {
 
   // Envoyer le formulaire
   const SendForm = async () => {
-    // Envoyer formulaire
     try {
       const body = JSON.stringify({ username, password });
       const req = await fetch(API_URLS.login, {
@@ -57,22 +74,39 @@ export default function Login() {
           "Content-Type": "application/json",
         },
         body: body,
+        credentials: "include", // Doit être ici pour que les cookies soient sauvegardés
       });
 
       const res = await req.json();
-      alert(`res: ${JSON.stringify(res)}`);
+
+      if (res.statusCode === 200) {
+        // Redirection vers la page d'accueil
+        router.push("/dashboard");
+      } else {
+        setLoginMessage(res.message);
+      }
     } catch (error) {
-      alert(`error: ${error}`);
+      // alert(`An error happend : ${error}`);
+      setLoginMessage((error as Error).message);
     }
   };
 
   return (
     <div className={styles.container_auth}>
       <div>
-        <h1>Login</h1>
+        <h1>Welcome back</h1>
+        <h2>Enter your username and password to login.</h2>
         <p>Login to your account to be able to save and sync your events across all your devices.</p>
+      </div>
+      <div>
+        <form
+          method="post"
+          onSubmit={(e) => {
+            e.preventDefault();
+            ValidateForm();
+          }}>
+          <h2>Login</h2>
 
-        <form onSubmit={ValidateForm}>
           <label htmlFor="username">Username</label>
           <input
             id="username"
@@ -101,6 +135,9 @@ export default function Login() {
           />
           {/* Afficher erreur de password */}
           {passwordError?.empty === false && <span className={styles.error}>{passwordError.error}</span>}
+
+          {/* Afficher un message d'erreur après la connexion du compte */}
+          {loginMessage.length > 1 && <span className={styles.error}>{loginMessage}</span>}
 
           <Link href="/auth/register" className="link">
             Register

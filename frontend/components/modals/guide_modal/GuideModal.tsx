@@ -22,12 +22,12 @@ const GuideModal = (props: { display: "flex" | "none"; CloseModal: () => void })
         <ul style={{ listStyle: "none" }}>
           <li>
             <p>
-              Press <code>next</code> button to go to the next month.
+              Press <code className="button">next</code> button to go to the next month.
             </p>
           </li>
           <li>
             <p>
-              Press <code>back</code> button to go to the previous month.
+              Press <code className="button">back</code> button to go to the previous month.
             </p>
           </li>
         </ul>
@@ -46,15 +46,15 @@ const GuideModal = (props: { display: "flex" | "none"; CloseModal: () => void })
           </li>
           <li>
             <p>
-              To <code>delete</code> an event, click on any given event (in blue) and click the <code>delete</code>{" "}
-              button.
+              To <code>delete</code> an event, click on any given event (in blue) and click the{" "}
+              <code className="delete">delete</code> button.
             </p>
           </li>
         </ul>
 
         <h2>3. Guide</h2>
         <p>
-          To show this guide, press the <code>info</code> button on top of the page.
+          To show this guide, press the <code className="button">info</code> button on top of the page.
         </p>
 
         <h2>4. Source code</h2>

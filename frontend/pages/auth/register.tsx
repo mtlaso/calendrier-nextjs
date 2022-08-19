@@ -12,12 +12,16 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  const [accountCreated, setAccountCreated] = useState<"success" | "error" | null>(null);
+  const [accountCreatedMessage, setAccountCreatedMessage] = useState("");
+
   const [usernameError, setUsernameError] = useState<TypeError>();
   const [passwordError, setPasswordError] = useState<TypeError>();
 
   // Validation du formulaire
-  const ValidateForm = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const ValidateForm = async () => {
+    setAccountCreated(null);
+    setAccountCreatedMessage("");
 
     // Vider les erreurs
     setUsernameError({ empty: true });
@@ -40,7 +44,7 @@ export default function Login() {
       });
     }
 
-    // Envoyer formulaire
+    // Envoyer formulaire si il y a aucune erreur
     if (usernameError?.empty === true && passwordError?.empty === true) {
       SendForm();
     }
@@ -48,7 +52,6 @@ export default function Login() {
 
   // Envoyer le formulaire
   const SendForm = async () => {
-    // Envoyer formulaire
     try {
       const body = JSON.stringify({ username, password });
       const req = await fetch(API_URLS.register, {
@@ -60,19 +63,35 @@ export default function Login() {
       });
 
       const res = await req.json();
-      alert(`res: ${JSON.stringify(res)}`);
+
+      if (res.statusCode === 200) {
+        setAccountCreated("success");
+      } else {
+        setAccountCreated("error");
+        setAccountCreatedMessage(res.message);
+      }
     } catch (error) {
-      alert(`error: ${error}`);
+      // alert(`An error happend : ${error}`);
+      setAccountCreated("error");
+      setAccountCreatedMessage((error as Error).message);
     }
   };
 
   return (
     <div className={styles.container_auth}>
       <div>
-        <h1>Register</h1>
-        <p>Create your account to be able to save and sync your events across all your devices.</p>
-
-        <form onSubmit={ValidateForm}>
+        <h1 className={styles.text_title}>Calendar</h1>
+        <h2>Signup to access more features.</h2>
+        <p>Create an account to be able to save and sync your events across all your devices.</p>
+      </div>
+      <div>
+        <form
+          method="post"
+          onSubmit={(e) => {
+            e.preventDefault();
+            ValidateForm();
+          }}>
+          <h2>Register</h2>
           <label htmlFor="username">Username</label>
           <input
             id="username"
@@ -101,6 +120,13 @@ export default function Login() {
           />
           {/* Afficher erreur de password */}
           {passwordError?.empty === false && <span className={styles.error}>{passwordError.error}</span>}
+
+          {/* Afficher un message après la création du compte */}
+          {accountCreated === "success" ? (
+            <span className={styles.success}>New account created.</span>
+          ) : accountCreated === "error" ? (
+            <span className={styles.error}>An error happend, try later. {accountCreatedMessage}</span>
+          ) : null}
 
           <Link href="/auth/login" className="link">
             Already have an account?

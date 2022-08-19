@@ -6,8 +6,8 @@
   padding: 0
   margin: 0
 
-code
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace
+body
+  background: var(--color-black)
 
 :root
   --color-black: #131515
@@ -15,12 +15,36 @@ code
   --color-white: #ffffff
   --color-blue: #0053f1
   --color-grey: #666666
-  --color-lightgray: #b5b5b5
+  --color-lightgrey: #b5b5b5
   --color-lightergrey: #b4b4b4
   --color-green: #31e981
   --color-red: #d90429
 
   --color-overlay: #f7f3f38a
+
+code
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace
+  padding: .15rem
+  border-radius: .2rem
+  background-color: var(--color-lightergrey)
+  color: var(--color-black)
+  border: .05rem solid var(--color-grey)
+
+code.button
+  border-radius: 1rem
+  background-color: var(--color-blue)
+  color: var(--color-white)
+  border: none
+
+code.delete
+  border-radius: 1rem
+  background-color: var(--color-red)
+  color: var(--color-white)
+  border: none
+
+li p
+  list-style: none
+  margin-bottom: 0.5rem
 
 button
   color: var(--color-white)
@@ -51,9 +75,6 @@ a
 
 a:hover
   text-decoration: underline var(--color-green)
-
-code
-  text-decoration: underline 0.1rem var(--color-black)
 
 h2
   margin-top: 0.5rem
