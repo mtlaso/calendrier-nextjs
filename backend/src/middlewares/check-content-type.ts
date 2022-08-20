@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import ApiError from "../../../types/ApiError";
+import ApiError from "../types/ApiError";
 
 /**
  * Vérifier que le header "content-type" est bien "application/json"

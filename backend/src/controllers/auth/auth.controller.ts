@@ -5,9 +5,10 @@ require("dotenv").config();
 
 import pool from "../../utils/postgres/postgres-pool";
 
-import { TypeJsonReturn } from "../../types/TypeJsonReturn";
+import { TypeReturnMessage } from "../../types/TypeReturnMessage";
 import ApiError from "../../types/ApiError";
 import { ValidateUserInfo } from "./validators/validate-user-info";
+import { GenerateJWTToken } from "../../utils/jwt/jwt-utils";
 
 /**
  * Register controller
@@ -45,7 +46,7 @@ export const Register = async (req: Request, res: Response, next: NextFunction) 
     );
 
     // Message de confirmation
-    const returnValue: TypeJsonReturn = { message: `User created : ${username}`, statusCode: 200 };
+    const returnValue: TypeReturnMessage = { message: `User created : ${username}`, statusCode: 200 };
 
     res.status(returnValue.statusCode).json(returnValue);
   } catch (error) {
@@ -81,16 +82,24 @@ export const Login = async (req: Request, res: Response, next: NextFunction) => 
       throw new ApiError("Password is incorrect", 400);
     }
 
-    // Initialiser la session
-    const sess = req.session;
-    sess.userInfo = {
+    // Changer le last_login de l'utilisateur
+    await pool.query("UPDATE users SET last_login = $1 WHERE user_id = $2", [new Date(), result.rows[0].user_id]);
+
+    // Créer JWT token
+    const jwtToken = await GenerateJWTToken({
       user_id: result.rows[0].user_id,
       username: username,
-      password: password,
-    };
+    });
+
+    // Mettre JWT token dans la session (cookie)
+    req.session.jwtToken = jwtToken;
+
+    // Retourner jwt dans le header
+    // Sera utilisé si l'api est applée depuis un client qui n'est pas un navigateur (ex: téléphones)
+    // res.setHeader(`Authorization`, `Bearer ${jwtToken}`);
 
     // Message de confirmation
-    const returnValue: TypeJsonReturn = { message: `logged in successfully`, statusCode: 200 };
+    const returnValue: TypeReturnMessage = { message: `logged in successfully`, statusCode: 200 };
     res.status(returnValue.statusCode).json(returnValue);
   } catch (error) {
     next(error);

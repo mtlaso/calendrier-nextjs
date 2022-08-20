@@ -68,7 +68,7 @@ export default function Login() {
   const SendForm = async () => {
     try {
       const body = JSON.stringify({ username, password });
-      const req = await fetch(API_URLS.login, {
+      const req = await fetch(API_URLS.auth.login, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

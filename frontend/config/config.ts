@@ -17,6 +17,17 @@ export const AUTH_VALIDATION = {
  * Urls de l'API
  */
 export const API_URLS = {
-  register: "http://localhost:4000/auth/register",
-  login: "http://localhost:4000/auth/login",
+  auth: {
+    register: "http://localhost:4000/auth/register",
+    login: "http://localhost:4000/auth/login",
+  },
+
+  users: {
+    getUserBySessionID: "http://localhost:4000/users/user",
+  },
 };
+
+/**
+ * Nom du cookie content la session
+ */
+export const SESSION_COOKIE_NAME = "x-session-cookie";
