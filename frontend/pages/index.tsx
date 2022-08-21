@@ -98,7 +98,7 @@ const Home: NextPage = () => {
 
   // Afficher modal UpdateEventModal
   const OpenUpdateEventModal = (event: TypeEvent) => {
-    // Afficher texte
+    // Mettre en mémoire l'événement à modifier
     setUpdateModal(event);
 
     // Texte du modal
@@ -118,13 +118,16 @@ const Home: NextPage = () => {
 
     // Nouveau évènement à ajouter
     const newEvent: TypeEvent = {
+      eventCreationDate: new Date(),
+      eventDate: new Date(dateOfEvent?.year!, dateOfEvent?.month!, dateOfEvent?.date),
+
       id: Math.random().toString(),
-      createdAtDate: dt.getDate().toString(),
-      createdAtMonth: dt.getMonth().toString(),
-      createdAtYear: dt.getFullYear().toString(),
-      createdForDate: dateOfEvent?.date.toString()!,
-      createdForMonth: dateOfEvent?.month.toString()!,
-      createdForYear: dateOfEvent?.year.toString()!,
+      // createdAtDate: dt.getDate().toString(),
+      // createdAtMonth: dt.getMonth().toString(),
+      // createdAtYear: dt.getFullYear().toString(),
+      // createdForDate: dateOfEvent?.date.toString()!,
+      // createdForMonth: dateOfEvent?.month.toString()!,
+      // createdForYear: dateOfEvent?.year.toString()!,
       title: addModalText.trim(),
       isCompleted: false,
     };
@@ -234,10 +237,8 @@ const Home: NextPage = () => {
       <UpdateEventModal display={showUpdateEventModal}>
         <UpdateEventModalContent>
           <h1>Update event</h1>
-          <p>
-            Event created on {DateToMonthName(Number(updateModal?.createdForMonth))}, {updateModal?.createdForDate}{" "}
-            {updateModal?.createdForYear}
-          </p>
+
+          <p>Event created on {new Date(updateModal?.eventCreationDate!).toDateString()}</p>
 
           <textarea
             value={updateModalText}

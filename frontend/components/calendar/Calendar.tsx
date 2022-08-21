@@ -17,12 +17,9 @@ import SmallTitle from "../../utils/events-small-title";
  * @param {TypeWeekDays[]} paddingDays Liste des jours avant le premier du mois (les cases vides sur le calendrier)
  * @param {TypeDay[]} days Liste des jours dans un mois donné
  * @param {TypeEvent[]} calendarEvents Évènements de calendrier de l'utilisateur
- * @param {Function} onAddEvent Fonction exécutée pour l'ajout d'un évènement
- * @param {Function} onUpdateEvent Fonction exécutée pour modifier un évènement
- * @param {Function} onDeleteEvent Fonction exécutée pour supprimer un évènement
- *
+ * @param {Function} onAddEvent Fonction appelée quand un événement va être ajouté
+ * @param {Function} onUpdateEvent Fonction appelée quand un événement va être modifié
  */
-/** */
 const Calendar = ({
   today,
   dateDisplay,
@@ -144,6 +141,17 @@ const Calendar = ({
 
 export default Calendar;
 
+/**
+ * Fonction qui permet de render un jour
+ *
+ * @param {number} index Index, car retourne une liste
+ * @param {TypeDay} day Objet contenant le jour
+ * @param {TypeWeekDays} dayOfWeek Nom du jour de cette colonne
+ * @param {Date} today Objet Date() de la date actuelle
+ * @param {TypeEvent[]} calendarEvents Liste des événements du calendrier
+ * @param {Function} onAddEvent Fonction appelée quand un événement va être ajouté
+ * @param {Function} onUpdateEvent Fonction appelée quand un événement va être modifié
+ */
 function RenderDay(
   index: number,
   day: TypeDay,
@@ -154,6 +162,7 @@ function RenderDay(
   onUpdateEvent: (event: TypeEvent) => void
 ) {
   if (day.dayName === dayName) {
+    // Si c'est la journée d'aujourd'hui, on ajoute la classe "current_day"
     if (day.isCurrentDay && day.month === today.getMonth() && day.year === today.getFullYear()) {
       return (
         <div
@@ -161,17 +170,20 @@ function RenderDay(
           key={index}
           onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
           <p>{day.date}</p>
+
+          {/* Afficher les événemnts du jour */}
           {calendarEvents.map((evnt, index) => {
-            const currentDay = day.date;
-            const currentMonth = day.month; // Mois actuel
-            const currentYear = day.year; // Année actuelle
+            const dayDate = day.date;
+            const dayMonth = day.month; // Mois actuel
+            const dayYear = day.year; // Année actuelle
 
             const evntTitle = SmallTitle(evnt.title);
 
+            // Vérifier que l'événement est affiché pour le jour auquel il a lieu
             if (
-              currentDay === Number(evnt.createdForDate) &&
-              currentMonth === Number(evnt.createdForMonth) &&
-              currentYear === Number(evnt.createdForYear)
+              dayDate === Number(evnt.eventDate?.getDate()) &&
+              dayMonth === Number(evnt.eventDate.getMonth()) &&
+              dayYear === Number(evnt.eventDate.getFullYear())
             ) {
               return (
                 <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(evnt)}>
@@ -189,17 +201,20 @@ function RenderDay(
           key={index}
           onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
           <p>{day.date}</p>
+
+          {/* Afficher les événements du jour */}
           {calendarEvents.map((evnt, index) => {
-            const currentDay = day.date;
-            const currentMonth = day.month; // Mois actuel
-            const currentYear = day.year; // Année actuelle
+            const dayDate = day.date;
+            const dayMonth = day.month; // Mois actuel
+            const dayYear = day.year; // Année actuelle
 
             const evntTitle = SmallTitle(evnt.title);
 
+            // Vérifier que l'événement est affiché pour le jour auquel il a lieu
             if (
-              currentDay === Number(evnt.createdForDate) &&
-              currentMonth === Number(evnt.createdForMonth) &&
-              currentYear === Number(evnt.createdForYear)
+              dayDate === Number(evnt.eventDate?.getDate()) &&
+              dayMonth === Number(evnt.eventDate.getMonth()) &&
+              dayYear === Number(evnt.eventDate.getFullYear())
             ) {
               return (
                 <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(evnt)}>
