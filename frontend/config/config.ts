@@ -23,7 +23,7 @@ export const API_URLS = {
   },
 
   users: {
-    getUserBySessionID: "http://localhost:4000/users/user",
+    getUser: "http://localhost:4000/users/user",
   },
 };
 

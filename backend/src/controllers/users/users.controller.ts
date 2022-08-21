@@ -32,16 +32,16 @@ export async function GetAllUsers(req: Request, res: Response, next: NextFunctio
 }
 
 /**
- * Récupère un utilisateur selon son username
+ * Récupère un utilisateur
  */
-export async function GetUserBySessionID(req: Request, res: Response, next: NextFunction) {
+export async function GetUser(req: Request, res: Response, next: NextFunction) {
   try {
     // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
     const userInfo = req.decodedJwt;
 
     // Récupère l'utilisateur
     const user = await pool.query(
-      "SELECT user_id, username, password, created_on, last_login FROM users WHERE user_id = $1",
+      "SELECT user_id, username, created_on, last_login FROM users WHERE user_id = $1",
       // @ts-expect-error
       [userInfo.user_id]
     );

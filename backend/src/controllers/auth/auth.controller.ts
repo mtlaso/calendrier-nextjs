@@ -5,10 +5,11 @@ require("dotenv").config();
 
 import pool from "../../utils/postgres/postgres-pool";
 
-import { TypeReturnMessage } from "../../types/TypeReturnMessage";
-import ApiError from "../../types/ApiError";
 import { ValidateUserInfo } from "./validators/validate-user-info";
 import { GenerateJWTToken } from "../../utils/jwt/jwt-utils";
+
+import ApiError from "../../types/ApiError";
+import { TypeReturnMessage } from "../../types/TypeReturnMessage";
 
 /**
  * Register controller
@@ -88,18 +89,22 @@ export const Login = async (req: Request, res: Response, next: NextFunction) => 
     // Créer JWT token
     const jwtToken = await GenerateJWTToken({
       user_id: result.rows[0].user_id,
-      username: username,
     });
 
-    // Mettre JWT token dans la session (cookie)
-    req.session.jwtToken = jwtToken;
+    const bearer = `Bearer ${jwtToken}`;
 
     // Retourner jwt dans le header
-    // Sera utilisé si l'api est applée depuis un client qui n'est pas un navigateur (ex: téléphones)
-    // res.setHeader(`Authorization`, `Bearer ${jwtToken}`);
+    res.setHeader(`Authorization`, bearer);
 
     // Message de confirmation
-    const returnValue: TypeReturnMessage = { message: `logged in successfully`, statusCode: 200 };
+    const returnValue: TypeReturnMessage = {
+      message: `Logged in successfully`,
+      statusCode: 200,
+      data: {
+        jwtToken: bearer,
+      },
+    };
+
     res.status(returnValue.statusCode).json(returnValue);
   } catch (error) {
     next(error);

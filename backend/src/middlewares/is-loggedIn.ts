@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { REDIS_CONNECT_SESSION_PREFIX, SESSION_COOKIE_NAME } from "../config/config";
+
 import ApiError from "../types/ApiError";
 import { DecodeJWTToken } from "../utils/jwt/jwt-utils";
 
@@ -8,32 +8,22 @@ import { DecodeJWTToken } from "../utils/jwt/jwt-utils";
  */
 export default async function IsLoggedIn(req: Request, res: Response, next: NextFunction) {
   try {
-    // Récupérer token
-    const sessionCookie = req.headers[SESSION_COOKIE_NAME];
-    if (!sessionCookie) {
-      throw new ApiError("Must be logged in", 401);
+    // Récupère le token jwt
+    const token = req.headers["authorization"]?.split(" ")[1];
+    if (!token) {
+      throw new ApiError("authorization token missing", 401);
     }
 
-    // Clé pour retrouver la session dans le cache redis
-    const redisKey = (sessionCookie as string).split(".")[0].split(":")[1];
+    // Vérifie si le token est valide
+    const decodedJwt = await DecodeJWTToken(token);
+    if (!decodedJwt) {
+      throw new ApiError("authorization token invalid", 401);
+    }
 
-    // Vérifier si il est dans le cache redis
-    req.sessionStore.get(redisKey, async (err, session) => {
-      if (err) {
-        throw new ApiError(`[Redis] is-loggedIn error: ${err}`, 401);
-      }
+    // Ajoute le token au body de la requête
+    req.decodedJwt = decodedJwt;
 
-      if (session === null || session === undefined) {
-        throw new ApiError("Must be logged in", 401);
-      }
-
-      // Decoder le jwt token
-      const decodedJwtToken = await DecodeJWTToken(session?.jwtToken!);
-
-      req.decodedJwt = decodedJwtToken;
-
-      next();
-    });
+    next();
   } catch (err) {
     next(err);
   }

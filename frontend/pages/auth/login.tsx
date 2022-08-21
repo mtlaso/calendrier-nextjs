@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useRecoilState } from "recoil";
 
 import styles from "./auth.module.sass";
 
 import { API_URLS, AUTH_VALIDATION } from "../../config/config";
+import { jwtState } from "../../state/jwt-state";
 
 /**
  * Page de création de compte
  */
 export default function Login() {
+  const [jwtToken, setJwtToken] = useRecoilState(jwtState);
   const router = useRouter();
 
   const [username, setUsername] = useState("");
@@ -81,6 +84,8 @@ export default function Login() {
 
       if (res.statusCode === 200) {
         // Redirection vers la page d'accueil
+        setJwtToken(res.data.jwtToken);
+
         router.push("/dashboard");
       } else {
         setLoginMessage(res.message);

@@ -1,13 +1,70 @@
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import useSWR from "swr";
+
 import { API_URLS, SESSION_COOKIE_NAME } from "../../config/config";
+import { jwtState } from "../../state/jwt-state";
 
 import styles from "./dashboard.module.sass";
 
-export default function Dashboard({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function Dashboard() {
   const router = useRouter();
-  const dt = new Date();
+  const [jwtToken, setJwtToken] = useRecoilState(jwtState);
+
+  const [loading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState<null | { data?: any }>(null);
+
+  // Charger les informations sur l'utilisateur
+  useEffect(() => {
+    // Si pas de jwtToken, redirection vers la page de connexion
+    if (!jwtToken) {
+      const errMessage = GenerateErrorMessage("You need to be logged in to access this page");
+      router.push(`/auth/login?message=${errMessage}`);
+    }
+
+    // Sinon, charger les informations de l'utilisateur
+    const fetchUserData = async () => {
+      try {
+        // Récupérer les informations de l'utilisateur
+        const userReq = await fetch(API_URLS.users.getUser, {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${jwtToken}`,
+          },
+        });
+
+        // Sinon, charger les informations de l'utilisateur
+        const userRes = await userReq.json();
+
+        // Définir les informations de l'utilisateur
+        setUserData(userRes);
+
+        // Termine le chargement
+        setIsLoading(false);
+      } catch (err) {
+        // Supprimer le jwt token, car il est peut-être invalide
+        const errMessage = GenerateErrorMessage("An error happend, try again later", `${err}`);
+        router.push(`/auth/login?message=${errMessage}`);
+      }
+    };
+
+    fetchUserData();
+  }, [jwtToken]);
+
+  if (loading) {
+    return <span>loading...</span>;
+  }
+
+  if (!userData?.data) {
+    // Supprimer le jwt token, car il est peut-être invalide
+    setJwtToken("");
+    const errMessage = GenerateErrorMessage("An error occured while fetching user data");
+    router.push(`/auth/login?message=${errMessage}`);
+  }
 
   return (
     <div className={styles.container}>
@@ -32,56 +89,25 @@ export default function Dashboard({ data }: InferGetServerSidePropsType<typeof g
       <hr />
 
       <div className={styles.content_container}>
-        <h2>Welcome back, {data.userData.username}.</h2>
+        <h2>Welcome back, {userData?.data?.username}.</h2>
         <p>You have x events in your calendar.</p>
         <p>Last sync : xx</p>
-
         <button className={styles.button}>Sync your calendar</button>
       </div>
     </div>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  try {
-    // Récupération le cookie de session
-    const sessionCookie = context.req.cookies[SESSION_COOKIE_NAME];
-
-    // Si la session n'existe pas, redirection vers la page de connexion
-    if (sessionCookie === undefined) {
-      const redirectMessage = encodeURIComponent("Please login to access dashboard");
-      return {
-        redirect: {
-          permanent: false,
-          destination: `/auth/login?message=${redirectMessage}`,
-        },
-      };
-    }
-
-    // Verifier que le cookie de session est valide en récupérant l'information sur l'utilisateur connecté
-    const userReq = await fetch(API_URLS.users.getUserBySessionID, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        [SESSION_COOKIE_NAME]: sessionCookie,
-      },
-    });
-
-    const userRes = await userReq.json();
-
-    return {
-      props: {
-        data: { sessionCookie: sessionCookie, userData: userRes.data },
-      },
-    };
-  } catch (err) {
-    const redirectMessage = encodeURIComponent(`An error occured, ${err}`);
-    return {
-      redirect: {
-        permanent: false,
-        destination: `/auth/login?message=${redirectMessage}`,
-      },
-    };
+/**
+ * Génére un message d'erreur. Affiche le "reasonMessage" seulement si NODE_ENV est en "development"
+ * @param genericErrorMessage Message générique d'erreur
+ * @param reasonMessage Raison de l'erreur
+ * @returns Le message d'erreur
+ */
+const GenerateErrorMessage = (genericErrorMessage: string, reasonMessage?: string) => {
+  if (process.env.NODE_ENV === "development") {
+    return `${genericErrorMessage}${reasonMessage ? ` : ${reasonMessage}` : ""}`;
+  } else {
+    return genericErrorMessage;
   }
 };
