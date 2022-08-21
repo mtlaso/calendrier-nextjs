@@ -30,16 +30,14 @@
       display: flex
       flex-direction: column
       box-shadow: 0px 0px 4px var(--color-lightgrey)
-      border: .1rem solid var(--color-white)
       padding: 1.5rem
       border-radius: 1rem
-      background: var(--color-black)
+      background: var(--color-lightblack)
       width: 100%
 
       &:hover
         cursor: pointer
         box-shadow: 0px 0px 20px var(--color-lightgrey)
-        // transform: translate(0rem, -.1rem)
         transition: .2s
 
       .card__header
@@ -54,3 +52,65 @@
 
       p
         color: var(--color-white)
+
+    .card_noaction
+      @extend .card
+
+      &:hover
+        cursor: default
+
+  .form
+    .card
+      padding: 3rem
+
+      &:hover
+        cursor: default
+        transform: translate(0rem, -.1rem)
+
+      label
+        display: block
+        width: 100%
+        margin: 0.5rem 0 0.5rem 0
+        color: var(--color-lightergrey)
+
+      input
+        display: block
+        width: 100%
+        background-color: var(--color-lightblack)
+        color: var(--color-white)
+        padding: 0.5rem
+        border: none
+        border-bottom: 1px var(--color-white) solid
+        border-radius: 0
+
+      input:placeholder
+        color: var(--color-white)
+
+      input:disabled
+        cursor: not-allowed
+
+      button
+        display: block
+        margin-left: 0
+        margin-top: 1rem
+        width: 5rem
+
+      .close_icon
+        cursor: pointer
+
+        &:hover
+          color: var(--color-red)
+          transition: .2s
+
+      .error
+        color: var(--color-red)
+        list-style: noneMiddlewareHandleErrorsDev
+        margin-top: 0.3rem
+        text-align: start
+        word-break: break-word
+
+      .success
+        color: var(--color-green)
+        list-style: none
+        margin-top: 0.3rem
+        word-break: break-word

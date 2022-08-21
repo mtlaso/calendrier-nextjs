@@ -4,6 +4,7 @@ import Link from "next/link";
 import styles from "./auth.module.sass";
 
 import { API_URLS, AUTH_VALIDATION } from "../../config/config";
+import GenerateErrorMessage from "../../utils/generate-error-message";
 
 /**
  * Page de création de compte
@@ -54,6 +55,7 @@ export default function Login() {
   const SendForm = async () => {
     try {
       const body = JSON.stringify({ username, password });
+
       const req = await fetch(API_URLS.auth.register, {
         method: "POST",
         headers: {
@@ -68,12 +70,13 @@ export default function Login() {
         setAccountCreated("success");
       } else {
         setAccountCreated("error");
-        setAccountCreatedMessage(res.message);
+        const errMessage = GenerateErrorMessage("An error occured while creating your account.", res.message);
+        setAccountCreatedMessage(errMessage);
       }
     } catch (error) {
-      // alert(`An error happend : ${error}`);
       setAccountCreated("error");
-      setAccountCreatedMessage((error as Error).message);
+      const errMessage = GenerateErrorMessage("An error occured while creating your account", (error as Error).message);
+      setAccountCreatedMessage(errMessage);
     }
   };
 
@@ -97,6 +100,7 @@ export default function Login() {
             id="username"
             name="username"
             type="text"
+            value={username}
             minLength={AUTH_VALIDATION.username_min_length}
             maxLength={AUTH_VALIDATION.username_max_length}
             placeholder="Username"
@@ -112,6 +116,7 @@ export default function Login() {
             id="password"
             name="password"
             type="password"
+            value={password}
             minLength={AUTH_VALIDATION.password_min_length}
             maxLength={AUTH_VALIDATION.password_max_length}
             placeholder="Password"
@@ -121,11 +126,11 @@ export default function Login() {
           {/* Afficher erreur de password */}
           {passwordError?.empty === false && <span className={styles.error}>{passwordError.error}</span>}
 
-          {/* Afficher un message après la création du compte */}
+          {/* Afficher un message d'erreur/confirmation après la création du compte */}
           {accountCreated === "success" ? (
             <span className={styles.success}>New account created.</span>
           ) : accountCreated === "error" ? (
-            <span className={styles.error}>An error happend, try later. {accountCreatedMessage}</span>
+            <span className={styles.error}>{accountCreatedMessage}</span>
           ) : null}
 
           <Link href="/auth/login" className="link">

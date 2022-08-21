@@ -63,43 +63,6 @@ export default async function useUserInfo(jwt: string): Promise<[string, TypeUse
     errorMessage = GenerateErrorMessage("An error happend, try again later", `${err}`);
     return [errorMessage, userData, isLoading];
   }
-  // const [jwtToken, setJwtToken] = useRecoilState(jwtState);
-  // // Si pas de jwtToken, redirection vers la page de connexion
-  // if (!jwtToken) {
-  //   setJwtToken("");
-  //   const errMessage = GenerateErrorMessage("You need to be logged in to access this page");
-  //   return [errMessage, null];
-  //   // router.push(`/auth/login?message=${errMessage}`);
-  // }
-  // // Sinon, charger les informations de l'utilisateur
-  // (async () => {
-  //   try {
-  //     // Récupérer les informatuserInfoions de l'utilisateur
-  //     const userReq = await fetch(API_URLS.users.getUser, {
-  //       credentials: "include",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `${jwtToken}`,
-  //       },
-  //     });
-  //     // Sinon, charger les informations de l'utilisateur
-  //     const userRes = await userReq.json();
-  //     // Retourner les informations de l'utilisateur
-  //     const userInfo: TypeUserInfo = {
-  //       user_id: userRes.user_id,
-  //       username: userRes.username,
-  //       created_on: userRes.created_on,
-  //       last_login: userRes.last_login,
-  //     };
-  //     return [null, userInfo];
-  //   } catch (err) {
-  //     // Supprimer le jwt token, car il est peut-être invalide
-  //     setJwtToken("");
-  //     const errMessage = GenerateErrorMessage("An error happend, try again later", `${err}`);
-  //     return [errMessage, null];
-  //     // router.push(`/auth/login?message=${errMessage}`);
-  //   }
-  // })();
 }
 
 /**

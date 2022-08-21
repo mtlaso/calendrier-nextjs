@@ -19,19 +19,13 @@ export const Register = async (req: Request, res: Response, next: NextFunction) 
     let { username, password } = req.body;
 
     // Valider champs
-    const isValid = ValidateUserInfo(username, password);
-    if (isValid instanceof ApiError) {
-      throw isValid;
-    }
+    ValidateUserInfo(username, password);
 
     username = username.trim();
     password = password.trim();
 
     // Vérifier si le username existe
     const result = await pool.query("SELECT user_id FROM users WHERE username = $1", [username]);
-    if (result.rows.length > 0) {
-      throw new ApiError("Username already exists", 400);
-    }
 
     // Hash le mot de passe
     password = await bcrypt.hash(password, 10);
@@ -63,10 +57,7 @@ export const Login = async (req: Request, res: Response, next: NextFunction) => 
     let { username, password } = req.body;
 
     // Valider champs
-    const isValid = ValidateUserInfo(username, password);
-    if (isValid instanceof ApiError) {
-      throw isValid;
-    }
+    ValidateUserInfo(username, password);
 
     username = username.trim();
     password = password.trim();

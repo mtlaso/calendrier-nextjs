@@ -51,6 +51,7 @@ $max-text-width: 30vw
       padding: 0.5rem
       border: none
       border-bottom: 1px var(--color-white) solid
+      border-radius: 0
 
     input:placeholder
       color: var(--color-white)
@@ -78,12 +79,13 @@ $max-text-width: 30vw
       list-style: noneMiddlewareHandleErrorsDev
       margin-top: 0.3rem
       text-align: start
+      word-break: break-all
 
     .success
       color: var(--color-green)
       list-style: none
       margin-top: 0.3rem
-      max-width: $max-text-width
+      word-break: break-all
 
   @media screen and (max-width: 960px)
     display: block

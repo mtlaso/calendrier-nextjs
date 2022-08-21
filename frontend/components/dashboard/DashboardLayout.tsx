@@ -1,12 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
+import NProgress from "nprogress"; //nprogress module
 
 import styles from "./DashboardLayout.module.sass";
 
 export default function DashboardLayout(props: { title?: string; children: React.ReactNode }) {
   const router = useRouter();
   const { title, children } = props;
+
+  // Initialiser de la barre de progression (nprogress)
+  NProgress.configure({ showSpinner: false });
+  Router.events.on("routeChangeStart", () => NProgress.start());
+  Router.events.on("routeChangeComplete", () => NProgress.done());
+  Router.events.on("routeChangeError", () => NProgress.done());
+  // Fin de la barre de progression (nprogress)
 
   return (
     <div className={styles.container}>

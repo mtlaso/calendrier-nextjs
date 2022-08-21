@@ -7,6 +7,8 @@ import styles from "./auth.module.sass";
 
 import { API_URLS, AUTH_VALIDATION } from "../../config/config";
 import { jwtState } from "../../state/jwt-state";
+import GenerateErrorMessage from "../../utils/generate-error-message";
+import { TypeFormError } from "../../types/TypeFormError";
 
 /**
  * Page de création de compte
@@ -20,8 +22,8 @@ export default function Login() {
 
   const [loginMessage, setLoginMessage] = useState("");
 
-  const [usernameError, setUsernameError] = useState<TypeError>();
-  const [passwordError, setPasswordError] = useState<TypeError>();
+  const [usernameError, setUsernameError] = useState<TypeFormError>();
+  const [passwordError, setPasswordError] = useState<TypeFormError>();
 
   // Récupérer les query string envoyé depuis le dashboard
   useEffect(() => {
@@ -88,11 +90,12 @@ export default function Login() {
 
         router.push("/dashboard");
       } else {
-        setLoginMessage(res.message);
+        const errMessage = GenerateErrorMessage("An error happend, try later.", res.message);
+        setLoginMessage(errMessage);
       }
     } catch (error) {
-      // alert(`An error happend : ${error}`);
-      setLoginMessage((error as Error).message);
+      const errMessage = GenerateErrorMessage("An error happend, try later.", (error as Error).message);
+      setLoginMessage(errMessage);
     }
   };
 
@@ -117,6 +120,7 @@ export default function Login() {
             id="username"
             name="username"
             type="text"
+            value={username}
             minLength={AUTH_VALIDATION.username_min_length}
             maxLength={AUTH_VALIDATION.username_max_length}
             placeholder="Username"
@@ -132,6 +136,7 @@ export default function Login() {
             id="password"
             name="password"
             type="password"
+            value={password}
             minLength={AUTH_VALIDATION.password_min_length}
             maxLength={AUTH_VALIDATION.password_max_length}
             placeholder="Password"
@@ -156,11 +161,3 @@ export default function Login() {
     </div>
   );
 }
-
-/**
- * Type d'erreur
- */
-type TypeError = {
-  empty: boolean;
-  error?: string;
-};

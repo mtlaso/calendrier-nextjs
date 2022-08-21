@@ -1,4 +1,5 @@
 import "../styles/globals.sass";
+import "../styles/Nprogress.css";
 import type { AppProps } from "next/app";
 import { RecoilRoot } from "recoil";
 

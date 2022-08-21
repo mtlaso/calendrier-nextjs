@@ -4,10 +4,8 @@ import { useRecoilState } from "recoil";
 
 import DashboardHeader from "../../components/dashboard/DashboardLayout";
 
-import { API_URLS } from "../../config/config";
 import { jwtState } from "../../state/jwt-state";
 import { TypeUserInfo } from "../../types/TypeUserInfo";
-import GenerateErrorMessage from "../../utils/generate-error-message";
 import useUserInfo from "../../utils/useUserInfo";
 
 import styles from "./dashboard.module.sass";
@@ -24,6 +22,8 @@ export default function Dashboard() {
       const [err, userInfo, isLoading] = await useUserInfo(jwt);
 
       if (err.length > 1) {
+        // Supprimer le jwt de l'utilisateur
+        setJwt("");
         // Rediriger vers la page de connexion
         router.push(`/auth/login?message=${err}`);
       } else {
@@ -34,6 +34,10 @@ export default function Dashboard() {
 
     LoadUserData();
   }, []);
+
+  if (loading) {
+    return <span style={{ color: "white" }}>loading...</span>;
+  }
 
   return (
     <DashboardHeader>

@@ -1,4 +1,5 @@
 import Express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 require("dotenv").config();
 
 import authRoute from "./routes/auth/auth.route";
@@ -24,6 +25,17 @@ declare module "express-serve-static-core" {
 
 // Désactiver le header "x-Powered-By"
 app.disable("x-powered-by");
+
+// Cors
+app.use(
+  cors({
+    origin: true,
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true,
+  })
+);
 
 // Vérifier le header "content-type"
 app.use(CheckContentType);

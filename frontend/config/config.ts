@@ -17,13 +17,20 @@ export const AUTH_VALIDATION = {
  * Urls de l'API
  */
 export const API_URLS = {
+  /**
+   * Url de l'API pour l'authentification
+   */
   auth: {
     register: "http://localhost:4000/auth/register",
     login: "http://localhost:4000/auth/login",
   },
 
+  /**
+   * Url de l'API pour récupérer des informations sur les utilisateurs
+   */
   users: {
     getUser: "http://localhost:4000/users/user",
+    updateUserPassword: "http://localhost:4000/users/user",
   },
 };
 
