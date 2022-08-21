@@ -3,52 +3,22 @@
  */
 export type TypeEvent = {
   /**
-   * Identifiant de l'évènement
+   * Identifiant de l'événement
    */
   id: string;
 
   /**
-   * Date de création de l'évènement
+   * Date de création de l'événement
    */
   eventCreationDate: Date;
 
   /**
-   * Date pour laquelle l'évènement a lieu
+   * Date pour laquelle l'événement a lieu
    */
   eventDate: Date;
 
-  // /**
-  //  * Date de création de l'évènement
-  //  */
-  // createdAtDate: string;
-
-  // /**
-  //  * Mois de création de l'évènement
-  //  */
-  // createdAtMonth: string;
-
-  // /**
-  //  * Année de création de l'évènement
-  //  */
-  // createdAtYear: string;
-
-  // /**
-  //  * Pour quelle date l'évènement a été crée
-  //  */
-  // createdForDate: string;
-
-  // /**
-  //  * Pour quel mois l'évènement a été crée
-  //  */
-  // createdForMonth: string;
-
-  // /**
-  //  * Pour quelle année l'évènement a été crée
-  //  */
-  // createdForYear: string;
-
   /**
-   * Le titre
+   * Le titre de l'événement
    */
   title: string;
 

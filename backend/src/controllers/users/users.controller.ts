@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
 require("dotenv").config();
 
 import pool from "../../utils/postgres/postgres-pool";

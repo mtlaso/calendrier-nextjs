@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { useRecoilState } from "recoil";
+import { v4 as uuidv4 } from "uuid";
 
 import Header from "../components/header/Header";
 import GuideModal from "../components/modals/guide_modal/GuideModal";
@@ -20,7 +21,6 @@ import { TypeEvent } from "../types/TypeEvent";
 
 import { LoadCalendar } from "../utils/load-calendar";
 import { eventsState } from "../state/events-state";
-import { DateToMonthName } from "../utils/date-to-month-name";
 import { MAX_LENGTH_EVENT } from "../config/config";
 
 const Home: NextPage = () => {
@@ -118,16 +118,9 @@ const Home: NextPage = () => {
 
     // Nouveau évènement à ajouter
     const newEvent: TypeEvent = {
+      id: uuidv4(),
       eventCreationDate: new Date(),
       eventDate: new Date(dateOfEvent?.year!, dateOfEvent?.month!, dateOfEvent?.date),
-
-      id: Math.random().toString(),
-      // createdAtDate: dt.getDate().toString(),
-      // createdAtMonth: dt.getMonth().toString(),
-      // createdAtYear: dt.getFullYear().toString(),
-      // createdForDate: dateOfEvent?.date.toString()!,
-      // createdForMonth: dateOfEvent?.month.toString()!,
-      // createdForYear: dateOfEvent?.year.toString()!,
       title: addModalText.trim(),
       isCompleted: false,
     };
@@ -237,7 +230,6 @@ const Home: NextPage = () => {
       <UpdateEventModal display={showUpdateEventModal}>
         <UpdateEventModalContent>
           <h1>Update event</h1>
-
           <p>Event created on {new Date(updateModal?.eventCreationDate!).toDateString()}</p>
 
           <textarea

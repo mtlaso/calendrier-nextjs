@@ -181,7 +181,7 @@ function RenderDay(
 
             // Vérifier que l'événement est affiché pour le jour auquel il a lieu
             if (
-              dayDate === Number(evnt.eventDate?.getDate()) &&
+              dayDate === Number(evnt.eventDate.getDate()) &&
               dayMonth === Number(evnt.eventDate.getMonth()) &&
               dayYear === Number(evnt.eventDate.getFullYear())
             ) {
@@ -212,7 +212,7 @@ function RenderDay(
 
             // Vérifier que l'événement est affiché pour le jour auquel il a lieu
             if (
-              dayDate === Number(evnt.eventDate?.getDate()) &&
+              dayDate === Number(evnt.eventDate.getDate()) &&
               dayMonth === Number(evnt.eventDate.getMonth()) &&
               dayYear === Number(evnt.eventDate.getFullYear())
             ) {
