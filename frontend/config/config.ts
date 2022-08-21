@@ -28,6 +28,6 @@ export const API_URLS = {
 };
 
 /**
- * Nom du cookie content la session
+ * Clé localstorage du Jwt token
  */
-export const SESSION_COOKIE_NAME = "x-session-cookie";
+export const JWT_TOKEN_KEY: string = "jwt-state";

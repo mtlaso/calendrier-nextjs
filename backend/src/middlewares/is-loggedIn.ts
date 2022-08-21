@@ -16,9 +16,6 @@ export default async function IsLoggedIn(req: Request, res: Response, next: Next
 
     // Vérifie si le token est valide
     const decodedJwt = await DecodeJWTToken(token);
-    if (!decodedJwt) {
-      throw new ApiError("authorization token invalid", 401);
-    }
 
     // Ajoute le token au body de la requête
     req.decodedJwt = decodedJwt;

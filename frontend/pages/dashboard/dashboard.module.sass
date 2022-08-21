@@ -1,38 +1,56 @@
-.container
-  margin: 5rem
+.content_container
+  margin-top: 5rem
 
-  h1
-    font-size: 3.5rem
-    margin-bottom: 1rem
-
-  h1, h2, p, span
+  h2, p, span
     color: var(--color-white)
+
+  h2
+    font-size: 2rem
 
   p
     color: var(--color-lightergrey)
     margin-bottom: .3rem
 
-  .nav
-    ul
-      display: flex
-      flex-wrap: wrap
-      justify-content: flex-start
-      list-style: none
-    li
-      padding-right: 1rem
+  button
+    margin-left: 0
 
-    .link_active
-      // color: var(--color-white)
-
-  hr
+  .cards_container
+    display: flex
+    justify-content: flex-start
     margin-top: 1rem
+    gap: 1rem
 
-  .content_container
+    @media screen and (max-width: 960px)
+      display: block
 
-    margin-top: 5rem
-    h2
-      font-size: 2rem
+      .card
+        margin-bottom: 1rem
 
-    .button
-      margin-left: 0
-      margin-top: 1rem
+    .card
+      display: flex
+      flex-direction: column
+      box-shadow: 0px 0px 4px var(--color-lightgrey)
+      border: .1rem solid var(--color-white)
+      padding: 1.5rem
+      border-radius: 1rem
+      background: var(--color-black)
+      width: 100%
+
+      &:hover
+        cursor: pointer
+        box-shadow: 0px 0px 20px var(--color-lightgrey)
+        // transform: translate(0rem, -.1rem)
+        transition: .2s
+
+      .card__header
+        display: flex
+        justify-content: space-between
+        align-items: center
+
+      h3
+        margin-bottom: 1rem
+        font-size: 1.5rem
+        color: var(--color-white)
+
+      p
+        color: var(--color-white)

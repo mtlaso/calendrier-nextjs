@@ -1,4 +1,5 @@
 import { atom } from "recoil";
+import { JWT_TOKEN_KEY } from "../config/config";
 import { TypeEvent } from "../types/TypeEvent";
 
 const localStorageEffect =
@@ -22,5 +23,5 @@ const localStorageEffect =
 export const jwtState = atom<string>({
   key: "jwt-state",
   default: "",
-  effects: [localStorageEffect("jwt-state")],
+  effects: [localStorageEffect(JWT_TOKEN_KEY)],
 });
