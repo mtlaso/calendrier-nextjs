@@ -2,7 +2,7 @@
 
 # Site
 
-[Calendrier en ligne](https://calendrier-nextjs.vercel.app/)
+[Calendrier en ligne](https://calendrier-nextjs.vercel.app/) (calendrier seulement, sans système d'authentification)
 
 # Calendrier
 
@@ -14,6 +14,10 @@ Calendrier créé avec Nextjs, avec possibilité de créer des évènements.
 2. Cloner le projet
 3. Section frontend
    1. Cd dans le dossier frontend `cd frontend`
+   2. Télécharger paquets nécessaires `npm install`
+   3. Lancer l'application `npm run dev`
+4. Section backend
+   1. Cd dans le dossier frontend `cd backend`
    2. Télécharger paquets nécessaires `npm install`
    3. Lancer l'application `npm run dev`
 
