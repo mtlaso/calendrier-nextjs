@@ -7,8 +7,8 @@ const localStorageEffect =
     if (typeof window !== "undefined") {
       const savedValue = localStorage.getItem(key);
 
-      // Charger la valeur sauvegardée
-      if (savedValue !== null) {
+      // Charger la valeur sauvegardée si elle existe dans le localStorage
+      if (savedValue) {
         setSelf(JSON.parse(savedValue));
       }
 

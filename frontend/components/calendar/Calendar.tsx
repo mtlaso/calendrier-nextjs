@@ -177,13 +177,17 @@ function RenderDay(
             const dayMonth = day.month; // Mois actuel
             const dayYear = day.year; // Année actuelle
 
+            // Titre de l'événement
             const evntTitle = SmallTitle(evnt.title);
+
+            // Date de l'événement
+            const evntDate = new Date(evnt.eventDate);
 
             // Vérifier que l'événement est affiché pour le jour auquel il a lieu
             if (
-              dayDate === Number(evnt.eventDate.getDate()) &&
-              dayMonth === Number(evnt.eventDate.getMonth()) &&
-              dayYear === Number(evnt.eventDate.getFullYear())
+              dayDate === evntDate.getDate() &&
+              dayMonth === evntDate.getMonth() &&
+              dayYear === evntDate.getFullYear()
             ) {
               return (
                 <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(evnt)}>
@@ -208,13 +212,17 @@ function RenderDay(
             const dayMonth = day.month; // Mois actuel
             const dayYear = day.year; // Année actuelle
 
+            // Titre de l'événement
             const evntTitle = SmallTitle(evnt.title);
+
+            // Date de l'événement
+            const evntDate = new Date(evnt.eventDate);
 
             // Vérifier que l'événement est affiché pour le jour auquel il a lieu
             if (
-              dayDate === Number(evnt.eventDate.getDate()) &&
-              dayMonth === Number(evnt.eventDate.getMonth()) &&
-              dayYear === Number(evnt.eventDate.getFullYear())
+              dayDate === evntDate.getDate() &&
+              dayMonth === evntDate.getMonth() &&
+              dayYear === evntDate.getFullYear()
             ) {
               return (
                 <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(evnt)}>
