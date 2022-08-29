@@ -135,7 +135,7 @@ export default function Login() {
           {accountCreated === "success" ? (
             <span className={styles.success}>New account created.</span>
           ) : accountCreated === "error" ? (
-            <span className={styles.error}>{accountCreatedMessage}</span>
+            <span className={styles.error}>{accountCreatedMessage.substring(0, 80) + "..."}</span>
           ) : null}
 
           <Link href="/auth/login" className="link">

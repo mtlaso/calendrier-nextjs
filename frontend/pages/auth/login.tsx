@@ -152,7 +152,7 @@ export default function Login() {
           )}
 
           {/* Afficher un message d'erreur après la connexion du compte */}
-          {loginMessage.length > 1 && <span className={styles.error}>{loginMessage}</span>}
+          {loginMessage.length > 1 && <span className={styles.error}>{loginMessage.substring(0, 80) + "..."}</span>}
 
           <Link href="/auth/register" className="link">
             Register
