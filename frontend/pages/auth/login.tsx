@@ -39,6 +39,11 @@ export default function Login() {
     setLoginMessage(queryMessage);
   }, [router.isReady]);
 
+  // Si le token est déjà présent, redirection vers /dashboard
+  useEffect(() => {
+    if (jwtToken) router.push("/dashboard");
+  }, []);
+
   // Validation du formulaire
   const ValidateForm = async () => {
     setLoginMessage("");

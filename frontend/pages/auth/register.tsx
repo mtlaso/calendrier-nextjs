@@ -1,16 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRecoilState } from "recoil";
+import { useRouter } from "next/router";
 
 import styles from "./auth.module.sass";
 
 import { API_URLS, AUTH_VALIDATION } from "../../config/config";
 import GenerateErrorMessage from "../../utils/generate-error-message";
 import { TypeFormValidationError } from "../../types/TypeFormValidationError";
+import { jwtState } from "../../state/jwt-state";
 
 /**
  * Page de création de compte
  */
 export default function Login() {
+  const router = useRouter();
+  const [jwtToken, setJwtToken] = useRecoilState(jwtState);
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -19,6 +25,11 @@ export default function Login() {
 
   const [usernameValidationError, setUsernameValidationError] = useState<TypeFormValidationError>();
   const [passwordValidationError, setPasswordValidationError] = useState<TypeFormValidationError>();
+
+  // Si le token est déjà présent, redirection vers /dashboard
+  useEffect(() => {
+    if (jwtToken) router.push("/dashboard");
+  }, []);
 
   // Validation du formulaire
   const ValidateForm = async () => {
