@@ -26,6 +26,9 @@ export const Register = async (req: Request, res: Response, next: NextFunction) 
 
     // Vérifier si le username existe
     const result = await pool.query("SELECT user_id FROM users WHERE username = $1", [username]);
+    if (result.rowCount > 0) {
+      throw new ApiError("Username already exists", 400);
+    }
 
     // Hash le mot de passe
     password = await bcrypt.hash(password, 10);

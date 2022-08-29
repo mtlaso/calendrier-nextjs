@@ -5,7 +5,6 @@ require("dotenv").config();
 import pool from "../../utils/postgres/postgres-pool";
 
 import { TypeReturnMessage } from "../../types/TypeReturnMessage";
-import ApiError from "../../types/ApiError";
 import { ValidatUserPassword } from "./validators/validate-user-password";
 
 /**
