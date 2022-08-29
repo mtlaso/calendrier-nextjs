@@ -12,7 +12,7 @@ import useUserInfo from "../../utils/api_requests/useUserInfo";
 import GenerateErrorMessage from "../../utils/generate-error-message";
 
 import { TypeUserInfo } from "../../types/TypeUserInfo";
-import { TypeFormError } from "../../types/TypeFormValidationError";
+import { TypeFormValidationError } from "../../types/TypeFormValidationError";
 
 import styles from "./dashboard.module.sass";
 
@@ -25,8 +25,11 @@ export default function Settings() {
 
   const [showUserInfoModal, setShowUserInfoModal] = useState<"block" | "none">("none");
 
-  const [password, setPassword] = useState<string>("");
-  const [passwordValidationError, setPasswordValidationError] = useState<TypeFormError>();
+  const [oldPassword, setOldPassword] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
+
+  const [oldPasswordValidationError, setOldPasswordValidationError] = useState<TypeFormValidationError>();
+  const [newPasswordValidationError, setNewPasswordValidationError] = useState<TypeFormValidationError>();
 
   // Champs utilisés pour afficher le status et le message de confirmation/erreur lors de la modification du mot de passe
   const [passwordUpdatedStatus, setPasswordUpdatedStatus] = useState<"success" | "error" | null>(null);
@@ -55,21 +58,35 @@ export default function Settings() {
   // Valider le formulaire de modification du mot de passe
   const ValidatePasswordForm = async () => {
     // Vider les erreurs
-    setPasswordValidationError({ empty: true });
+    setOldPasswordValidationError({ empty: true });
+    setNewPasswordValidationError({ empty: true });
+
     setPasswordUpdatedStatus(null);
     setPasswordUpdatedMessage("");
 
+    // Valider ancien mot de passe
     if (
-      password.length < AUTH_VALIDATION.password_min_length ||
-      password.length > AUTH_VALIDATION.password_max_length
+      oldPassword.length < AUTH_VALIDATION.password_min_length ||
+      oldPassword.length > AUTH_VALIDATION.password_max_length
     ) {
-      setPasswordValidationError({
+      setOldPasswordValidationError({
         empty: false,
         error: `Password must be between ${AUTH_VALIDATION.password_min_length} and ${AUTH_VALIDATION.password_max_length} characters.`,
       });
     }
 
-    if (passwordValidationError?.empty) {
+    // Valider nouveau mot de passe
+    if (
+      newPassword.length < AUTH_VALIDATION.password_min_length ||
+      newPassword.length > AUTH_VALIDATION.password_max_length
+    ) {
+      setNewPasswordValidationError({
+        empty: false,
+        error: `Password must be between ${AUTH_VALIDATION.password_min_length} and ${AUTH_VALIDATION.password_max_length} characters.`,
+      });
+    }
+
+    if (oldPasswordValidationError?.empty && newPasswordValidationError?.empty) {
       // Enovyer la requete de modification du mot de passe
       SendUpdatePasswordForm();
     }
@@ -78,7 +95,7 @@ export default function Settings() {
   // Envoyer le formulaire
   const SendUpdatePasswordForm = async () => {
     try {
-      const body = JSON.stringify({ password });
+      const body = JSON.stringify({ oldPassword: oldPassword, newPassword: newPassword });
 
       const req = await fetch(API_URLS.users.updateUserPassword, {
         method: "POST",
@@ -165,26 +182,44 @@ export default function Settings() {
                   </span>
                 </div>
 
-                <h2>Update your details</h2>
+                <h2>Update your password</h2>
 
                 <label htmlFor="username">Username (cannot be changed)</label>
                 <input id="username" type="text" value={userInfo?.username} disabled />
 
-                <label htmlFor="password">Enter new password</label>
+                <label htmlFor="old_password">Enter old password</label>
                 <input
-                  id="password"
-                  name="password"
+                  id="old_password"
+                  name="old_password"
                   type="password"
-                  value={password}
+                  value={oldPassword}
                   minLength={AUTH_VALIDATION.password_min_length}
                   maxLength={AUTH_VALIDATION.password_max_length}
-                  placeholder="********"
+                  placeholder="Old password"
                   required
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                />
+                {/* Afficher message d'erreur de validation */}
+                {oldPasswordValidationError?.empty === false && (
+                  <p className={styles.error}>{oldPasswordValidationError?.error}</p>
+                )}
+
+                <label htmlFor="new_password">Enter new password</label>
+                <input
+                  id="new_password"
+                  name="new_password"
+                  type="password"
+                  value={newPassword}
+                  minLength={AUTH_VALIDATION.password_min_length}
+                  maxLength={AUTH_VALIDATION.password_max_length}
+                  placeholder="New password"
+                  required
+                  onChange={(e) => setNewPassword(e.target.value)}
                 />
 
-                {passwordValidationError?.empty === false && (
-                  <p className={styles.error}>{passwordValidationError?.error}</p>
+                {/* Afficher message d'erreur de validation */}
+                {newPasswordValidationError?.empty === false && (
+                  <p className={styles.error}>{newPasswordValidationError?.error}</p>
                 )}
 
                 {/* Afficher un message d'erreur/confirmation la modification du mot de passe */}

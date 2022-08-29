@@ -11,11 +11,6 @@ const usersRoute = Router();
 usersRoute.use(Express.json());
 
 /**
- * Récupère tous les utilisateurs
- */
-// usersRoute.get("/", IsLoggedIn, GetAllUsers);
-
-/**
  * Récupère un utilisateur selon son id
  */
 usersRoute.get("/user", IsLoggedIn, GetUser);

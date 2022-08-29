@@ -3,7 +3,7 @@
  */
 export type TypeFormValidationError = {
   /**
-   * True si il y a une erreur de définie, sinon false
+   * False si il y a une erreur de définie, sinon true
    */
   empty: boolean;
 
