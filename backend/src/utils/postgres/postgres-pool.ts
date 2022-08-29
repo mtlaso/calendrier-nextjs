@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import ApiError from "../../types/ApiError";
 require("dotenv").config();
 
 /**
@@ -15,8 +16,8 @@ const pool = new Pool({
 // The pool will emit an error on behalf of any idle clients
 // it contains if a backend error or network partition happens
 pool.on("error", (err, client) => {
-  console.error("❌ [postgres-pool] - Unexpected error on idle client", err);
-  process.exit(-1);
+  console.error("❌ [postgres-pool] - Unexpected error on idle client : ", err);
+  throw new ApiError(err.message, 500);
 });
 
 export default pool;

@@ -9,6 +9,8 @@ import calendarStyles from "./calendar.module.sass";
 import eventsStyles from "./events.module.sass";
 
 import SmallTitle from "../../utils/events-small-title";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { eventsState } from "../../state/events-state";
 
 /**
  * Component représentant le calendrier
@@ -29,7 +31,7 @@ const Calendar = ({
   onAddEvent,
   onUpdateEvent,
 }: TypeCalendar) => {
-  // Setup la date sur le header
+  // Modifier la date sur le header
   useEffect(() => {
     const headerDate = document.getElementById("header-date");
     if (headerDate) {
@@ -181,7 +183,7 @@ function RenderDay(
             const evntTitle = SmallTitle(evnt.title);
 
             // Date de l'événement
-            const evntDate = new Date(evnt.eventDate);
+            const evntDate = new Date(evnt.event_date);
 
             // Vérifier que l'événement est affiché pour le jour auquel il a lieu
             if (
@@ -216,7 +218,7 @@ function RenderDay(
             const evntTitle = SmallTitle(evnt.title);
 
             // Date de l'événement
-            const evntDate = new Date(evnt.eventDate);
+            const evntDate = new Date(evnt.event_date);
 
             // Vérifier que l'événement est affiché pour le jour auquel il a lieu
             if (

@@ -8,7 +8,7 @@ import UpdateSettingsModal from "../../components/modals/update_settings_modal/U
 
 import { API_URLS, AUTH_VALIDATION } from "../../config/config";
 import { jwtState } from "../../state/jwt-state";
-import useUserInfo from "../../utils/useUserInfo";
+import useUserInfo from "../../utils/api_requests/useUserInfo";
 import GenerateErrorMessage from "../../utils/generate-error-message";
 
 import { TypeUserInfo } from "../../types/TypeUserInfo";

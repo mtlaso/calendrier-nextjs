@@ -6,7 +6,7 @@ import DashboardHeader from "../../components/dashboard/DashboardLayout";
 
 import { jwtState } from "../../state/jwt-state";
 import { TypeUserInfo } from "../../types/TypeUserInfo";
-import useUserInfo from "../../utils/useUserInfo";
+import useUserInfo from "../../utils/api_requests/useUserInfo";
 
 import styles from "./dashboard.module.sass";
 

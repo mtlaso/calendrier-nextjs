@@ -1,11 +1,11 @@
-import GenerateErrorMessage from "./generate-error-message";
-import { API_URLS, JWT_TOKEN_KEY } from "../config/config";
-import { TypeUserInfo } from "../types/TypeUserInfo";
+import GenerateErrorMessage from "../generate-error-message";
+import { API_URLS, JWT_TOKEN_KEY } from "../../config/config";
+import { TypeUserInfo } from "../../types/TypeUserInfo";
 
 /**
  * Charger les informations sur l'utilisateur
  * @param jwt Jwt
- * @returns {[TypeUserInfo, (userInfo: TypeUserInfo) => void]} [userInfo, setUserInfo, isLoading]
+ * @returns [errMessage, userData, isLoading]
  */
 export default async function useUserInfo(jwt: string): Promise<[string, TypeUserInfo, boolean]> {
   let isLoading = true;
