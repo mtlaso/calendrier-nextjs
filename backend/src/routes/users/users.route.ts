@@ -3,7 +3,7 @@
  */
 
 import Express, { Router } from "express";
-import { GetUser, UpdateUserPassword, GetUserEvents, UpdateUserEvents } from "../../controllers/users/users.controller";
+import { GetUser, UpdateUserPassword } from "../../controllers/users/users.controller";
 import IsLoggedIn from "../../middlewares/is-loggedIn";
 
 const usersRoute = Router();
@@ -24,15 +24,5 @@ usersRoute.get("/user", IsLoggedIn, GetUser);
  * Modifie le mot de passe d'un utilisateur
  */
 usersRoute.post("/user/password", IsLoggedIn, UpdateUserPassword);
-
-/**
- * Retourne les événements d'un utilisateur
- */
-usersRoute.get("/user/events", IsLoggedIn, GetUserEvents);
-
-/**
- * Met à jour les événements d'un utilisateur
- */
-usersRoute.post("/user/events", IsLoggedIn, UpdateUserEvents);
 
 export default usersRoute;
