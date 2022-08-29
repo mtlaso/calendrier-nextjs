@@ -8,7 +8,7 @@ import styles from "./auth.module.sass";
 import { API_URLS, AUTH_VALIDATION } from "../../config/config";
 import { jwtState } from "../../state/jwt-state";
 import GenerateErrorMessage from "../../utils/generate-error-message";
-import { TypeFormError } from "../../types/TypeFormError";
+import { TypeFormValidationError } from "../../types/TypeFormValidationError";
 
 /**
  * Page de création de compte
@@ -20,16 +20,17 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  // Query param passé depuis /dashboard en cas de redirection
   const [loginMessage, setLoginMessage] = useState("");
 
-  const [usernameError, setUsernameError] = useState<TypeFormError>();
-  const [passwordError, setPasswordError] = useState<TypeFormError>();
+  const [usernameValidationError, setUsernameValidationError] = useState<TypeFormValidationError>();
+  const [passwordValidationError, setPasswordValidationError] = useState<TypeFormValidationError>();
 
   // Récupérer les query string envoyé depuis le dashboard
   useEffect(() => {
     if (!router.isReady) return;
 
-    let queryMessage = router.query.message;
+    let queryMessage = router.query.message; // query param &message
     if (!queryMessage) return;
     if (queryMessage instanceof Array) queryMessage = queryMessage[0];
 
@@ -43,13 +44,13 @@ export default function Login() {
     setLoginMessage("");
 
     // Vider les erreurs
-    setUsernameError({ empty: true });
-    setPasswordError({ empty: true });
+    setUsernameValidationError({ empty: true });
+    setPasswordValidationError({ empty: true });
 
     // Valider champs
     const username_l = username.trim().length;
     if (username_l < AUTH_VALIDATION.username_min_length || username_l > AUTH_VALIDATION.username_max_length) {
-      setUsernameError({
+      setUsernameValidationError({
         empty: false,
         error: `Username must be between ${AUTH_VALIDATION.username_min_length} and ${AUTH_VALIDATION.username_max_length} characters.`,
       });
@@ -57,14 +58,14 @@ export default function Login() {
 
     const password_l = password.trim().length;
     if (password_l < AUTH_VALIDATION.password_min_length || password_l > AUTH_VALIDATION.password_max_length) {
-      setPasswordError({
+      setPasswordValidationError({
         empty: false,
         error: `Password must be between ${AUTH_VALIDATION.password_min_length} and ${AUTH_VALIDATION.password_max_length} characters.`,
       });
     }
 
     // Envoyer formulaire
-    if (usernameError?.empty === true && passwordError?.empty === true) {
+    if (usernameValidationError?.empty === true && passwordValidationError?.empty === true) {
       SendForm();
     }
   };
@@ -129,7 +130,9 @@ export default function Login() {
           />
 
           {/* Afficher erreur de username */}
-          {usernameError?.empty === false && <span className={styles.error}>{usernameError.error}</span>}
+          {usernameValidationError?.empty === false && (
+            <span className={styles.error}>{usernameValidationError.error}</span>
+          )}
 
           <label htmlFor="password">Password</label>
           <input
@@ -144,7 +147,9 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
           {/* Afficher erreur de password */}
-          {passwordError?.empty === false && <span className={styles.error}>{passwordError.error}</span>}
+          {passwordValidationError?.empty === false && (
+            <span className={styles.error}>{passwordValidationError.error}</span>
+          )}
 
           {/* Afficher un message d'erreur après la connexion du compte */}
           {loginMessage.length > 1 && <span className={styles.error}>{loginMessage}</span>}

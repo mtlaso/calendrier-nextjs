@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [loading, setIsLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<null | TypeUserInfo>(null);
 
+  // Charger les infos de l'utilisateur
   useEffect(() => {
     const LoadUserData = async () => {
       const [err, userInfo, isLoading] = await useUserInfo(jwt);

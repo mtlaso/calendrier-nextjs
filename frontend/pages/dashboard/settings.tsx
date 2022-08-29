@@ -12,7 +12,7 @@ import useUserInfo from "../../utils/api_requests/useUserInfo";
 import GenerateErrorMessage from "../../utils/generate-error-message";
 
 import { TypeUserInfo } from "../../types/TypeUserInfo";
-import { TypeFormError } from "../../types/TypeFormError";
+import { TypeFormError } from "../../types/TypeFormValidationError";
 
 import styles from "./dashboard.module.sass";
 

@@ -1,7 +1,7 @@
 /**
  * Type d'erreur
  */
-export type TypeFormError = {
+export type TypeFormValidationError = {
   /**
    * True si il y a une erreur de définie, sinon false
    */
