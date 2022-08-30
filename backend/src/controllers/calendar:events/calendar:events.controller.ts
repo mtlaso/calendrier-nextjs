@@ -7,13 +7,12 @@ import { TypeEvent } from "../../types/TypeEvent";
  * @param events Événements à sauvegarder
  * @param jwt jwt de l'utilisateur
  */
-export async function SaveEventsToDb(events: TypeEvent[], jwt: string) {
+export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
   try {
     // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
     const userInfo = jwt;
-
     // TODO : Valider événements
-
+    7
     // Met à jour les événements de l'utilisateur
     const client = await pool.connect();
     // event_creation_date = $3, event_date = $4,
@@ -22,8 +21,7 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: string) {
                   ON CONFLICT (event_id) DO UPDATE SET title = $5, is_completed = $6
     `;
     for (const event of events) {
-      const r = await client.query(query, [
-        // @ts-expect-error
+      await client.query(query, [
         userInfo.user_id,
         event.event_id,
         event.event_creation_date,
@@ -32,7 +30,6 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: string) {
         event.is_completed,
       ]);
     }
-
     client.release();
   } catch (err) {
     throw new ApiError((err as Error).message, 500);
@@ -43,16 +40,12 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: string) {
  * Retourne les événements de l'utilisateur
  * @param jwt string
  */
-export async function ReadEventsFromDb(jwt: string) {
+export async function ReadEventsFromDb(jwt: any) {
   try {
     // Récupère les événements de l'utilisateur
     const client = await pool.connect();
     const query = `SELECT user_id, event_id, event_creation_date, event_date, title, is_completed FROM events WHERE user_id = $1`;
-    const r = await client.query(
-      query,
-      // @ts-expect-error
-      [jwt.user_id]
-    );
+    const r = await client.query(query, [jwt.user_id]);
     client.release();
     return r.rows as TypeEvent[];
   } catch (err) {
@@ -63,7 +56,7 @@ export async function ReadEventsFromDb(jwt: string) {
 /**
  * Supprime un événement de la base de données
  */
-export async function DeleteEventFromDb(event_id: string, jwt: string) {
+export async function DeleteEventFromDb(event_id: string, jwt: any) {
   try {
     // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
     const userInfo = jwt;
@@ -73,11 +66,7 @@ export async function DeleteEventFromDb(event_id: string, jwt: string) {
     // Supprime l'événement de la base de données
     const client = await pool.connect();
     const query = `DELETE FROM events WHERE event_id = $1 AND user_id = $2`;
-    const r = await client.query(query, [
-      event_id,
-      // @ts-expect-error
-      userInfo.user_id,
-    ]);
+    await client.query(query, [event_id, userInfo.user_id]);
     client.release();
   } catch (err) {
     throw new ApiError((err as Error).message, 500);

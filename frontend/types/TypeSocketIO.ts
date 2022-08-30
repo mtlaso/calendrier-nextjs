@@ -13,7 +13,7 @@ export interface ServerToClientEvents {
   /**
    * Événement pour synchroniser les données du calendrier
    */
-  "calendar:sync": (data: TypeEvent[], callback: () => void) => void;
+  "calendar:sync": (data: TypeEvent[]) => void;
 }
 
 /**
@@ -27,12 +27,12 @@ export interface ClientToServerEvents {
   /**
    * Événement pour synchroniser les données du calendrier
    */
-  "calendar:sync": (data: TypeEvent[], jwt: string, callback: () => void) => void;
+  "calendar:sync": (data: TypeEvent[], callback: () => void) => void;
 
   /**
    * Événement pour supprimer un événement du calendrier
    */
-  "calendar:sync:delete": (event_id: string, jwt: string) => void;
+  "calendar:sync:delete": (event_id: string) => void;
 }
 
 export interface InterServerEvents {
