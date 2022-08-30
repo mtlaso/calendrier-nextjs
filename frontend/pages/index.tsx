@@ -31,7 +31,7 @@ import GenerateErrorMessage from "../utils/generate-error-message";
 import { LoadCalendar } from "../utils/load-calendar";
 import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io("localhost:4000", {
+const calendarEventsSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io("localhost:4000/calendar-sync", {
   withCredentials: true,
   transports: ["websocket", "polling", "flashsocket"],
   upgrade: true,
@@ -94,10 +94,10 @@ const Home: NextPage = () => {
     InitSyncCalendar();
 
     return () => {
-      socket.off("connect");
-      socket.off("calendar:sync");
-      socket.off("connect_error");
-      socket.off("disconnect");
+      calendarEventsSocket.off("connect");
+      calendarEventsSocket.off("calendar:sync");
+      calendarEventsSocket.off("connect_error");
+      calendarEventsSocket.off("disconnect");
     };
   }, []);
 
@@ -125,17 +125,17 @@ const Home: NextPage = () => {
         throw new Error("Calendar is not ready to sync");
       }
 
-      socket.on("connect", () => {});
+      calendarEventsSocket.on("connect", () => {});
 
-      socket.on("calendar:sync", (events: TypeEvent[]) => {
+      calendarEventsSocket.on("calendar:sync", (events: TypeEvent[]) => {
         setCalendarEvents([...events]);
       });
 
-      socket.emit("calendar:sync", calendarEvents, jwt, () => {});
+      calendarEventsSocket.emit("calendar:sync", calendarEvents, jwt, () => {});
 
-      socket.on("connect_error", (error: any) => {});
+      calendarEventsSocket.on("connect_error", (error: any) => {});
 
-      socket.on("disconnect", (reason) => {});
+      calendarEventsSocket.on("disconnect", (reason) => {});
     } catch (err) {
       const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
       alert(errMessage);
@@ -155,7 +155,7 @@ const Home: NextPage = () => {
         throw new Error("Calendar is not ready to sync");
       }
 
-      socket.emit("calendar:sync", calendarEvents, jwt, () => {});
+      calendarEventsSocket.emit("calendar:sync", calendarEvents, jwt, () => {});
     } catch (err) {
       const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
       alert(errMessage);
@@ -175,7 +175,7 @@ const Home: NextPage = () => {
         throw new Error("Calendar is not ready to sync");
       }
 
-      socket.emit("calendar:sync:delete", event_id, jwt);
+      calendarEventsSocket.emit("calendar:sync:delete", event_id, jwt);
     } catch (err) {
       const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
       alert(errMessage);

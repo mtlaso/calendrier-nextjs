@@ -1,5 +1,6 @@
 import Express, { Request, Response, NextFunction } from "express";
 import { createServer } from "http";
+import { Server } from "socket.io";
 import cors from "cors";
 require("dotenv").config();
 
@@ -10,7 +11,7 @@ import { OnConnectionRoute } from "./routes/calendar:events/calendar:events.rout
 import ApiError from "./types/ApiError";
 import { TypeReturnMessage } from "./types/TypeReturnMessage";
 import { CheckContentType } from "./middlewares/check-content-type";
-import InitSocketIO from "./config/socket-io.config";
+import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "./types/TypeSocketIO";
 
 const app = Express();
 const port = process.env.PORT || 4000;
@@ -42,8 +43,22 @@ app.use(
 
 // Config Socket.io
 const httpServer = createServer(app);
-const [io, ioEngine] = InitSocketIO(app, httpServer);
-io.on("connection", OnConnectionRoute);
+const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
+  cors: {
+    origin: "http://localhost:3000",
+    allowedHeaders: "*",
+    credentials: true,
+  },
+  path: "/calendar-sync",
+});
+
+const calendarEventsNamespace = io.of("/calendar-sync");
+
+io.engine.on("connection_error", (error: any) => {
+  console.log(`(server) connection_error : ${error}`);
+});
+
+calendarEventsNamespace.on("connection", OnConnectionRoute);
 
 // Vérifier le header "content-type"
 app.use(CheckContentType);
