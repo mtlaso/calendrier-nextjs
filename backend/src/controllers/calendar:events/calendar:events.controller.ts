@@ -12,7 +12,7 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
     // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
     const userInfo = jwt;
     // TODO : Valider événements
-    7
+
     // Met à jour les événements de l'utilisateur
     const client = await pool.connect();
     // event_creation_date = $3, event_date = $4,

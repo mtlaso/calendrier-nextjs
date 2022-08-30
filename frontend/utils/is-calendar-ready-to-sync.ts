@@ -29,7 +29,7 @@ export default async function IsCalendarReadyToSync(jwt: string): Promise<[boole
     }
 
     status = true;
-    return [true, errMessage];
+    return [status, errMessage];
   } catch (err) {
     const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
     return [status, errMessage];
