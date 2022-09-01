@@ -25,14 +25,19 @@ export interface ClientToServerEvents {
   // Événements custom
 
   /**
+   * Événement pour rejoindre la bonne room
+   */
+  "calendar:join": (data: { jwt: string }) => void;
+
+  /**
    * Événement pour synchroniser les données du calendrier
    */
-  "calendar:sync": (data: TypeEvent[], callback: () => void) => void;
+  "calendar:sync": (data: { events: TypeEvent[]; jwt: string }, callback: () => void) => void;
 
   /**
    * Événement pour supprimer un événement du calendrier
    */
-  "calendar:sync:delete": (event_id: string) => void;
+  "calendar:delete": (data: { event_id: string; jwt: string }) => void;
 }
 
 export interface InterServerEvents {

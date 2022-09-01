@@ -20,19 +20,20 @@ export interface ServerToClientEvents {
  * Événements envoyés depuis le client au server
  */
 export interface ClientToServerEvents {
-  hello: () => void;
-
-  // Événements custom
+  /**
+   * Événement pour rejoindre la bonne room
+   */
+  "calendar:join": (data: { jwt: string }) => void;
 
   /**
    * Événement pour synchroniser les données du calendrier
    */
-  "calendar:sync": (data: TypeEvent[]) => void;
+  "calendar:sync": (data: { events: TypeEvent[]; jwt: string }, callback: () => void) => void;
 
   /**
    * Événement pour supprimer un événement du calendrier
    */
-  "calendar:sync:delete": (event_id: string) => void;
+  "calendar:delete": (data: { event_id: string; jwt: string }) => void;
 }
 
 export interface InterServerEvents {
@@ -42,11 +43,4 @@ export interface InterServerEvents {
 export interface SocketData {
   name: string;
   age: number;
-
-  // Données custom
-
-  /**
-   * Jwt passé dans le middleware
-   */
-  jwt: any;
 }

@@ -1,6 +1,6 @@
 import Express, { Request, Response, NextFunction } from "express";
 import { createServer } from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import cors from "cors";
 require("dotenv").config();
 
@@ -55,27 +55,29 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
 
 const calendarEventsNamespace = io.of("/calendar-sync");
 
-calendarEventsNamespace.use((socket, next) => {
-  // Vérifier que le jwt est présent et valide
-  // Quand un utilisteur veut synchroniser son calendrier
-  const jwt = socket.handshake.auth["Authorization"];
+// calendarEventsNamespace.use((socket, next) => {
+//   // Vérifier que le jwt est présent et valide
+//   // Quand un utilisteur veut synchroniser son calendrier
+//   const jwt = socket.handshake.auth["Authorization"];
 
-  // Vérifier jwt est présent
-  if (!jwt) {
-    next(new ApiError("(Websocket) Unauthorized, no Authorization Bearer found.", 401));
-  }
+//   // Vérifier jwt est présent
+//   if (!jwt) {
+//     next(new ApiError("(Websocket) Unauthorized, no Authorization Bearer found.", 401));
+//   }
 
-  // Paser le jwt
-  socket.data.jwt = jwt;
+//   // Paser le jwt
+//   socket.data.jwt = jwt;
 
-  next();
-});
+//   next();
+// });
 
 io.engine.on("connection_error", (error: any) => {
   console.log(`(server) connection_error : ${error}`);
 });
 
-calendarEventsNamespace.on("connection", OnConnectionRoute);
+calendarEventsNamespace.on("connection", (socket: Socket) => {
+  OnConnectionRoute(socket, io);
+});
 
 // Vérifier le header "content-type"
 app.use(CheckContentType);
