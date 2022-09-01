@@ -24,7 +24,7 @@ export type TypeDay = {
   dayName: TypeWeekDays;
 
   /**
-   * True si c'est aujourd'hui
+   * True si c'est aujourd'hui (le jour actuel du mois)
    */
   isCurrentDay: boolean;
 
