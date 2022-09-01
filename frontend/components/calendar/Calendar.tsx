@@ -14,13 +14,6 @@ import { eventsState } from "../../state/events-state";
 
 /**
  * Component représentant le calendrier
- *
- * @param {string} dateDisplay La date à afficher sur le header (ex: July 2022)
- * @param {TypeWeekDays[]} paddingDays Liste des jours avant le premier du mois (les cases vides sur le calendrier)
- * @param {TypeDay[]} days Liste des jours dans un mois donné
- * @param {TypeEvent[]} calendarEvents Évènements de calendrier de l'utilisateur
- * @param {Function} onAddEvent Fonction appelée quand un événement va être ajouté
- * @param {Function} onUpdateEvent Fonction appelée quand un événement va être modifié
  */
 const Calendar = ({
   today,
@@ -55,32 +48,9 @@ const Calendar = ({
           onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
           <p>{day.date}</p>
 
-          {/* Retirer journée de la liste car nous avons plus besoin de la render */}
-
           {/* Afficher les événements du jour */}
           {calendarEvents.map((evnt, index) => {
-            const dayDate = day.date;
-            const dayMonth = day.month; // Mois actuel
-            const dayYear = day.year; // Année actuelle
-
-            // Titre de l'événement
-            const evntTitle = SmallTitle(evnt.title);
-
-            // Date de l'événement
-            const evntDate = new Date(evnt.event_date);
-
-            // Vérifier que l'événement est affiché pour le jour auquel il a lieu
-            if (
-              dayDate === evntDate.getDate() &&
-              dayMonth === evntDate.getMonth() &&
-              dayYear === evntDate.getFullYear()
-            ) {
-              return (
-                <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(evnt)}>
-                  {evntTitle}
-                </div>
-              );
-            }
+            return RenderEvent(day, evnt, index);
           })}
         </div>
       );
@@ -93,10 +63,8 @@ const Calendar = ({
           onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
           <p>{day.date}</p>
 
-          {/* Retirer journée de la liste car nous avons plus besoin de la render */}
-
           {/* Afficher les événements du jour */}
-          {calendarEvents.map((evnt, index) => {
+          {/* {calendarEvents.map((evnt, index, thisArray) => {
             const dayDate = day.date;
             const dayMonth = day.month; // Mois actuel
             const dayYear = day.year; // Année actuelle
@@ -113,13 +81,44 @@ const Calendar = ({
               dayMonth === evntDate.getMonth() &&
               dayYear === evntDate.getFullYear()
             ) {
+              // Retirer l'événement de la liste des événements du jour car nous avons plus besoin de l'afficher après
+
               return (
                 <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(evnt)}>
                   {evntTitle}
                 </div>
               );
             }
+          })} */}
+
+          {/* Afficher les événements du jour */}
+          {calendarEvents.map((evnt, index) => {
+            return RenderEvent(day, evnt, index);
           })}
+        </div>
+      );
+    }
+  }
+
+  /**
+   * Render l'événement de ce jour
+   * @param day Objet contenant le jour
+   * @param event Objet contenant l'événement
+   * @param index Index, car  la fonction retourne une liste
+   * @returns {JSX.Element} Retourne un événement JSX
+   */
+  function RenderEvent(day: TypeDay, event: TypeEvent, index: number = 0) {
+    // Titre de l'événement
+    const evntTitle = SmallTitle(event.title);
+
+    // Date de l'événement
+    const evntDate = new Date(event.event_date);
+
+    // Vérifier que l'événement est affiché pour le jour auquel il a lieu
+    if (day.date === evntDate.getDate() && day.month === evntDate.getMonth() && day.year === evntDate.getFullYear()) {
+      return (
+        <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(event)}>
+          {evntTitle}
         </div>
       );
     }
@@ -147,6 +146,11 @@ const Calendar = ({
 
           return RenderDay(index, day);
         })}
+
+        {
+          // Retirer les événements qui ont été render car nous avons plus besoin de les render
+          // calendarEvents =
+        }
       </div>
       <div id="container-column-mon" className={calendarStyles.container_column}>
         <p>mon.</p>

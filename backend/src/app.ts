@@ -55,22 +55,6 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
 
 const calendarEventsNamespace = io.of("/calendar-sync");
 
-// calendarEventsNamespace.use((socket, next) => {
-//   // Vérifier que le jwt est présent et valide
-//   // Quand un utilisteur veut synchroniser son calendrier
-//   const jwt = socket.handshake.auth["Authorization"];
-
-//   // Vérifier jwt est présent
-//   if (!jwt) {
-//     next(new ApiError("(Websocket) Unauthorized, no Authorization Bearer found.", 401));
-//   }
-
-//   // Paser le jwt
-//   socket.data.jwt = jwt;
-
-//   next();
-// });
-
 io.engine.on("connection_error", (error: any) => {
   console.log(`(server) connection_error : ${error}`);
 });
