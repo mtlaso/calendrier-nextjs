@@ -1,12 +1,19 @@
 .calendar_event
-  color: var(--color-white)
+  display: flex
+  align-items: flex-end
+  gap: .5rem
   margin-top: 0.5rem
-  font-size: small
+  padding: .2rem
+  border-radius: .3rem
   background-color: var(--color-blue)
-  padding: 0.2rem 0.4rem 0.2rem 0.4rem
-  border-radius: 1rem
+  color: var(--color-white)
+  font-size: small
   user-select: none
   cursor: pointer
+
+  &::before
+    // content: "\25CF"
+    // color: var(--color-white)
 
   &:hover
     opacity: 0.8

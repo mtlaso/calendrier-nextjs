@@ -46,12 +46,18 @@ const Calendar = ({
           className={`${calendarStyles.container_column_box} ${calendarStyles.current_day}`}
           key={index}
           onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
-          <p>{day.date}</p>
+          {/* header */}
+          <div className={calendarStyles.container_column_box__header}>
+            <p>{day.date}</p>
+          </div>
 
-          {/* Afficher les événements du jour */}
-          {calendarEvents.map((evnt, index) => {
-            return RenderEvent(day, evnt, index);
-          })}
+          {/* événement */}
+          <div className={calendarStyles.container_column_box__content}>
+            {/* Afficher les événements du jour */}
+            {calendarEvents.map((evnt, index) => {
+              return RenderEvent(day, evnt, index);
+            })}
+          </div>
         </div>
       );
     } else {
@@ -61,40 +67,18 @@ const Calendar = ({
           className={calendarStyles.container_column_box}
           key={index}
           onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
-          <p>{day.date}</p>
+          {/* header */}
+          <div className={calendarStyles.container_column_box__header}>
+            <p>{day.date}</p>
+          </div>
 
-          {/* Afficher les événements du jour */}
-          {/* {calendarEvents.map((evnt, index, thisArray) => {
-            const dayDate = day.date;
-            const dayMonth = day.month; // Mois actuel
-            const dayYear = day.year; // Année actuelle
-
-            // Titre de l'événement
-            const evntTitle = SmallTitle(evnt.title);
-
-            // Date de l'événement
-            const evntDate = new Date(evnt.event_date);
-
-            // Vérifier que l'événement est affiché pour le jour auquel il a lieu
-            if (
-              dayDate === evntDate.getDate() &&
-              dayMonth === evntDate.getMonth() &&
-              dayYear === evntDate.getFullYear()
-            ) {
-              // Retirer l'événement de la liste des événements du jour car nous avons plus besoin de l'afficher après
-
-              return (
-                <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(evnt)}>
-                  {evntTitle}
-                </div>
-              );
-            }
-          })} */}
-
-          {/* Afficher les événements du jour */}
-          {calendarEvents.map((evnt, index) => {
-            return RenderEvent(day, evnt, index);
-          })}
+          {/* événement */}
+          <div className={calendarStyles.container_column_box__content}>
+            {/* Afficher les événements du jour */}
+            {calendarEvents.map((evnt, index) => {
+              return RenderEvent(day, evnt, index);
+            })}
+          </div>
         </div>
       );
     }
@@ -119,6 +103,7 @@ const Calendar = ({
       return (
         <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(event)}>
           {evntTitle}
+          <br />
         </div>
       );
     }
