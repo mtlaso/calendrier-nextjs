@@ -6,32 +6,34 @@
   width: 100%
   background: var(--color-white)
 
-  &_column > p
+  .container_column > p
     padding: 1rem
 
-  &_column_box
+  .container_column_box
     display: flex
     flex-direction: column
     justify-content: flex-start
     align-items: flex-start
     align-content: flex-start
+    background: var(--color-white)
 
     height: 20vh
     padding: 1rem 0 0 1rem
     border-bottom: 0.1rem solid var(--color-lightgray)
     overflow: auto
 
-  &_column_box:hover
+  .container_column_box:hover
     background-color: var(--color-overlay)
     color: var(--color-black)
     transition: 0.3s
 
-  &_column_box.current_day
+  .container_column_box.current_day
     background-color: var(--color-overlay)
 
-  &_column_box_empty
+  .container_column_box_empty
     border-bottom: 0.1rem solid var(--color-lightgray)
     height: 20vh
-
-  &_column_box_empty::before
+    background: var(--color-white)
+  
+  .container_column_box_empty::before
     content: "\00a0"
