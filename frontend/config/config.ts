@@ -30,9 +30,8 @@ export const API_URLS = {
    */
   users: {
     getUser: "http://localhost:4000/users/user",
+    getUserEventsNumber: "http://localhost:4000/users/user/events",
     updateUserPassword: "http://localhost:4000/users/user/password",
-    getUserEvents: "http://localhost:4000/users/user/events",
-    updateUserEvents: "http://localhost:4000/users/user/events",
   },
 };
 

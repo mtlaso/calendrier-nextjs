@@ -92,3 +92,33 @@ export async function UpdateUserPassword(req: Request, res: Response, next: Next
     next(err);
   }
 }
+
+/**
+ * Retourne le nombre d'événements que l'utilisateur à créé
+ */
+export async function GetUserEventsNumber(req: Request, res: Response, next: NextFunction) {
+  try {
+    // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
+    const userInfo = req.decodedJwt;
+
+    // Récupère le nombre d'événements que l'utilisateur à créé
+    const client = await pool.connect();
+    const eventsNumber = await client.query(
+      "SELECT COUNT(title) FROM events WHERE user_id = $1",
+      // @ts-expect-error
+      [userInfo.user_id]
+    );
+    client.release();
+
+    // Renvoie le nombre d'événements
+    const jsonReturn: TypeReturnMessage = {
+      message: "User events number retrieved successfully",
+      statusCode: 200,
+      data: { count: eventsNumber.rows[0].count },
+    };
+
+    res.status(jsonReturn.statusCode).json(jsonReturn);
+  } catch (err) {
+    next(err);
+  }
+}

@@ -6,6 +6,7 @@ import DashboardHeader from "../../components/dashboard/DashboardLayout";
 
 import { jwtState } from "../../state/jwt-state";
 import { TypeUserInfo } from "../../types/TypeUserInfo";
+import useUserEventsCount from "../../utils/api_requests/useUserEventsCount";
 import useUserInfo from "../../utils/api_requests/useUserInfo";
 
 import styles from "./dashboard.module.sass";
@@ -16,23 +17,38 @@ export default function Dashboard() {
 
   const [loading, setIsLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<null | TypeUserInfo>(null);
+  const [eventsCount, setEventsCount] = useState(0);
 
   // Charger les infos de l'utilisateur
   useEffect(() => {
     const LoadUserData = async () => {
-      const [err, userInfo, isLoading] = await useUserInfo(jwt);
+      const [userInfoErr, userInfo] = await useUserInfo(jwt);
+      const [userEventsErr, userEventsCount] = await useUserEventsCount(jwt);
 
-      if (err.length > 1) {
+      if (userInfoErr.length > 1) {
         // Supprimer le jwt de l'utilisateur
         setJwt("");
+
         // Rediriger vers la page de connexion
-        router.push(`/auth/login?message=${err}`);
-      } else {
-        setUserInfo(userInfo);
-        setIsLoading(isLoading);
+        router.push(`/auth/login?message=${userInfoErr}`);
+        return;
       }
+
+      if (userEventsErr.length > 1) {
+        // Supprimer le jwt de l'utilisateur
+        setJwt("");
+
+        // Rediriger vers la page de connexion
+        router.push(`/auth/login?message=${userEventsErr}`);
+        return;
+      }
+
+      setUserInfo(userInfo);
+      setEventsCount(userEventsCount);
+      setIsLoading(false);
     };
 
+    setIsLoading(true);
     LoadUserData();
   }, []);
 
@@ -44,7 +60,7 @@ export default function Dashboard() {
     <DashboardHeader>
       <div className={styles.content_container}>
         <h2>Welcome back, {userInfo?.username}.</h2>
-        <p>You have x events in your calendar.</p>
+        <p>You have {eventsCount} events in your calendar.</p>
       </div>
     </DashboardHeader>
   );

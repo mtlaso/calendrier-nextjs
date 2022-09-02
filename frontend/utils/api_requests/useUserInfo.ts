@@ -1,14 +1,13 @@
 import GenerateErrorMessage from "../generate-error-message";
-import { API_URLS, JWT_TOKEN_KEY } from "../../config/config";
+import { API_URLS } from "../../config/config";
 import { TypeUserInfo } from "../../types/TypeUserInfo";
 
 /**
  * Charger les informations sur l'utilisateur
  * @param jwt Jwt
- * @returns [errMessage, userData, isLoading]
+ * @returns [errMessage, userData]
  */
-export default async function useUserInfo(jwt: string): Promise<[string, TypeUserInfo, boolean]> {
-  let isLoading = true;
+export default async function useUserInfo(jwt: string): Promise<[string, TypeUserInfo]> {
   let errorMessage = "";
   let userData: TypeUserInfo = { user_id: "", username: "", created_on: new Date(), last_login: new Date() };
 
@@ -16,10 +15,10 @@ export default async function useUserInfo(jwt: string): Promise<[string, TypeUse
     // Vérifier jwt token
     if (!jwt) {
       const errMessage = GenerateErrorMessage("You need to be logged in to access this page");
-      return [errMessage, userData, isLoading];
+      return [errMessage, userData];
     }
 
-    // Récupérer les informatuserInfoions de l'utilisateur
+    // Récupérer les informations de l'utilisateur
     const userReq = await fetch(API_URLS.users.getUser, {
       credentials: "include",
       headers: {
@@ -30,10 +29,10 @@ export default async function useUserInfo(jwt: string): Promise<[string, TypeUse
 
     const userRes = await userReq.json();
 
-    // TODO: verifier reponse de l'api  (status code 200)
+    // Verifier reponse de l'api
     if (userRes?.statusCode !== 200) {
       const errMessage = GenerateErrorMessage("An error occured while fetching user data", `${userRes?.message}`);
-      return [errMessage, userData, isLoading];
+      return [errMessage, userData];
     }
 
     // Retourner les informations de l'utilisateur
@@ -53,15 +52,13 @@ export default async function useUserInfo(jwt: string): Promise<[string, TypeUse
         "An error occured while fetching user data",
         `Missing fields : ${missingFields.join(", ")}`
       );
-      return [errMessage, userData, isLoading];
+      return [errMessage, userData];
     }
 
-    isLoading = false;
-
-    return [errorMessage, userData, isLoading];
+    return [errorMessage, userData];
   } catch (err) {
     errorMessage = GenerateErrorMessage("An error happend, try again later", `${err}`);
-    return [errorMessage, userData, isLoading];
+    return [errorMessage, userData];
   }
 }
 
