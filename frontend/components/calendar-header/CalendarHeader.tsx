@@ -1,9 +1,9 @@
 import React from "react";
 import Link from "next/link";
 
-import styles from "./header.module.sass";
+import styles from "./CalendarHeader.module.sass";
 
-const Header = (props: { clickBack: () => void; clickNext: () => void; showInfoModal: () => void }) => {
+const CalendarHeader = (props: { clickBack: () => void; clickNext: () => void; showInfoModal: () => void }) => {
   return (
     <header className={styles.header}>
       <p id="header-date">loading...</p>
@@ -42,4 +42,4 @@ const Header = (props: { clickBack: () => void; clickNext: () => void; showInfoM
   );
 };
 
-export default Header;
+export default CalendarHeader;

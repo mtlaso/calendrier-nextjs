@@ -45,8 +45,6 @@ export default function Dashboard() {
       <div className={styles.content_container}>
         <h2>Welcome back, {userInfo?.username}.</h2>
         <p>You have x events in your calendar.</p>
-        <p>Last sync : xx</p>
-        <button className={styles.button}>Sync your calendar</button>
       </div>
     </DashboardHeader>
   );
