@@ -1,5 +1,4 @@
 import { Server, Socket } from "socket.io";
-import { TypeEvent } from "../../types/TypeEvent";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "../../types/TypeSocketIO";
 
 import {

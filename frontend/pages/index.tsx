@@ -39,6 +39,7 @@ const Home: NextPage = () => {
   const calendarEventsSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
     "http://localhost:4000/calendar-sync",
     {
+      transports: ["websocket", "polling"],
       withCredentials: true,
       upgrade: true,
       path: "/calendar-sync",
@@ -178,7 +179,6 @@ const Home: NextPage = () => {
       });
     } catch (err) {
       const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
-      console.error("new error: ", errMessage);
     }
   };
 
@@ -377,8 +377,6 @@ const Home: NextPage = () => {
       ...event,
       event_date: new Date(newStartDate.year, newStartDate.month, newStartDate.date),
     };
-
-    console.log("emit");
 
     // Émettre les nouveaux événements au serveur
     EmitUpdateEventDate(updatedEvent.event_id, updatedEvent.event_date);
