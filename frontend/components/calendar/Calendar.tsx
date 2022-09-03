@@ -3,14 +3,11 @@ import React, { useEffect, useState } from "react";
 import { TypeCalendar } from "../../types/TypeCalendar";
 import { TypeDay } from "../../types/TypeDay";
 import { TypeEvent } from "../../types/TypeEvent";
-import { TypeWeekDays } from "../../types/TypeWeekDays";
 
 import calendarStyles from "./calendar.module.sass";
 import eventsStyles from "./events.module.sass";
 
 import SmallTitle from "../../utils/events-small-title";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { eventsState } from "../../state/events-state";
 
 /**
  * Component représentant le calendrier
@@ -21,9 +18,50 @@ const Calendar = ({
   paddingDays,
   days,
   calendarEvents,
+  syncStatus,
   onAddEvent,
   onUpdateEvent,
+  onEmitEventDragged,
 }: TypeCalendar) => {
+  // Événement qui est bougé
+  const [draggedElement, setDraggedElement] = useState<TypeEvent | null>(null);
+  const [selectedDragCell, setSelectedDragCell] = useState<TypeDay | null>(null);
+  const [isDraggedElementDropped, setIsDraggedElementDropped] = useState<boolean>(false);
+
+  // Drag and drop des événements du calendrier pour changer les dates
+  useEffect(() => {
+    if (!isDraggedElementDropped) return;
+
+    // Vérifier que l'événement a été bougé
+    if (draggedElement && selectedDragCell) {
+      const draggedElementDate = new Date(draggedElement.event_date);
+      const selectedDragCellDate = new Date(selectedDragCell.year, selectedDragCell.month, selectedDragCell.date);
+
+      // Vérifier que l'événement a été bougé dans une autre cellule
+      if (
+        draggedElementDate.getDate() === selectedDragCellDate.getDate() &&
+        draggedElementDate.getMonth() === selectedDragCellDate.getMonth() &&
+        draggedElementDate.getFullYear() === selectedDragCellDate.getFullYear()
+      ) {
+        console.log("same cell, not moving");
+        return;
+      }
+
+      // Vérifier que l'utilisateur est connecté
+      if (!syncStatus) {
+        return;
+      }
+
+      // Émettre un événement pour mettre à jour l'événement
+      onEmitEventDragged(draggedElement, selectedDragCell);
+
+      // Réinitialiser les variables
+      setDraggedElement(null);
+      setSelectedDragCell(null);
+      setIsDraggedElementDropped(false);
+    }
+  }, [isDraggedElementDropped]);
+
   // Modifier la date sur le header
   useEffect(() => {
     const headerDate = document.getElementById("header-date");
@@ -43,6 +81,14 @@ const Calendar = ({
       return (
         // Render le jour dans la colonne .container_column > .container_column_box
         <div
+          onDragOverCapture={(e) => {
+            e.currentTarget.style.background = "var(--color-lightgrey)";
+            setSelectedDragCell(day);
+          }}
+          onDragLeaveCapture={(e) => {
+            e.currentTarget.style.background = "white";
+            setSelectedDragCell(null);
+          }}
           className={`${calendarStyles.container_column_box} ${calendarStyles.current_day}`}
           key={index}
           onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
@@ -64,6 +110,14 @@ const Calendar = ({
       return (
         // Render le jour dans la colonne .container_column > .container_column_box
         <div
+          onDragOverCapture={(e) => {
+            e.currentTarget.style.background = "var(--color-lightgrey)";
+            setSelectedDragCell(day);
+          }}
+          onDragLeaveCapture={(e) => {
+            e.currentTarget.style.background = "white";
+            setSelectedDragCell(null);
+          }}
           className={calendarStyles.container_column_box}
           key={index}
           onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
@@ -101,7 +155,18 @@ const Calendar = ({
     // Vérifier que l'événement est affiché pour le jour auquel il a lieu
     if (day.date === evntDate.getDate() && day.month === evntDate.getMonth() && day.year === evntDate.getFullYear()) {
       return (
-        <div key={index} className={eventsStyles.calendar_event} onClick={() => onUpdateEvent(event)}>
+        <div
+          draggable
+          onDragStartCapture={(e) => {
+            setDraggedElement(event);
+            setIsDraggedElementDropped(false);
+          }}
+          onDragEndCapture={(e) => {
+            setIsDraggedElementDropped(true); // Doit être en premier
+          }}
+          key={index}
+          className={eventsStyles.calendar_event}
+          onClick={() => onUpdateEvent(event)}>
           {evntTitle}
           <br />
         </div>

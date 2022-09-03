@@ -69,3 +69,20 @@ export async function DeleteEventFromDb(event_id: string, jwt: any) {
     throw new ApiError((err as Error).message, 500);
   }
 }
+
+/**
+ * Changer la data d'un événement dans la base de données (drag and drop)
+ */
+export async function ChangeEventDateInDb(event_id: string, newDate: Date, jwt: any) {
+  try {
+    const userInfo = jwt;
+
+    // Met à jour la date de l'événement
+    const client = await pool.connect();
+    const query = `UPDATE events SET event_date = $1 WHERE event_id = $2 AND user_id = $3`;
+    await client.query(query, [newDate, event_id, userInfo.user_id]);
+    client.release();
+  } catch (err) {
+    throw new ApiError((err as Error).message, 500);
+  }
+}

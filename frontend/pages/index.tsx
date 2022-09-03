@@ -58,13 +58,20 @@ const Home: NextPage = () => {
   const [calendarSyncStatus, setCalendarSyncStatus] = useState<boolean>(false);
 
   // Socket io calendar sync
-  const [newEvents, setNewEvents] = useState<boolean>(false);
+  const [eventsChanged, setEventsChanged] = useState<boolean>(false);
 
   // Charger les événements du calendrier (Recoil Js)
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
 
   const [showAddEventModal, setShowAddEventModal] = useState<"block" | "none">("none");
-  const [newEvent, setNewEvent] = useState<TypeEvent | null>(null);
+  const [newEvent, setNewEvent] = useState<TypeEvent>({
+    event_id: "",
+    event_creation_date: new Date(),
+    event_date: new Date(),
+    title: "New Event...",
+    description: "New description...",
+    is_completed: false,
+  });
   const [newEventDate, setNewEventDate] = useState<{
     year: number;
     month: number;
@@ -114,14 +121,14 @@ const Home: NextPage = () => {
 
   // Envoyer les nouveaux événements à chaque fois qu'on ajoute/modifie/supprime un événement
   useEffect(() => {
-    if (!newEvents) {
+    if (!eventsChanged) {
       return;
     }
 
     EmitNewEvents();
 
-    setNewEvents(false);
-  }, [newEvents]);
+    setEventsChanged(false);
+  }, [eventsChanged]);
 
   // Initiliaser la synchronisation des événements du calendrier
   const InitSyncCalendar = async () => {
@@ -213,6 +220,29 @@ const Home: NextPage = () => {
     }
   };
 
+  // Émettre un événement modification de la date (drag and drop)
+  const EmitUpdateEventDate = async (event_id: string, newDate: Date) => {
+    try {
+      const [status, errMessage] = await IsCalendarReadyToSync(jwt);
+
+      if (errMessage.length > 0) {
+        throw new Error(errMessage);
+      }
+
+      if (!status) {
+        throw new Error("Calendar is not ready to sync");
+      }
+
+      calendarEventsSocket.emit("calendar:change-date", { event_id: event_id, newDate: newDate, jwt: jwt }, () => {
+        setEventsChanged(true);
+        alert("changed");
+      });
+    } catch (err) {
+      const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
+      alert(errMessage);
+    }
+  };
+
   // Changer de mois (avancer)
   const ClickNext = () => {
     if (nav.month === 11) {
@@ -252,13 +282,13 @@ const Home: NextPage = () => {
   // Créer un évènement
   const CreateEvent = () => {
     // Valider titre
-    if (!newEvent || newEvent.title.trim().length > MAX_LENGTH_EVENT_TITLE || newEvent.title.trim().length <= 0) {
+    if (newEvent.title.trim().length > MAX_LENGTH_EVENT_TITLE || newEvent.title.trim().length <= 0) {
       alert(`Event title has to be less than ${MAX_LENGTH_EVENT_TITLE} characters.`);
       return;
     }
 
     // Valider desc
-    if (!newEvent || newEvent.description.trim().length > MAX_LENGTH_EVENT_DESC || newEvent.title.trim().length <= 0) {
+    if (newEvent.description.trim().length > MAX_LENGTH_EVENT_DESC || newEvent.title.trim().length <= 0) {
       alert(`Event description has to be less than ${MAX_LENGTH_EVENT_DESC} characters.`);
       return;
     }
@@ -277,10 +307,7 @@ const Home: NextPage = () => {
     setCalendarEvents((prevState) => [...prevState, eventToAdd]); // Rafréchit automatiquement le calendrier grâce à "useRecoilState"
 
     // Emettre les nouveaux événements au serveur
-    setNewEvents(true);
-
-    // Mettre new event à null
-    setNewEvent(null);
+    setEventsChanged(true);
 
     // Fermer AddEventModal
     setShowAddEventModal("none");
@@ -319,7 +346,7 @@ const Home: NextPage = () => {
     ]);
 
     // Émettre les nouveaux événements au serveur
-    setNewEvents(true);
+    setEventsChanged(true);
 
     // Effacer modal
     setUpdatedEvent(null);
@@ -339,8 +366,22 @@ const Home: NextPage = () => {
     // Émettre événement à supprimer au serveur
     EmitDeleteEvent(updatedEvent?.event_id!).finally(() => {
       // Émettre les nouveaux événements au serveur
-      setNewEvents(true);
+      setEventsChanged(true);
     });
+  };
+
+  // Changer la date d'un événement (drag and drop)
+  const EmitEventDragged = async (event: TypeEvent, newStartDate: TypeDay) => {
+    // Mettre à jour la date de l'événement
+    const updatedEvent: TypeEvent = {
+      ...event,
+      event_date: new Date(newStartDate.year, newStartDate.month, newStartDate.date),
+    };
+
+    console.log("emit");
+
+    // Émettre les nouveaux événements au serveur
+    EmitUpdateEventDate(updatedEvent.event_id, updatedEvent.event_date);
   };
 
   return (
@@ -488,9 +529,11 @@ const Home: NextPage = () => {
               paddingDays={paddingDays}
               days={days}
               calendarEvents={calendarEvents}
+              today={today}
+              syncStatus
               onAddEvent={OpenAddEventModal}
               onUpdateEvent={OpenUpdateEventModal}
-              today={today}
+              onEmitEventDragged={EmitEventDragged}
             />
 
             {/* Footer */}

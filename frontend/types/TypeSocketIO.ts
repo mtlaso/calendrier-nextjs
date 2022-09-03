@@ -38,6 +38,11 @@ export interface ClientToServerEvents {
    * Événement pour supprimer un événement du calendrier
    */
   "calendar:delete": (data: { event_id: string; jwt: string }) => void;
+
+  /**
+   * Événement pour changer la date d'un événement du calendrier (drag & drop)
+   */
+  "calendar:change-date": (data: { event_id: string; newDate: Date; jwt: string }, callback: () => void) => void;
 }
 
 export interface InterServerEvents {

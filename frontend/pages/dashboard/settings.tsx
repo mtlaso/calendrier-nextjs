@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { AiOutlineUser, AiOutlineInfoCircle, AiFillCloseCircle } from "react-icons/ai";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 
 import DashboardHeader from "../../components/dashboard/DashboardLayout";
 import UpdateSettingsModal from "../../components/modals/update_settings_modal/UpdateSettingsModal";
@@ -15,10 +15,12 @@ import { TypeUserInfo } from "../../types/TypeUserInfo";
 import { TypeFormValidationError } from "../../types/TypeFormValidationError";
 
 import styles from "./dashboard.module.sass";
+import { eventsState } from "../../state/events-state";
 
 export default function Settings() {
   const router = useRouter();
   const [jwt, setJwt] = useRecoilState(jwtState);
+  const setCalendarEvents = useSetRecoilState(eventsState);
 
   const [loading, setIsLoading] = useState<boolean>(true);
   const [userInfo, setUserInfo] = useState<null | TypeUserInfo>(null);
@@ -153,6 +155,9 @@ export default function Settings() {
 
       setDeleteEventsStatus("success");
       setDeleteEventsMessage("All your events have been deleted.");
+
+      // Supprimer événements localement
+      setCalendarEvents([]);
     } catch (err) {
       const errMessage = GenerateErrorMessage("An error occured while deleting your events", (err as Error).message);
       alert(errMessage);

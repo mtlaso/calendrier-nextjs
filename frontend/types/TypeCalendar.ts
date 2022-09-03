@@ -32,6 +32,11 @@ export type TypeCalendar = {
   calendarEvents: TypeEvent[];
 
   /**
+   * Vérifie si le calendrier est synchronisé. Si il est synchronisé, cela veut dire que l'utilisateur est connecté
+   */
+  syncStatus: boolean;
+
+  /**
    * Fonction appelée lors de l'ajout d'un évènement
    */
   onAddEvent: (year: number, month: number, date: number) => void;
@@ -40,4 +45,9 @@ export type TypeCalendar = {
    * Fonction appelée lors de la modification d'un évènement
    */
   onUpdateEvent: (event: TypeEvent) => void;
+
+  /**
+   * Fonction appelée quand un événement est déplacé (drag and drop) sur un autre jour
+   */
+  onEmitEventDragged: (event: TypeEvent, newStartDate: TypeDay) => void;
 };

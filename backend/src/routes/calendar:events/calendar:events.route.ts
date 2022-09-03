@@ -3,6 +3,7 @@ import { TypeEvent } from "../../types/TypeEvent";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "../../types/TypeSocketIO";
 
 import {
+  ChangeEventDateInDb,
   DeleteEventFromDb,
   ReadEventsFromDb,
   SaveEventsToDb,
@@ -59,6 +60,24 @@ export const OnConnectionRoute = (
 
       // Supprimer l'événement de la base de données
       await DeleteEventFromDb(event_id, decodedJwt);
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  // Changer la date d'un événement (drag and drop)
+  socket.on("calendar:change-date", async ({ event_id, newDate, jwt }) => {
+    try {
+      const decodedJwt = await DecodeJWTToken(jwt.split("Bearer ")[1]);
+
+      // Changed la date de l'événement dans la base de données
+      await ChangeEventDateInDb(event_id, newDate, decodedJwt);
+
+      // Lire les événements de l'utilisateur
+      const newEvents = await ReadEventsFromDb(decodedJwt);
+
+      // Envoyer les événements au client
+      socket.to(decodedJwt.user_id).emit("calendar:sync", newEvents);
     } catch (err) {
       throw err;
     }
