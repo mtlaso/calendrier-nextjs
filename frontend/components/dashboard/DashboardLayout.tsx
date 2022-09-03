@@ -5,7 +5,11 @@ import NProgress from "nprogress"; //nprogress module
 
 import styles from "./DashboardLayout.module.sass";
 
+import { useSetRecoilState } from "recoil";
+import { jwtState } from "../../state/jwt-state";
+
 export default function DashboardLayout(props: { title?: string; children: React.ReactNode }) {
+  const setJwt = useSetRecoilState(jwtState);
   const router = useRouter();
   const { title, children } = props;
 
@@ -15,6 +19,15 @@ export default function DashboardLayout(props: { title?: string; children: React
   Router.events.on("routeChangeComplete", () => NProgress.done());
   Router.events.on("routeChangeError", () => NProgress.done());
   // Fin de la barre de progression (nprogress)
+
+  // Deconnection de l'utilisateur
+  const HandleLogout = () => {
+    // Supprimer le jwt de l'utilisateur
+    setJwt("");
+
+    // Redirection vers la page de connexion
+    router.push("/auth/login");
+  };
 
   return (
     <div className={styles.container}>
@@ -33,6 +46,11 @@ export default function DashboardLayout(props: { title?: string; children: React
           </li>
           <li>
             <Link href={"/"}>Calendar</Link>
+          </li>
+          <li>
+            <Link href={""} onClick={HandleLogout}>
+              <a onClick={HandleLogout}>Logout</a>
+            </Link>
           </li>
         </ul>
       </nav>
