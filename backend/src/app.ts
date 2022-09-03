@@ -1,4 +1,5 @@
 import Express, { Request, Response, NextFunction } from "express";
+import rateLimit from "express-rate-limit";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import cors from "cors";
@@ -30,6 +31,17 @@ declare module "express-serve-static-core" {
 
 // Désactiver le header "x-Powered-By"
 app.disable("x-powered-by");
+
+// Rate limiter
+const limiter = rateLimit({
+  windowMs: 1000 * 60, // 1 minute
+  max: 1000, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  message: "Too many requests, try again after 1 minute",
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+app.use(limiter);
 
 // Cors
 app.use(
