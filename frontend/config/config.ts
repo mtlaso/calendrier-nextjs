@@ -32,6 +32,7 @@ export const API_URLS = {
     getUser: "http://localhost:4000/users/user",
     getUserEventsNumber: "http://localhost:4000/users/user/events",
     updateUserPassword: "http://localhost:4000/users/user/password",
+    deleteAllUserEvents: "http://localhost:4000/users/user/events",
   },
 };
 

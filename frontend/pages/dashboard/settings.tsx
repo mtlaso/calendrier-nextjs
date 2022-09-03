@@ -35,10 +35,13 @@ export default function Settings() {
   const [passwordUpdatedStatus, setPasswordUpdatedStatus] = useState<"success" | "error" | null>(null);
   const [passwordUpdatedMessage, setPasswordUpdatedMessage] = useState<string>("");
 
+  const [deleteEventsStatus, setDeleteEventsStatus] = useState<"success" | "error" | null>(null);
+  const [deleteEventsMessage, setDeleteEventsMessage] = useState<string>("");
+
   // Charger les informations sur l'utilisateur
   useEffect(() => {
     const LoadUserData = async () => {
-      const [err, userInfo, isLoading] = await useUserInfo(jwt);
+      const [err, userInfo] = await useUserInfo(jwt);
 
       if (err.length > 1) {
         // Supprimer le jwt de l'utilisateur
@@ -46,12 +49,14 @@ export default function Settings() {
 
         // Rediriger vers la page de connexion
         router.push(`/auth/login?message=${err}`);
-      } else {
-        setUserInfo(userInfo);
-        setIsLoading(isLoading);
+        return;
       }
+
+      setUserInfo(userInfo);
+      setIsLoading(false);
     };
 
+    setIsLoading(true);
     LoadUserData();
   }, []);
 
@@ -120,6 +125,37 @@ export default function Settings() {
       setPasswordUpdatedStatus("error");
       const errMessage = GenerateErrorMessage("An error occured while creating your account", (error as Error).message);
       setPasswordUpdatedMessage(errMessage);
+    }
+  };
+
+  // Supprimer le compte de l'utilisateur
+  const DeleteAllUserEvents = async () => {
+    try {
+      setDeleteEventsMessage("");
+      setDeleteEventsStatus(null);
+
+      const req = await fetch(API_URLS.users.deleteAllUserEvents, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${jwt}`,
+        },
+      });
+
+      const res = await req.json();
+
+      if (res.statusCode !== 200) {
+        setDeleteEventsStatus("error");
+        const errMessage = GenerateErrorMessage("An error occured while deleting your events.", res.message);
+        setDeleteEventsMessage(errMessage);
+        return;
+      }
+
+      setDeleteEventsStatus("success");
+      setDeleteEventsMessage("All your events have been deleted.");
+    } catch (err) {
+      const errMessage = GenerateErrorMessage("An error occured while deleting your events", (err as Error).message);
+      alert(errMessage);
     }
   };
 
@@ -233,6 +269,25 @@ export default function Settings() {
             </form>
           </UpdateSettingsModal>
         </div>
+
+        {/* Bouton supprimer tous les événements */}
+        <h2>Deleting events</h2>
+        <p>Deleting your events is irreversible.</p>
+        <button
+          className="button-delete"
+          onClick={() => {
+            const confirmation = confirm("Are you sure you want to delete all your events?");
+            if (confirmation) {
+              // Delete all events
+              DeleteAllUserEvents();
+            }
+          }}>
+          Delete all events
+        </button>
+
+        {/* Afficher un message d'erreur/confirmation la suppression des événements */}
+        {deleteEventsStatus === "success" && <p className={styles.success}>{deleteEventsMessage}</p>}
+        {deleteEventsStatus === "error" && <p className={styles.error}>{deleteEventsMessage}</p>}
       </div>
     </DashboardHeader>
   );

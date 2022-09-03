@@ -3,7 +3,12 @@
  */
 
 import Express, { Router } from "express";
-import { GetUser, GetUserEventsNumber, UpdateUserPassword } from "../../controllers/users/users.controller";
+import {
+  GetUser,
+  GetUserEventsNumber,
+  UpdateUserPassword,
+  DeleteUserEvents,
+} from "../../controllers/users/users.controller";
 import IsLoggedIn from "../../middlewares/is-loggedIn";
 
 const usersRoute = Router();
@@ -24,5 +29,10 @@ usersRoute.get("/user/events", IsLoggedIn, GetUserEventsNumber);
  * Modifie le mot de passe d'un utilisateur
  */
 usersRoute.post("/user/password", IsLoggedIn, UpdateUserPassword);
+
+/**
+ * Supprime tous les événement d'un utilisateur
+ */
+usersRoute.delete("/user/events", IsLoggedIn, DeleteUserEvents);
 
 export default usersRoute;

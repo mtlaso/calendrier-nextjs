@@ -48,7 +48,6 @@ export async function UpdateUserPassword(req: Request, res: Response, next: Next
 
     // Récupère le nouveau mot de passe
     const { oldPassword, newPassword } = req.body;
-    console.log(`oldPassword: ${oldPassword}, newPassword: ${newPassword}`);
 
     // Valider ancien mot de passe
     const client = await pool.connect();
@@ -115,6 +114,33 @@ export async function GetUserEventsNumber(req: Request, res: Response, next: Nex
       message: "User events number retrieved successfully",
       statusCode: 200,
       data: { count: eventsNumber.rows[0].count },
+    };
+
+    res.status(jsonReturn.statusCode).json(jsonReturn);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Supprime tous les événements d'un utilisateur
+ */
+export async function DeleteUserEvents(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userInfo = req.decodedJwt;
+
+    // Supprime tous les événements de l'utilisateur
+    const client = await pool.connect();
+    await client.query("DELETE FROM events WHERE user_id = $1", [
+      // @ts-expect-error
+      userInfo.user_id,
+    ]);
+    client.release();
+
+    // Renvoie le message de succès
+    const jsonReturn: TypeReturnMessage = {
+      message: "User events deleted successfully",
+      statusCode: 200,
     };
 
     res.status(jsonReturn.statusCode).json(jsonReturn);
