@@ -23,6 +23,11 @@ export type TypeEvent = {
   title: string;
 
   /**
+   * Description de l'événement
+   */
+  description: string;
+
+  /**
    * True si complété
    */
   is_completed: boolean;

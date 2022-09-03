@@ -5,6 +5,8 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuidv4 } from "uuid";
 import { io, Socket } from "socket.io-client";
 
+import styles from "./calendar.module.sass";
+
 import CalendarHeader from "../components/calendar-header/CalendarHeader";
 import CalendarFooter from "../components/calendar-footer/CalendarFooter";
 import GuideModal from "../components/modals/guide_modal/GuideModal";
@@ -25,7 +27,7 @@ import { ServerToClientEvents, ClientToServerEvents } from "../types/TypeSocketI
 import { jwtState } from "../state/jwt-state";
 import { eventsState } from "../state/events-state";
 
-import { MAX_LENGTH_EVENT } from "../config/config";
+import { MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
 
 import GenerateErrorMessage from "../utils/generate-error-message";
 import { LoadCalendar } from "../utils/load-calendar";
@@ -50,6 +52,7 @@ const Home: NextPage = () => {
   const today = useMemo(() => {
     return new Date();
   }, []);
+  7;
 
   // Sync status footer
   const [calendarSyncStatus, setCalendarSyncStatus] = useState<boolean>(false);
@@ -61,16 +64,15 @@ const Home: NextPage = () => {
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
 
   const [showAddEventModal, setShowAddEventModal] = useState<"block" | "none">("none");
-  const [addModalText, setAddModalText] = useState<string>("");
-  const [dateOfEvent, setDateOfEvent] = useState<{
+  const [newEvent, setNewEvent] = useState<TypeEvent | null>(null);
+  const [newEventDate, setNewEventDate] = useState<{
     year: number;
     month: number;
     date: number;
   } | null>(null);
 
   const [showUpdateEventModal, setShowUpdateEventModal] = useState<"block" | "none">("none");
-  const [updateModal, setUpdateModal] = useState<TypeEvent | null>(null);
-  const [updateModalText, setUpdateModalText] = useState<string>("");
+  const [updatedEvent, setUpdatedEvent] = useState<TypeEvent | null>(null);
 
   const [showInfoModal, setShowInfoModal] = useState<"flex" | "none">("none");
 
@@ -232,7 +234,7 @@ const Home: NextPage = () => {
   // Afficher modal AddEventModal
   const OpenAddEventModal = (year: number, month: number, date: number) => {
     // Mettre à jour la date de l'événement
-    setDateOfEvent({ year: year, month: month, date: date });
+    setNewEventDate({ year: year, month: month, date: date });
 
     // Afficher modal AddEventModal
     setShowAddEventModal("block");
@@ -241,10 +243,7 @@ const Home: NextPage = () => {
   // Afficher modal UpdateEventModal
   const OpenUpdateEventModal = (event: TypeEvent) => {
     // Mettre en mémoire l'événement à modifier
-    setUpdateModal(event);
-
-    // Texte du modal
-    setUpdateModalText(event.title);
+    setUpdatedEvent(event);
 
     // Afficher update modal
     setShowUpdateEventModal("block");
@@ -252,29 +251,36 @@ const Home: NextPage = () => {
 
   // Créer un évènement
   const CreateEvent = () => {
-    // Valider texte
-    if (addModalText.trim().length > MAX_LENGTH_EVENT || addModalText.trim().length <= 0) {
-      alert(`Text length has to be less than ${MAX_LENGTH_EVENT} characters.`);
+    // Valider titre
+    if (!newEvent || newEvent.title.trim().length > MAX_LENGTH_EVENT_TITLE || newEvent.title.trim().length <= 0) {
+      alert(`Event title has to be less than ${MAX_LENGTH_EVENT_TITLE} characters.`);
+      return;
+    }
+
+    // Valider desc
+    if (!newEvent || newEvent.description.trim().length > MAX_LENGTH_EVENT_DESC || newEvent.title.trim().length <= 0) {
+      alert(`Event description has to be less than ${MAX_LENGTH_EVENT_DESC} characters.`);
       return;
     }
 
     // Nouveau évènement à ajouter
-    const newEvent: TypeEvent = {
+    const eventToAdd: TypeEvent = {
       event_id: uuidv4(),
       event_creation_date: new Date(),
-      event_date: new Date(dateOfEvent?.year!, dateOfEvent?.month!, dateOfEvent?.date),
-      title: addModalText.trim(),
+      event_date: new Date(newEventDate?.year!, newEventDate?.month!, newEventDate?.date),
+      title: newEvent!.title,
+      description: newEvent!.description,
       is_completed: false,
     };
 
     // Sauvegarder nouveau évènement
-    setCalendarEvents((prevState) => [...prevState, newEvent]); // Rafréchit automatiquement le calendrier grâce à "useRecoilState"
+    setCalendarEvents((prevState) => [...prevState, eventToAdd]); // Rafréchit automatiquement le calendrier grâce à "useRecoilState"
 
     // Emettre les nouveaux événements au serveur
     setNewEvents(true);
 
-    // Effacer texte
-    setAddModalText("");
+    // Mettre new event à null
+    setNewEvent(null);
 
     // Fermer AddEventModal
     setShowAddEventModal("none");
@@ -282,20 +288,28 @@ const Home: NextPage = () => {
 
   // Modifier un évènement
   const UpdateEvent = () => {
-    // Valider texte
-    if (updateModalText?.trim().length! > MAX_LENGTH_EVENT || updateModalText?.trim().length! <= 0) {
-      alert(`Text length has to be less than ${MAX_LENGTH_EVENT} characters.`);
+    // Valider titre
+    if (
+      !updatedEvent ||
+      updatedEvent.title.trim().length > MAX_LENGTH_EVENT_TITLE ||
+      updatedEvent.title.trim().length <= 0
+    ) {
+      alert(`Event title has to be less than ${MAX_LENGTH_EVENT_TITLE} characters.`);
+      return;
+    }
+
+    // Valider desc
+    if (
+      !updatedEvent ||
+      updatedEvent.description.trim().length > MAX_LENGTH_EVENT_DESC ||
+      updatedEvent.title.trim().length <= 0
+    ) {
+      alert(`Event description has to be less than ${MAX_LENGTH_EVENT_DESC} characters.`);
       return;
     }
 
     // Trouver l'index de l'évènement à modifier
-    const index = calendarEvents.findIndex((event) => event.event_id === updateModal?.event_id);
-
-    // Évènement modifié
-    const updatedEvent = {
-      ...updateModal!,
-      title: updateModalText?.trim()!,
-    };
+    const index = calendarEvents.findIndex((event) => event.event_id === updatedEvent.event_id);
 
     // Modifier l'évènement. Calendrier est rafréchit automatiquement grâce à "useRecoilState"
     setCalendarEvents([
@@ -308,10 +322,7 @@ const Home: NextPage = () => {
     setNewEvents(true);
 
     // Effacer modal
-    setUpdateModal(null);
-
-    // Effacer texte
-    setUpdateModalText("");
+    setUpdatedEvent(null);
 
     // Fermer UpdateEventModal
     setShowUpdateEventModal("none");
@@ -320,13 +331,13 @@ const Home: NextPage = () => {
   // Supprimer un évènement
   const DeleteEvent = () => {
     // Trouver évènement à supprimer
-    const index = calendarEvents.findIndex((event) => event.event_id === updateModal?.event_id);
+    const index = calendarEvents.findIndex((event) => event.event_id === updatedEvent?.event_id);
 
     // Supprimer l'évènement. Calendrier est rafréchit automatiquement grâce à "useRecoilState"
     setCalendarEvents([...calendarEvents.slice(0, index), ...calendarEvents.slice(index + 1)]);
 
     // Émettre événement à supprimer au serveur
-    EmitDeleteEvent(updateModal?.event_id!).finally(() => {
+    EmitDeleteEvent(updatedEvent?.event_id!).finally(() => {
       // Émettre les nouveaux événements au serveur
       setNewEvents(true);
     });
@@ -350,14 +361,36 @@ const Home: NextPage = () => {
       {/* Add event modal */}
       <AddEventModal display={showAddEventModal}>
         <AddEventModalContent>
-          <h1>Add event for {`${dateOfEvent?.month}/${dateOfEvent?.date}/${dateOfEvent?.year}`}</h1>
-          <textarea
-            value={addModalText}
-            placeholder="Add New Event"
+          <h1>
+            Create event {new Date(newEventDate?.year!, newEventDate?.month!, newEventDate?.date).toLocaleDateString()}
+          </h1>
+          <label htmlFor="new-event-title" className={styles.event_modals_label}>
+            Title
+          </label>
+          <input
+            className={styles.event_modals_input}
+            id="new-event-title"
+            value={newEvent?.title ?? ""}
+            placeholder="Title"
             autoFocus
-            maxLength={MAX_LENGTH_EVENT}
+            maxLength={MAX_LENGTH_EVENT_TITLE}
             onChange={(e) => {
-              setAddModalText(e.target.value);
+              setNewEvent((old) => ({ ...old!, title: e.target.value }));
+            }}
+          />
+
+          <label htmlFor="new-event-desc" className={styles.event_modals_label}>
+            Description
+          </label>
+          <textarea
+            className={styles.event_modals_input}
+            id="new-event-desc"
+            value={newEvent?.description ?? ""}
+            placeholder="Description"
+            autoFocus
+            maxLength={MAX_LENGTH_EVENT_DESC}
+            onChange={(e) => {
+              setNewEvent((old) => ({ ...old!, description: e.target.value }));
             }}
           />
         </AddEventModalContent>
@@ -384,15 +417,33 @@ const Home: NextPage = () => {
       <UpdateEventModal display={showUpdateEventModal}>
         <UpdateEventModalContent>
           <h1>Update event</h1>
-          <p>Event created on {new Date(updateModal?.event_creation_date!).toDateString()}</p>
 
-          <textarea
-            value={updateModalText}
-            placeholder={updateModalText}
+          <label htmlFor="update-event-title" className={styles.event_modals_label}>
+            New title
+          </label>
+          <input
+            className={styles.event_modals_input}
+            id="update-event-title"
+            value={updatedEvent?.title ?? ""}
+            placeholder={updatedEvent?.title ?? ""}
             autoFocus
-            maxLength={MAX_LENGTH_EVENT}
+            maxLength={MAX_LENGTH_EVENT_TITLE}
             onChange={(e) => {
-              setUpdateModalText(e.target.value);
+              setUpdatedEvent((prev) => ({ ...prev!, title: e.target.value }));
+            }}
+          />
+          <label htmlFor="update-event-desc" className={styles.event_modals_label}>
+            New description
+          </label>
+          <input
+            className={styles.event_modals_input}
+            id="update-event-desc"
+            value={updatedEvent?.description ?? ""}
+            placeholder={updatedEvent?.description ?? ""}
+            autoFocus
+            maxLength={MAX_LENGTH_EVENT_DESC}
+            onChange={(e) => {
+              setUpdatedEvent((prev) => ({ ...prev!, description: e.target.value }));
             }}
           />
         </UpdateEventModalContent>

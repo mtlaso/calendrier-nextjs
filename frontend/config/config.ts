@@ -1,7 +1,8 @@
 /**
  * Longeur maximum d'un événement
  */
-export const MAX_LENGTH_EVENT = 256;
+export const MAX_LENGTH_EVENT_TITLE = 60;
+export const MAX_LENGTH_EVENT_DESC = 256;
 
 /**
  * Validations des champs lors de la connection/creation d'un utilisateur
