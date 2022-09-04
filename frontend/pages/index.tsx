@@ -39,7 +39,7 @@ const Home: NextPage = () => {
   const calendarEventsSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
     "http://localhost:4000/calendar-sync",
     {
-      transports: ["websocket", "polling"],
+      // transports: ["websocket", "polling"],
       withCredentials: true,
       upgrade: true,
       path: "/calendar-sync",
