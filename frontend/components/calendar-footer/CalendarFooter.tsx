@@ -1,5 +1,6 @@
 import React from "react";
 import { AiOutlineCloud, AiOutlineCloudSync } from "react-icons/ai";
+import { IoCloudOfflineOutline } from "react-icons/io5";
 import Link from "next/link";
 
 import styles from "./CalendarFooter.module.sass";
@@ -22,7 +23,7 @@ function CalendarFooter({ syncStatus }: { syncStatus: TypeCalendarSyncStatus }) 
         {syncStatus === "syncing" && (
           <p className={`${styles.text} ${styles.syncing}`}>
             <span>
-              <AiOutlineCloud size={25} />
+              <AiOutlineCloudSync size={25} />
             </span>
             Calendar syncing...
           </p>
@@ -31,7 +32,7 @@ function CalendarFooter({ syncStatus }: { syncStatus: TypeCalendarSyncStatus }) 
         {syncStatus === "notsynced" && (
           <p className={`${styles.text} ${styles.not_synced}`}>
             <span>
-              <AiOutlineCloud size={25} />
+              <IoCloudOfflineOutline size={20} />
             </span>
             Calendar not synced
           </p>
