@@ -3,7 +3,8 @@ import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
 require("dotenv").config();
 
-import pool from "../../utils/postgres/postgres-pool";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 import { ValidateUserInfo } from "./validators/validate-user-info";
 import { GenerateJWTToken } from "../../utils/jwt/jwt-utils";
@@ -25,8 +26,8 @@ export const Register = async (req: Request, res: Response, next: NextFunction) 
     password = password.trim();
 
     // Vérifier si le username existe
-    const result = await pool.query("SELECT user_id FROM users WHERE username = $1", [username]);
-    if (result.rowCount > 0) {
+    const userExists = await prisma.users.findUnique({ where: { username: username } });
+    if (userExists) {
       throw new ApiError("Username already exists", 400);
     }
 
@@ -37,11 +38,15 @@ export const Register = async (req: Request, res: Response, next: NextFunction) 
     const userId = uuidv4();
 
     // Créer compte
-    await pool.query(
-      `INSERT INTO users (user_id, username, password, created_on, last_login)
-     VALUES ($1, $2, $3, $4, $5)`,
-      [userId, username, password, new Date(), new Date()]
-    );
+    await prisma.users.create({
+      data: {
+        user_id: userId,
+        username: username,
+        password: password,
+        created_on: new Date(),
+        last_login: new Date(),
+      },
+    });
 
     // Message de confirmation
     const returnValue: TypeReturnMessage = { message: `User created : ${username}`, statusCode: 200 };
@@ -66,23 +71,23 @@ export const Login = async (req: Request, res: Response, next: NextFunction) => 
     password = password.trim();
 
     // Vérifier si le username existe
-    const result = await pool.query("SELECT user_id, password FROM users WHERE username = $1", [username]);
-    if (result.rows.length === 0) {
+    const user = await prisma.users.findUnique({ where: { username: username } });
+    if (!user) {
       throw new ApiError("Username doesn't exist", 400);
     }
 
     // Vérifier le mot de passe
-    const isPasswordValid = await bcrypt.compare(password, result.rows[0].password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new ApiError("Password is incorrect", 400);
     }
 
     // Changer le last_login de l'utilisateur
-    await pool.query("UPDATE users SET last_login = $1 WHERE user_id = $2", [new Date(), result.rows[0].user_id]);
+    await prisma.users.update({ where: { user_id: user.user_id }, data: { last_login: new Date() } });
 
     // Créer JWT token
     const jwtToken = await GenerateJWTToken({
-      user_id: result.rows[0].user_id,
+      user_id: user.user_id,
     });
 
     const bearer = `Bearer ${jwtToken}`;

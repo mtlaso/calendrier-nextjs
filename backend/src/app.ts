@@ -71,16 +71,15 @@ io.engine.on("connection_error", (error: any) => {
   console.log(`(server) connection_error : ${error}`);
 });
 
-calendarEventsNamespace.on("connection", (socket: Socket) => {
-  OnConnectionRoute(socket, io);
-});
-
 // Vérifier le header "content-type"
 app.use(CheckContentType);
 
 // Routes
 app.use("/auth", authRoute);
 app.use("/users", usersRoute);
+calendarEventsNamespace.on("connection", (socket: Socket) => {
+  OnConnectionRoute(socket, io);
+});
 
 // Error middlewares
 const MiddlewareHandleErrorsDev = (error: Error, req: Request, res: Response, next: NextFunction) => {

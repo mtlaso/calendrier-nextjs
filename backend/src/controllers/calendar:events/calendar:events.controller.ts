@@ -1,6 +1,7 @@
-import pool from "../../utils/postgres/postgres-pool";
 import ApiError from "../../types/ApiError";
 import { TypeEvent } from "../../types/TypeEvent";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 /**
  * Sauvegarde les événements de l'utilisateur dans la base de données
@@ -13,23 +14,28 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
     const userInfo = jwt;
 
     // Met à jour les événements de l'utilisateur
-    const client = await pool.connect();
-    const query = `INSERT INTO events (user_id, event_id, event_creation_date, event_date, title, is_completed, description)
-                  VALUES ($1, $2, $3, $4, $5, $6, $7)
-                  ON CONFLICT (event_id) DO UPDATE SET title = $5, is_completed = $6, description = $7
-    `;
-    for (const event of events) {
-      await client.query(query, [
-        userInfo.user_id,
-        event.event_id,
-        event.event_creation_date,
-        event.event_date,
-        event.title,
-        event.is_completed,
-        event.description,
-      ]);
-    }
-    client.release();
+    events.map(async (event) => {
+      await prisma.events.upsert({
+        where: {
+          event_id: event.event_id,
+        },
+        create: {
+          user_id: userInfo.user_id,
+          event_id: event.event_id,
+          event_creation_date: event.event_creation_date,
+          event_date: event.event_date,
+          title: event.title,
+          is_completed: event.is_completed,
+          description: event.description,
+        },
+        // Si l'événement existe déja, on le met à jour...
+        update: {
+          title: event.title,
+          is_completed: event.is_completed,
+          description: event.description,
+        },
+      });
+    });
   } catch (err) {
     throw new ApiError((err as Error).message, 500);
   }
@@ -41,12 +47,13 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
  */
 export async function ReadEventsFromDb(jwt: any) {
   try {
+    // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
+    const userInfo = jwt;
+
     // Récupère les événements de l'utilisateur
-    const client = await pool.connect();
-    const query = `SELECT user_id, event_id, event_creation_date, event_date, title, is_completed, description FROM events WHERE user_id = $1`;
-    const r = await client.query(query, [jwt.user_id]);
-    client.release();
-    return r.rows as TypeEvent[];
+    const events = await prisma.events.findMany({ where: { user_id: userInfo.user_id } });
+
+    return events;
   } catch (err) {
     throw new ApiError((err as Error).message, 500);
   }
@@ -61,10 +68,12 @@ export async function DeleteEventFromDb(event_id: string, jwt: any) {
     const userInfo = jwt;
 
     // Supprime l'événement de la base de données
-    const client = await pool.connect();
-    const query = `DELETE FROM events WHERE event_id = $1 AND user_id = $2`;
-    await client.query(query, [event_id, userInfo.user_id]);
-    client.release();
+    await prisma.events.deleteMany({
+      where: {
+        event_id: event_id,
+        user_id: userInfo.user_id,
+      },
+    });
   } catch (err) {
     throw new ApiError((err as Error).message, 500);
   }
@@ -78,10 +87,10 @@ export async function ChangeEventDateInDb(event_id: string, newDate: Date, jwt: 
     const userInfo = jwt;
 
     // Met à jour la date de l'événement
-    const client = await pool.connect();
-    const query = `UPDATE events SET event_date = $1 WHERE event_id = $2 AND user_id = $3`;
-    await client.query(query, [newDate, event_id, userInfo.user_id]);
-    client.release();
+    await prisma.events.updateMany({
+      where: { event_id: event_id, user_id: userInfo.user_id },
+      data: { event_date: newDate },
+    });
   } catch (err) {
     throw new ApiError((err as Error).message, 500);
   }

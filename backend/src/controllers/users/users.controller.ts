@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcrypt";
 require("dotenv").config();
-
-import pool from "../../utils/postgres/postgres-pool";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 import { TypeReturnMessage } from "../../types/TypeReturnMessage";
 import { ValidatUserPassword } from "./validators/validate-user-password";
@@ -17,19 +17,19 @@ export async function GetUser(req: Request, res: Response, next: NextFunction) {
     const userInfo = req.decodedJwt;
 
     // Récupère l'utilisateur
-    const client = await pool.connect();
-    const user = await client.query(
-      "SELECT user_id, username, created_on, last_login FROM users WHERE user_id = $1",
-      // @ts-expect-error
-      [userInfo.user_id]
-    );
-    client.release();
+    const user = await prisma.users.findUnique({
+      where: {
+        user_id:
+          // @ts-ignore
+          userInfo.user_id,
+      },
+    });
 
     // Renvoie l'utilisateur
     const jsonReturn: TypeReturnMessage = {
       message: "User retrieved successfully",
       statusCode: 200,
-      data: user.rows[0],
+      data: user,
     };
 
     res.status(jsonReturn.statusCode).json(jsonReturn);
@@ -50,18 +50,20 @@ export async function UpdateUserPassword(req: Request, res: Response, next: Next
     const { oldPassword, newPassword } = req.body;
 
     // Valider ancien mot de passe
-    const client = await pool.connect();
-    const oldPasswordHash = await client.query(
-      "SELECT password FROM users WHERE user_id = $1",
-      // @ts-expect-error
-      [userInfo.user_id]
-    );
+    const oldPasswordHash = await prisma.users.findUnique({
+      where: {
+        user_id:
+          // @ts-ignore
+          userInfo.user_id,
+      },
+      select: { password: true },
+    });
 
-    if (oldPasswordHash.rowCount < 1) {
+    if (!oldPasswordHash?.password) {
       throw new ApiError("User not found", 404);
     }
 
-    const isOldPasswordValid = await bcrypt.compare(oldPassword, oldPasswordHash.rows[0].password);
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, oldPasswordHash.password);
     if (!isOldPasswordValid) {
       throw new ApiError("Old password invalid", 400);
     }
@@ -73,12 +75,14 @@ export async function UpdateUserPassword(req: Request, res: Response, next: Next
     const newHashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Modifie le mot de passe de l'utilisateur
-    await client.query("UPDATE users SET password = $1 WHERE user_id = $2", [
-      newHashedPassword,
-      // @ts-expect-error
-      userInfo.user_id,
-    ]);
-    client.release();
+    await prisma.users.update({
+      where: {
+        user_id:
+          // @ts-expect-error
+          userInfo.user_id,
+      },
+      data: { password: newHashedPassword },
+    });
 
     // Renvoie le message de succès
     const jsonReturn: TypeReturnMessage = {
@@ -101,19 +105,19 @@ export async function GetUserEventsNumber(req: Request, res: Response, next: Nex
     const userInfo = req.decodedJwt;
 
     // Récupère le nombre d'événements que l'utilisateur à créé
-    const client = await pool.connect();
-    const eventsNumber = await client.query(
-      "SELECT COUNT(title) FROM events WHERE user_id = $1",
-      // @ts-expect-error
-      [userInfo.user_id]
-    );
-    client.release();
+    const eventsNumber = await prisma.events.count({
+      where: {
+        user_id:
+          // @ts-expect-error
+          userInfo.user_id,
+      },
+    });
 
     // Renvoie le nombre d'événements
     const jsonReturn: TypeReturnMessage = {
       message: "User events number retrieved successfully",
       statusCode: 200,
-      data: { count: eventsNumber.rows[0].count },
+      data: { count: eventsNumber },
     };
 
     res.status(jsonReturn.statusCode).json(jsonReturn);
@@ -130,12 +134,12 @@ export async function DeleteUserEvents(req: Request, res: Response, next: NextFu
     const userInfo = req.decodedJwt;
 
     // Supprime tous les événements de l'utilisateur
-    const client = await pool.connect();
-    await client.query("DELETE FROM events WHERE user_id = $1", [
-      // @ts-expect-error
-      userInfo.user_id,
-    ]);
-    client.release();
+    await prisma.events.deleteMany({
+      where: {
+        // @ts-expect-error
+        user_id: userInfo.user_id,
+      },
+    });
 
     // Renvoie le message de succès
     const jsonReturn: TypeReturnMessage = {
