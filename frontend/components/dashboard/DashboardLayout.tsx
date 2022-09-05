@@ -48,9 +48,9 @@ export default function DashboardLayout(props: { title?: string; children: React
             <Link href={"/"}>Calendar</Link>
           </li>
           <li>
-            <Link href={""} onClick={HandleLogout}>
-              <a onClick={HandleLogout}>Logout</a>
-            </Link>
+            <a href="#" onClick={HandleLogout}>
+              Logout
+            </a>
           </li>
         </ul>
       </nav>
