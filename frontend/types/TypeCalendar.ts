@@ -1,6 +1,7 @@
 import { TypeWeekDays } from "./TypeWeekDays";
 import { TypeDay } from "./TypeDay";
 import { TypeEvent } from "./TypeEvent";
+import { TypeCalendarSyncStatus } from "./TypeCalendarSyncStatus";
 
 /**
  * Types du calendrier
@@ -34,7 +35,7 @@ export type TypeCalendar = {
   /**
    * Vérifie si le calendrier est synchronisé. Si il est synchronisé, cela veut dire que l'utilisateur est connecté
    */
-  syncStatus: boolean;
+  syncStatus: TypeCalendarSyncStatus;
 
   /**
    * Fonction appelée lors de l'ajout d'un évènement
@@ -47,7 +48,7 @@ export type TypeCalendar = {
   onUpdateEvent: (event: TypeEvent) => void;
 
   /**
-   * Fonction appelée quand un événement est déplacé (drag and drop) sur un autre jour
+   * Fonction appelée quand un événement est déplacé (drag and drop) sur un autre jour pour qu'il change de date
    */
   onEmitEventDragged: (event: TypeEvent, newStartDate: TypeDay) => void;
 };

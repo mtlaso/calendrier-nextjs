@@ -7,3 +7,8 @@ export const AUTH_VALIDATION = {
   password_max_length: 60,
   password_min_length: 8,
 };
+
+/**
+ * Calendar namespace
+ */
+export const CALENDAR_NAMESPACE = "/calendar-sync";

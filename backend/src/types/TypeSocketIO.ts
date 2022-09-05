@@ -14,6 +14,11 @@ export interface ServerToClientEvents {
    * Événement pour synchroniser les données du calendrier
    */
   "calendar:sync": (data: TypeEvent[]) => void;
+
+  /**
+   * Événement de succès après avoir rejoint une room
+   */
+  "calendar:joined": () => void;
 }
 
 /**
@@ -23,22 +28,17 @@ export interface ClientToServerEvents {
   /**
    * Événement pour rejoindre la bonne room
    */
-  "calendar:join": (data: { jwt: string }) => void;
+  "calendar:join": (data: { jwt: string }, callback: () => void) => void;
 
   /**
    * Événement pour synchroniser les données du calendrier
    */
-  "calendar:sync": (data: { events: TypeEvent[]; jwt: string }, callback: () => void) => void;
+  "calendar:sync": (data: { events: TypeEvent[]; jwt: string }) => void;
 
   /**
    * Événement pour supprimer un événement du calendrier
    */
   "calendar:delete": (data: { event_id: string; jwt: string }) => void;
-
-  /**
-   * Événement pour changer la date d'un événement du calendrier (drag & drop)
-   */
-  "calendar:change-date": (data: { event_id: string; newDate: Date; jwt: string }, callback: () => void) => void;
 }
 
 export interface InterServerEvents {

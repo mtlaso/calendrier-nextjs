@@ -1,3 +1,5 @@
+import { TypeEvent } from "../types/TypeEvent";
+
 /**
  * Longeur maximum d'un événement
  */
@@ -46,3 +48,20 @@ export const JWT_TOKEN_KEY: string = "jwt-state";
  * Clé localstorage des événements
  */
 export const EVENTS_LOCALSTORAGE_KEY: string = "events-state";
+
+/**
+ * Événement par défaut
+ */
+export const DEFAULT_EVENT: TypeEvent = {
+  event_id: "",
+  event_creation_date: new Date(),
+  event_date: new Date(),
+  title: "New Event...",
+  description: "New description...",
+  is_completed: false,
+};
+
+/**
+ * Calendar namespace
+ */
+export const CALENDAR_NAMESPACE = "/calendar-sync";

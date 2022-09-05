@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "dev": "npx ts-node-dev --respawn --transpile-only --clear ./src/app.ts",
+    "dev": "npx ts-node-dev --respawn --transpile-only --clear --exit-child ./src/app.ts",
     "build": "del-cli ./dist && tsc",
     
     "__comment": "echo '============\n[x] Pour lancer la commande `dev-migrate` : `npm run dev-migrate -- --name=<nom-de-la-migration>`\n============'",

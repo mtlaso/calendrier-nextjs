@@ -13,7 +13,7 @@ import ApiError from "./types/ApiError";
 import { TypeReturnMessage } from "./types/TypeReturnMessage";
 import { CheckContentType } from "./middlewares/check-content-type";
 import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "./types/TypeSocketIO";
-import { DecodeJWTToken } from "./utils/jwt/jwt-utils";
+import { CALENDAR_NAMESPACE } from "./config/config";
 
 const app = Express();
 const port = process.env.PORT || 4000;
@@ -62,7 +62,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEve
     allowedHeaders: "*",
     credentials: true,
   },
-  path: "/calendar-sync",
+  path: CALENDAR_NAMESPACE,
 });
 
 const calendarEventsNamespace = io.of("/calendar-sync");

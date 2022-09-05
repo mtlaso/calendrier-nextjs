@@ -27,11 +27,12 @@ import { ServerToClientEvents, ClientToServerEvents } from "../types/TypeSocketI
 import { jwtState } from "../state/jwt-state";
 import { eventsState } from "../state/events-state";
 
-import { MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
+import { CALENDAR_NAMESPACE, DEFAULT_EVENT, MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
 
 import GenerateErrorMessage from "../utils/generate-error-message";
 import { LoadCalendar } from "../utils/load-calendar";
 import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
+import { TypeCalendarSyncStatus } from "../types/TypeCalendarSyncStatus";
 
 const Home: NextPage = () => {
   const jwt = useRecoilValue(jwtState);
@@ -39,10 +40,9 @@ const Home: NextPage = () => {
   const calendarEventsSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
     "http://localhost:4000/calendar-sync",
     {
-      // transports: ["websocket", "polling"],
       withCredentials: true,
       upgrade: true,
-      path: "/calendar-sync",
+      path: CALENDAR_NAMESPACE,
       auth: {
         Authorization: `${jwt}`,
       },
@@ -56,7 +56,7 @@ const Home: NextPage = () => {
   7;
 
   // Sync status footer
-  const [calendarSyncStatus, setCalendarSyncStatus] = useState<boolean>(false);
+  const [calendarSyncStatus, setCalendarSyncStatus] = useState<TypeCalendarSyncStatus>("notsynced");
 
   // Socket io calendar sync
   const [eventsChanged, setEventsChanged] = useState<boolean>(false);
@@ -65,14 +65,7 @@ const Home: NextPage = () => {
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
 
   const [showAddEventModal, setShowAddEventModal] = useState<"block" | "none">("none");
-  const [newEvent, setNewEvent] = useState<TypeEvent>({
-    event_id: "",
-    event_creation_date: new Date(),
-    event_date: new Date(),
-    title: "New Event...",
-    description: "New description...",
-    is_completed: false,
-  });
+  const [newEvent, setNewEvent] = useState<TypeEvent>(DEFAULT_EVENT);
   const [newEventDate, setNewEventDate] = useState<{
     year: number;
     month: number;
@@ -97,9 +90,7 @@ const Home: NextPage = () => {
 
   // Charger le calendrier
   useEffect(() => {
-    console.info("Loading calendar...");
     setIsLoading(true);
-    setCalendarSyncStatus(false);
 
     const [_paddingDays, _days, _dateDisplay] = LoadCalendar(nav);
 
@@ -108,15 +99,21 @@ const Home: NextPage = () => {
     setDateDisplay(_dateDisplay as string);
 
     // Synchroniser les événements avec le calendrier au chargement de la page
-    InitSyncCalendar();
+    InitCalendarSync();
 
     setIsLoading(false);
 
     return () => {
       calendarEventsSocket.off("connect");
-      calendarEventsSocket.off("calendar:sync");
       calendarEventsSocket.off("connect_error");
       calendarEventsSocket.off("disconnect");
+      calendarEventsSocket.off("calendar:sync");
+      calendarEventsSocket.io.off("close");
+      calendarEventsSocket.io.off("error");
+      calendarEventsSocket.io.off("reconnect");
+      calendarEventsSocket.io.off("reconnect_attempt");
+      calendarEventsSocket.io.off("reconnect_error");
+      calendarEventsSocket.io.off("reconnect_failed");
     };
   }, [nav]);
 
@@ -132,7 +129,7 @@ const Home: NextPage = () => {
   }, [eventsChanged]);
 
   // Initiliaser la synchronisation des événements du calendrier
-  const InitSyncCalendar = async () => {
+  const InitCalendarSync = async () => {
     try {
       const [status, errMessage] = await IsCalendarReadyToSync(jwt);
       if (errMessage.length > 0) {
@@ -149,33 +146,56 @@ const Home: NextPage = () => {
       // Rejoindre la bonne room pour synchroniser les événements
       calendarEventsSocket.emit("calendar:join", { jwt: jwt });
 
-      // Écouter pour des l'événement de synchronisation du calendrier
-      calendarEventsSocket.on("calendar:sync", (events: TypeEvent[]) => {
-        setCalendarEvents([...events]);
-        setCalendarSyncStatus(true);
-      });
+      // Événement de succès après avoir rejoint une room
+      calendarEventsSocket.on("calendar:joined", () => {});
 
       // Émettre les événements au serveur
-      calendarEventsSocket.emit("calendar:sync", { events: calendarEvents, jwt: jwt }, () => {});
+      calendarEventsSocket.emit("calendar:sync", { jwt: jwt, events: calendarEvents });
+
+      // Écouter les événement de synchronisation du calendrier (reçus du serveur)
+      calendarEventsSocket.on("calendar:sync", (events: TypeEvent[]) => {
+        setCalendarEvents(events);
+        setCalendarSyncStatus("synced");
+      });
 
       // Évenement de connection
       calendarEventsSocket.on("connect_error", (error: any) => {
-        setCalendarSyncStatus(false);
+        setCalendarSyncStatus("notsynced");
       });
 
       // Évenement déconnection
       calendarEventsSocket.on("disconnect", (reason) => {
-        setCalendarSyncStatus(false);
+        setCalendarSyncStatus("notsynced");
       });
 
-      // Évenement de reconnection
+      // Évenement d'essaie de reconnection
+      calendarEventsSocket.io.on("reconnect_attempt", (attemptNumber) => {
+        setCalendarSyncStatus("syncing");
+      });
+
+      // Évenement de reconnection avec succès
       calendarEventsSocket.io.on("reconnect", (attemptNumber) => {
-        setCalendarSyncStatus(true);
+        setCalendarSyncStatus("synced");
+      });
+
+      // Évenement de reconnection échouée
+      calendarEventsSocket.io.on("reconnect_failed", () => {
+        setCalendarSyncStatus("notsynced");
+      });
+
+      // Évenement de reconnection échouée
+      calendarEventsSocket.io.on("reconnect_error", (error) => {
+        setCalendarSyncStatus("notsynced");
       });
 
       // Évenement d'erreur
       calendarEventsSocket.io.on("error", (error) => {
-        setCalendarSyncStatus(false);
+        setCalendarSyncStatus("notsynced");
+      });
+
+      // Évenement de déconnection
+      calendarEventsSocket.io.on("close", (error) => {
+        setCalendarSyncStatus("notsynced");
       });
     } catch (err) {
       const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
@@ -195,7 +215,7 @@ const Home: NextPage = () => {
         throw new Error("Calendar is not ready to sync");
       }
 
-      calendarEventsSocket.emit("calendar:sync", { events: calendarEvents, jwt: jwt }, () => {});
+      calendarEventsSocket.emit("calendar:sync", { events: calendarEvents, jwt: jwt });
     } catch (err) {
       const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
     }
@@ -217,29 +237,6 @@ const Home: NextPage = () => {
       calendarEventsSocket.emit("calendar:delete", { event_id: event_id, jwt: jwt });
     } catch (err) {
       const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
-    }
-  };
-
-  // Émettre un événement modification de la date (drag and drop)
-  const EmitUpdateEventDate = async (event_id: string, newDate: Date) => {
-    try {
-      const [status, errMessage] = await IsCalendarReadyToSync(jwt);
-
-      if (errMessage.length > 0) {
-        throw new Error(errMessage);
-      }
-
-      if (!status) {
-        throw new Error("Calendar is not ready to sync");
-      }
-
-      calendarEventsSocket.emit("calendar:change-date", { event_id: event_id, newDate: newDate, jwt: jwt }, () => {
-        setEventsChanged(true);
-        alert("changed");
-      });
-    } catch (err) {
-      const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
-      alert(errMessage);
     }
   };
 
@@ -365,21 +362,31 @@ const Home: NextPage = () => {
 
     // Émettre événement à supprimer au serveur
     EmitDeleteEvent(updatedEvent?.event_id!).finally(() => {
-      // Émettre les nouveaux événements au serveur
+      // Rependre les événements du serveur
       setEventsChanged(true);
     });
   };
 
-  // Changer la date d'un événement (drag and drop)
-  const EmitEventDragged = async (event: TypeEvent, newStartDate: TypeDay) => {
-    // Mettre à jour la date de l'événement
-    const updatedEvent: TypeEvent = {
+  // Mettre à jour date de l'évènement (drag and drop des événements sur le calendrier)
+  const UpdateEventDate = (event: TypeEvent, newDate: TypeDay) => {
+    // Trouver évènement à changer la date
+    const index = calendarEvents.findIndex((e) => e.event_id === event.event_id);
+
+    // Modifier la date de l'évènement
+    const updatedEventDate = {
       ...event,
-      event_date: new Date(newStartDate.year, newStartDate.month, newStartDate.date),
+      event_date: new Date(newDate.year, newDate.month, newDate.date),
     };
 
+    // Mettre à jour l'évènement. Calendrier est rafréchit automatiquement grâce à "useRecoilState"
+    setCalendarEvents([
+      ...calendarEvents.slice(0, Number(index)),
+      updatedEventDate,
+      ...calendarEvents.slice(Number(index) + 1),
+    ]);
+
     // Émettre les nouveaux événements au serveur
-    EmitUpdateEventDate(updatedEvent.event_id, updatedEvent.event_date);
+    setEventsChanged(true);
   };
 
   return (
@@ -528,10 +535,10 @@ const Home: NextPage = () => {
               days={days}
               calendarEvents={calendarEvents}
               today={today}
-              syncStatus
+              syncStatus={calendarSyncStatus}
               onAddEvent={OpenAddEventModal}
               onUpdateEvent={OpenUpdateEventModal}
-              onEmitEventDragged={EmitEventDragged}
+              onEmitEventDragged={UpdateEventDate}
             />
 
             {/* Footer */}

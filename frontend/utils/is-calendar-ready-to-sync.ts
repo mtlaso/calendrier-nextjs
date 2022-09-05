@@ -19,7 +19,7 @@ export default async function IsCalendarReadyToSync(jwt: string): Promise<[boole
     }
 
     // Si on peut récupérer les infos de l'utilisateur, le jwt est valide
-    const [err, userInfo, _] = await useUserInfo(jwt);
+    const [err, userInfo] = await useUserInfo(jwt);
     if (err) {
       return [status, errMessage];
     }

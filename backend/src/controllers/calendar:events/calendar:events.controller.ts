@@ -14,11 +14,8 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
     const userInfo = jwt;
 
     // Met à jour les événements de l'utilisateur
-    events.map(async (event) => {
+    for (const event of events) {
       await prisma.events.upsert({
-        where: {
-          event_id: event.event_id,
-        },
         create: {
           user_id: userInfo.user_id,
           event_id: event.event_id,
@@ -33,9 +30,16 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
           title: event.title,
           is_completed: event.is_completed,
           description: event.description,
+          event_date: event.event_date,
+        },
+        // Si l'événement existe déja avec cet id, on le met à jour...
+        where: {
+          event_id: event.event_id,
         },
       });
-    });
+    }
+
+    return true;
   } catch (err) {
     throw new ApiError((err as Error).message, 500);
   }

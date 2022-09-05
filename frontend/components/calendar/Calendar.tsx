@@ -43,12 +43,11 @@ const Calendar = ({
         draggedElementDate.getMonth() === selectedDragCellDate.getMonth() &&
         draggedElementDate.getFullYear() === selectedDragCellDate.getFullYear()
       ) {
-        console.log("same cell, not moving");
         return;
       }
 
       // Vérifier que l'utilisateur est connecté
-      if (!syncStatus) {
+      if (syncStatus !== "synced") {
         return;
       }
 
