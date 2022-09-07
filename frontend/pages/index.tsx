@@ -30,12 +30,14 @@ import { eventsState } from "../state/events-state";
 import { CALENDAR_NAMESPACE, DEFAULT_EVENT, MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
 
 import GenerateErrorMessage from "../utils/generate-error-message";
-import { LoadCalendar } from "../utils/load-calendar";
+import LoadCalendar from "../utils/load-calendar";
 import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
 import { TypeCalendarSyncStatus } from "../types/TypeCalendarSyncStatus";
 
 const Home: NextPage = () => {
+  // Recoil Js states
   const jwt = useRecoilValue(jwtState);
+  const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
 
   const calendarEventsSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
     "http://localhost:4000/calendar-sync",
@@ -61,9 +63,6 @@ const Home: NextPage = () => {
   // Socket io calendar sync
   const [eventsChanged, setEventsChanged] = useState<boolean>(false);
 
-  // Charger les événements du calendrier (Recoil Js)
-  const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
-
   const [showAddEventModal, setShowAddEventModal] = useState<"block" | "none">("none");
   const [newEvent, setNewEvent] = useState<TypeEvent>(DEFAULT_EVENT);
   const [newEventDate, setNewEventDate] = useState<{
@@ -81,12 +80,12 @@ const Home: NextPage = () => {
   const [paddingDays, setPaddingDays] = useState<TypeWeekDays[]>([]);
   const [dateDisplay, setDateDisplay] = useState<string>("");
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // Utilisé pour la navigation entre les mois (back et next)
   const [nav, setNav] = useState<TypeNav>({
-    // Utilisé pour la navigation entre les mois (back et next)
     month: dt.getMonth(),
     year: dt.getFullYear(),
   });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Charger le calendrier
   useEffect(() => {

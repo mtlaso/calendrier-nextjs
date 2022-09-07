@@ -1,5 +1,5 @@
 /**
- *  Type utilisée dans "LoadCalendar" pour gérer le changement de mois/année
+ *  Type utilisé dans "LoadCalendar" pour gérer le changement de mois/année
  */
 export type TypeNav = {
   /**
