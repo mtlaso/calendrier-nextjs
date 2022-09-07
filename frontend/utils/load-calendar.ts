@@ -82,7 +82,7 @@ function GetHeaderText(firstDayOfMonth: Date) {
  * @example
  *  = [paddingDays, daysInMonth, headerText] = LoadCalendar
  */
-export default function LoadCalendar(nav: TypeNav): (string | TypeWeekDays[] | TypeDay[])[] {
+export default function LoadCalendar(nav: TypeNav): [TypeWeekDays[], TypeDay[], string] {
   const dt = new Date();
 
   // Définir le mois et l'année à afficher (à partir de l'objet nav)

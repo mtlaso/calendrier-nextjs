@@ -15,7 +15,7 @@ export type TypeCalendar = {
   /**
    * Date à afficher sur le header
    */
-  dateDisplay: string;
+  headerText: string;
 
   /**
    * Liste des jours du mois

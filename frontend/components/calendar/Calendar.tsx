@@ -14,7 +14,7 @@ import SmallTitle from "../../utils/events-small-title";
  */
 const Calendar = ({
   today,
-  dateDisplay,
+  headerText,
   paddingDays,
   days,
   calendarEvents,
@@ -65,9 +65,9 @@ const Calendar = ({
   useEffect(() => {
     const headerDate = document.getElementById("header-date");
     if (headerDate) {
-      headerDate.textContent = dateDisplay;
+      headerDate.textContent = headerText;
     }
-  }, [dateDisplay]);
+  }, [headerText]);
 
   /**
    * Fonction qui permet de render un jour (.container-column-box)

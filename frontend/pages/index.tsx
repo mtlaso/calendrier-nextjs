@@ -3,7 +3,6 @@ import Head from "next/head";
 import { useEffect, useMemo, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuidv4 } from "uuid";
-import { io, Socket } from "socket.io-client";
 
 import styles from "./calendar.module.sass";
 
@@ -22,46 +21,32 @@ import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
 import { TypeWeekDays } from "../types/TypeWeekDays";
 import { TypeEvent } from "../types/TypeEvent";
-import { ServerToClientEvents, ClientToServerEvents } from "../types/TypeSocketIO";
+import { TypeCalendarSyncStatus } from "../types/TypeCalendarSyncStatus";
 
 import { jwtState } from "../state/jwt-state";
 import { eventsState } from "../state/events-state";
 
-import { CALENDAR_NAMESPACE, DEFAULT_EVENT, MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
-
 import GenerateErrorMessage from "../utils/generate-error-message";
 import LoadCalendar from "../utils/load-calendar";
 import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
-import { TypeCalendarSyncStatus } from "../types/TypeCalendarSyncStatus";
+import { InitSocketIO } from "../utils/init-socketIO";
+
+import { DEFAULT_EVENT, MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
 
 const Home: NextPage = () => {
   // Recoil Js states
   const jwt = useRecoilValue(jwtState);
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
 
-  const calendarEventsSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-    "http://localhost:4000/calendar-sync",
-    {
-      withCredentials: true,
-      upgrade: true,
-      path: CALENDAR_NAMESPACE,
-      auth: {
-        Authorization: `${jwt}`,
-      },
-    }
-  );
+  const calendarEventsSocket = InitSocketIO(jwt);
+  const [calendarSyncStatus, setCalendarSyncStatus] = useState<TypeCalendarSyncStatus>("notsynced"); // Sync status footer
+  const [eventsChanged, setEventsChanged] = useState<boolean>(false); // Socket io calendar sync
 
   const dt = new Date();
   const today = useMemo(() => {
     return new Date();
   }, []);
   7;
-
-  // Sync status footer
-  const [calendarSyncStatus, setCalendarSyncStatus] = useState<TypeCalendarSyncStatus>("notsynced");
-
-  // Socket io calendar sync
-  const [eventsChanged, setEventsChanged] = useState<boolean>(false);
 
   const [showAddEventModal, setShowAddEventModal] = useState<"block" | "none">("none");
   const [newEvent, setNewEvent] = useState<TypeEvent>(DEFAULT_EVENT);
@@ -78,24 +63,25 @@ const Home: NextPage = () => {
 
   const [days, setDays] = useState<TypeDay[]>([]);
   const [paddingDays, setPaddingDays] = useState<TypeWeekDays[]>([]);
-  const [dateDisplay, setDateDisplay] = useState<string>("");
+  const [headerText, setHeaderText] = useState<string>("");
 
   // Utilisé pour la navigation entre les mois (back et next)
   const [nav, setNav] = useState<TypeNav>({
     month: dt.getMonth(),
     year: dt.getFullYear(),
   });
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Charger le calendrier
+  // Charger le calendrier à chaque fois que la date de navigation change
   useEffect(() => {
     setIsLoading(true);
 
-    const [_paddingDays, _days, _dateDisplay] = LoadCalendar(nav);
+    const [_paddingDays, _days, _headerText] = LoadCalendar(nav);
 
-    setDays(_days as TypeDay[]);
-    setPaddingDays(_paddingDays as TypeWeekDays[]);
-    setDateDisplay(_dateDisplay as string);
+    setDays(_days);
+    setPaddingDays(_paddingDays);
+    setHeaderText(_headerText);
 
     // Synchroniser les événements avec le calendrier au chargement de la page
     InitCalendarSync();
@@ -293,7 +279,7 @@ const Home: NextPage = () => {
     const eventToAdd: TypeEvent = {
       event_id: uuidv4(),
       event_creation_date: new Date(),
-      event_date: new Date(newEventDate?.year!, newEventDate?.month!, newEventDate?.date),
+      event_date: new Date(newEventDate?.date!, newEventDate?.month!, newEventDate?.date),
       title: newEvent!.title,
       description: newEvent!.description,
       is_completed: false,
@@ -529,7 +515,7 @@ const Home: NextPage = () => {
         {!isLoading && (
           <>
             <Calendar
-              dateDisplay={dateDisplay}
+              headerText={headerText}
               paddingDays={paddingDays}
               days={days}
               calendarEvents={calendarEvents}
