@@ -1,0 +1,12 @@
+{
+  "name": "calendar-workspaces",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:calendar-api:migrate": "cd ./apps/calendar-api && npm run dev-migrate",
+    "dev:calendar-api": "npm run dev:calendar-api:migrate && cd ./apps/calendar-api && npm run dev",
+    "dev:frontend": "cd ./apps/frontend && npm run dev"
+  }
+}

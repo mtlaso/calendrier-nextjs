@@ -1,0 +1,55 @@
+.container
+  display: flex
+  justify-content: flex-start
+  align-items: center
+  gap: 1rem
+  padding: 1rem
+  height: 5vh // 5vh for header and footer
+  background: var(--color-black)
+
+  .text
+    color: var(--color-white)
+    user-select: none
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+  .synced
+    color: var(--color-green)
+
+  .syncing
+    color: var(--color-darkorange)
+
+  .not_synced
+    color: var(--color-lightred)
+
+  .synced::before
+    content: ''
+    display: inline-block
+    width: 0.5rem
+    height: 0.5rem
+    border-radius: 50%
+    background: var(--color-green)
+
+  .syncing::before
+    content: ''
+    display: inline-block
+    width: 0.5rem
+    height: 0.5rem
+    border-radius: 50%
+    background: var(--color-darkorange)
+
+  .not_synced::before
+    content: ''
+    display: inline-block
+    width: 0.5rem
+    height: 0.5rem
+    border-radius: 50%
+    background: var(--color-red)
+
+  .button
+    display: flex
+    align-items: center
+    gap: .5rem
+    padding: .1rem .7rem .1rem .7rem
+    margin: 0

@@ -1,0 +1,91 @@
+$max-text-width: 30vw
+
+.container_auth
+  background-color: var(--color-black)
+  display: flex
+  flex-direction: row
+  justify-content: space-around
+  align-items: center
+  align-content: center
+  // flex-wrap: wrap
+  height: 100vh
+  padding: 5rem
+
+  div
+    padding: 1rem
+
+  h1, h2, p, span
+    color: var(--color-white)
+  h1
+    font-size: 3.5rem
+    margin-bottom: 1rem
+
+  h1.text_title
+    text-align: start
+
+  p
+    margin-bottom: 1rem
+    color: var(--color-lightergrey)
+    text-align: start
+
+  form
+    display: block
+    padding: 3rem
+    max-width: 50vw
+    word-break: break-all
+    background-color: var(--color-lightblack)
+    border-radius: 1rem
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.14)
+
+    label
+      display: block
+      width: 100%
+      margin: 0.5rem 0 0.5rem 0
+      color: var(--color-lightergrey)
+
+    input
+      display: block
+      width: 100%
+      background-color: var(--color-lightblack)
+      color: var(--color-white)
+      padding: 0.5rem
+      border: none
+      border-bottom: 1px var(--color-white) solid
+      border-radius: 0
+
+    input:placeholder
+      color: var(--color-white)
+
+    a
+      display: block
+      margin-top: 1rem
+
+    button
+      display: block
+      margin-left: 0
+      margin-top: 1rem
+      width: 5rem
+
+    h2
+      display: block
+      font-size: 2rem
+
+    span
+      display: block
+      text-align: justify
+
+    .error
+      color: var(--color-red)
+      list-style: noneMiddlewareHandleErrorsDev
+      margin-top: 0.3rem
+      text-align: start
+      word-break: break-all
+
+    .success
+      color: var(--color-green)
+      list-style: none
+      margin-top: 0.3rem
+      word-break: break-all
+
+  @media screen and (max-width: 960px)
+    display: block

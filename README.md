@@ -12,14 +12,9 @@ Calendrier créé avec Nextjs, avec possibilité de créer des évènements.
 
 1. Installer nodejs (version récente)
 2. Cloner le projet
-3. Section frontend
-   1. Cd dans le dossier frontend `cd frontend`
-   2. Télécharger paquets nécessaires `npm install`
-   3. Lancer l'application `npm run dev`
-4. Section backend
-   1. Cd dans le dossier frontend `cd backend`
-   2. Télécharger paquets nécessaires `npm install`
-   3. Lancer l'application `npm run dev`
+3. Lancez la commande `npm install` dans le dossier du projet
+4. Lancez la commande `dev:frontend` pour lancer le serveur de développement frontend.
+5. Ouvrir un autre terminal, puis lancez la commande `dev:calendar-api` pour lancer le serveur de développement backend.
 
 # Fonctionnalités
 
