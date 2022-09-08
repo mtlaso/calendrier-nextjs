@@ -15,7 +15,8 @@ Calendrier créé avec Nextjs, avec possibilité de créer des évènements.
 3. Lancez la commande `npm install` dans le dossier du projet
 4. Frontend
    1. Lancez la commande `npm run dev:frontend` pour lancer le serveur de développement frontend.
-5. 1. Installez postgresql
+5. Backend
+   1. Installez postgresql, et créez une base de donnée.
    2. Remplissez le fichier `apps/calendar-api/.env.fake` avec les informations nécéssaires.
    3. Renommez le fichier `.env.fake` en `.env`
    4. Ouvrir un autre terminal, puis lancez la commande `npm run dev:calendar-api` pour lancer le serveur de développement backend.
