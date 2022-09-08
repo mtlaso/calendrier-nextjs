@@ -5,6 +5,8 @@ import { Server, Socket } from "socket.io";
 import cors from "cors";
 require("dotenv").config();
 
+import { MyType } from "@calendar-nextjs/shared/types/MyType"; // <-- marche!
+
 import authRoute from "./routes/auth/auth.route";
 import usersRoute from "./routes/users/users.route";
 import { OnConnectionRoute } from "./routes/calendar:events/calendar:events.route";
