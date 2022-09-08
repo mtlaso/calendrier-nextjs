@@ -5,8 +5,16 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:calendar-api:migrate": "cd ./apps/calendar-api && npm run dev-migrate",
-    "dev:calendar-api": "npm run dev:calendar-api:migrate && cd ./apps/calendar-api && npm run dev",
-    "dev:frontend": "cd ./apps/frontend && npm run dev"
+    "calendar-api:migrate": "cd ./apps/calendar-api && npm run dev-migrate",
+
+    "dev:calendar-api": "npm run calendar-api:migrate && cd ./apps/calendar-api && npm run dev",
+    "dev:frontend": "cd ./apps/frontend && npm run dev",
+
+    "build:calendar-api": "npm run calendar-api:migrate && cd ./apps/calendar-api && npm run build",
+    "build:frontend": "cd ./apps/frontend && npm run build",
+    "build": "npm run build:calendar-api && npm run build:frontend",
+
+    "start:calendar-api": "npm run build:calendar-api && cd ./apps/calendar-api/dist && node app.js",
+    "start:frontend": "npm run build:frontend && cd ./apps/frontend && npm start"
   }
 }
