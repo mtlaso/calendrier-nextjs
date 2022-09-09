@@ -1,5 +1,5 @@
 import ApiError from "../../types/ApiError";
-import { TypeEvent } from "../../types/TypeEvent";
+import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 

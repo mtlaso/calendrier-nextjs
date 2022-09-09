@@ -20,7 +20,8 @@ import UpdateEventModalButtons from "../components/modals/update_modal/UpdateEve
 import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
 import { TypeWeekDays } from "../types/TypeWeekDays";
-import { TypeEvent } from "../types/TypeEvent";
+import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
+
 import { TypeCalendarSyncStatus } from "../types/TypeCalendarSyncStatus";
 
 import { jwtState } from "../state/jwt-state";

@@ -1,6 +1,7 @@
 import { io, Socket } from "socket.io-client";
 
-import { ServerToClientEvents, ClientToServerEvents } from "../types/TypeSocketIO";
+import { ServerToClientEvents, ClientToServerEvents } from "@calendar-nextjs/shared/types/TypeSocketIO";
+
 import { CALENDAR_NAMESPACE } from "../config/config";
 
 /**

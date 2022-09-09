@@ -5,8 +5,6 @@ import { Server, Socket } from "socket.io";
 import cors from "cors";
 require("dotenv").config();
 
-import { MyType } from "@calendar-nextjs/shared/types/MyType"; // <-- marche!
-
 import authRoute from "./routes/auth/auth.route";
 import usersRoute from "./routes/users/users.route";
 import { OnConnectionRoute } from "./routes/calendar:events/calendar:events.route";
@@ -14,7 +12,13 @@ import { OnConnectionRoute } from "./routes/calendar:events/calendar:events.rout
 import ApiError from "./types/ApiError";
 import { TypeReturnMessage } from "./types/TypeReturnMessage";
 import { CheckContentType } from "./middlewares/check-content-type";
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "./types/TypeSocketIO";
+import {
+  ServerToClientEvents,
+  ClientToServerEvents,
+  InterServerEvents,
+  SocketData,
+} from "@calendar-nextjs/shared/types/TypeSocketIO";
+
 import { CALENDAR_NAMESPACE } from "./config/config";
 
 const app = Express();
