@@ -1,4 +1,4 @@
-import { TypeEvent } from "../types/TypeEvent";
+import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
 
 /**
  * Longeur maximum d'un événement
@@ -55,7 +55,8 @@ export const EVENTS_LOCALSTORAGE_KEY: string = "events-state";
 export const DEFAULT_EVENT: TypeEvent = {
   event_id: "",
   event_creation_date: new Date(),
-  event_date: new Date(),
+  event_start: new Date(),
+  event_end: new Date(),
   title: "New Event...",
   description: "New description...",
   is_completed: false,

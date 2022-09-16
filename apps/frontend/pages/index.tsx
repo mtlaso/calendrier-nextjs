@@ -4,8 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuidv4 } from "uuid";
 
-import styles from "./calendar.module.sass";
-
 import CalendarHeader from "../components/calendar-header/CalendarHeader";
 import CalendarFooter from "../components/calendar-footer/CalendarFooter";
 import GuideModal from "../components/modals/guide_modal/GuideModal";
@@ -140,6 +138,7 @@ const Home: NextPage = () => {
 
       // Écouter les événement de synchronisation du calendrier (reçus du serveur)
       calendarEventsSocket.on("calendar:sync", (events: TypeEvent[]) => {
+        console.info(`Received new events : ${JSON.stringify(events, null, 2)}`);
         setCalendarEvents(events);
         setCalendarSyncStatus("synced");
       });
@@ -251,6 +250,13 @@ const Home: NextPage = () => {
 
     // Afficher modal AddEventModal
     setShowAddEventModal("block");
+
+    // Changer les dates de début et de fin de l'événement
+    setNewEvent((prev) => ({
+      ...prev,
+      event_start: new Date(year, month, date),
+      event_end: new Date(year, month, date),
+    }));
   };
 
   // Afficher modal UpdateEventModal
@@ -276,11 +282,27 @@ const Home: NextPage = () => {
       return;
     }
 
-    // Nouveau évènement à ajouter
+    // Valider que la date de début n'est pas après la date de fin
+    if (newEvent.event_start.getTime() > newEvent.event_end.getTime()) {
+      alert("Event start date cannot be after event end date.");
+      return;
+    }
+
+    // Si les dates sont les mêmes
+    // Valider que l'heure de début n'est pas identique à l'heure de fin
+    if (newEvent.event_start.getTime() === newEvent.event_end.getTime()) {
+      if (newEvent.event_start.getHours() === newEvent.event_end.getHours()) {
+        alert("Event start time and end time cannot be the same.");
+        return;
+      }
+    }
+
+    // Nouveau évènement à ajouter (les dates sont sauvegardées en UTC, format ISO8601 (YYYY-MM-DDTHH:mm:ss.sssZ))
     const eventToAdd: TypeEvent = {
       event_id: uuidv4(),
       event_creation_date: new Date(),
-      event_date: new Date(newEventDate?.date!, newEventDate?.month!, newEventDate?.date),
+      event_start: newEvent.event_start,
+      event_end: newEvent.event_end,
       title: newEvent!.title,
       description: newEvent!.description,
       is_completed: false,
@@ -354,25 +376,49 @@ const Home: NextPage = () => {
   };
 
   // Mettre à jour date de l'évènement (drag and drop des événements sur le calendrier)
-  const UpdateEventDate = (event: TypeEvent, newDate: TypeDay) => {
+  const UpdateEventDate = (event: TypeEvent, newDate: Date) => {
     // Trouver évènement à changer la date
     const index = calendarEvents.findIndex((e) => e.event_id === event.event_id);
 
-    // Modifier la date de l'évènement
-    const updatedEventDate = {
+    // Événement modifié
+    let updatedEvent: TypeEvent = {
       ...event,
-      event_date: new Date(newDate.year, newDate.month, newDate.date),
     };
+
+    // Anciennes dates de l'événement (UTC -> localtime)
+    const oldStartDate = new Date(event.event_start);
+    const oldEndDate = new Date(event.event_end);
+
+    // Calculer la différence entre les anciennes dates et la nouvelle date
+    const diff = newDate.getTime() - oldStartDate.getTime();
+
+    // Ajouter la différence aux dates de l'événement
+    updatedEvent.event_start = new Date(oldStartDate.getTime() + diff);
+    updatedEvent.event_end = new Date(oldEndDate.getTime() + diff);
 
     // Mettre à jour l'évènement. Calendrier est rafréchit automatiquement grâce à "useRecoilState"
     setCalendarEvents([
       ...calendarEvents.slice(0, Number(index)),
-      updatedEventDate,
+      updatedEvent,
       ...calendarEvents.slice(Number(index) + 1),
     ]);
 
     // Émettre les nouveaux événements au serveur
     setEventsChanged(true);
+  };
+
+  // Retourne la date pour les date inputs
+  const GetDate = () => {
+    if (newEventDate === null) {
+      return "";
+    } else {
+      // Afficher la date en format du local time
+      const year = newEventDate.year;
+      const month = newEventDate.month < 9 ? `0${newEventDate.month + 1}` : newEventDate.month + 1;
+      const date = newEventDate.date < 10 ? `0${newEventDate.date}` : newEventDate.date;
+
+      return `${year}-${month}-${date}T00:00`;
+    }
   };
 
   return (
@@ -393,14 +439,50 @@ const Home: NextPage = () => {
       {/* Add event modal */}
       <AddEventModal display={showAddEventModal}>
         <AddEventModalContent>
-          <h1>
-            Create event {new Date(newEventDate?.year!, newEventDate?.month!, newEventDate?.date).toLocaleDateString()}
-          </h1>
-          <label htmlFor="new-event-title" className={styles.event_modals_label}>
-            Title
-          </label>
+          <h1>Events</h1>
+          <h2>Create new event</h2>
+
+          {/* Start date */}
+          <label htmlFor="new-event-start-date">Start date</label>
+          <div className="datetime_container">
+            <input
+              id="new-event-start-date"
+              type="datetime-local"
+              defaultValue={GetDate()}
+              max={"2999-12-31"}
+              min={"2020-12-31"}
+              onChange={(e) => {
+                // Convertir la date en format local time
+                const date = new Date(e.target.value);
+
+                // Mettre à jour la date de l'évènement
+                setNewEvent({ ...newEvent, event_start: date });
+              }}
+            />
+          </div>
+
+          {/* End date */}
+          <label htmlFor="new-event-end-date">End date</label>
+          <div className="datetime_container">
+            <input
+              id="new-event-end-date"
+              type="datetime-local"
+              defaultValue={GetDate()}
+              max={"2999-12-31"}
+              min={"2020-12-31"}
+              onChange={(e) => {
+                // Convertir la date en format local time
+                const date = new Date(e.target.value);
+
+                // Mettre à jour la date de l'évènement
+                setNewEvent({ ...newEvent, event_end: date });
+              }}
+            />
+          </div>
+
+          {/* title */}
+          <label htmlFor="new-event-title">Title</label>
           <input
-            className={styles.event_modals_input}
             id="new-event-title"
             value={newEvent?.title ?? ""}
             placeholder="Title"
@@ -411,11 +493,9 @@ const Home: NextPage = () => {
             }}
           />
 
-          <label htmlFor="new-event-desc" className={styles.event_modals_label}>
-            Description
-          </label>
+          {/* desc */}
+          <label htmlFor="new-event-desc">Description</label>
           <textarea
-            className={styles.event_modals_input}
             id="new-event-desc"
             value={newEvent?.description ?? ""}
             placeholder="Description"
@@ -426,6 +506,7 @@ const Home: NextPage = () => {
             }}
           />
         </AddEventModalContent>
+
         <hr />
 
         <AddEventModalButtons>
@@ -450,11 +531,8 @@ const Home: NextPage = () => {
         <UpdateEventModalContent>
           <h1>Update event</h1>
 
-          <label htmlFor="update-event-title" className={styles.event_modals_label}>
-            New title
-          </label>
+          <label htmlFor="update-event-title">New title</label>
           <input
-            className={styles.event_modals_input}
             id="update-event-title"
             value={updatedEvent?.title ?? ""}
             placeholder={updatedEvent?.title ?? ""}
@@ -464,11 +542,8 @@ const Home: NextPage = () => {
               setUpdatedEvent((prev) => ({ ...prev!, title: e.target.value }));
             }}
           />
-          <label htmlFor="update-event-desc" className={styles.event_modals_label}>
-            New description
-          </label>
+          <label htmlFor="update-event-desc">New description</label>
           <input
-            className={styles.event_modals_input}
             id="update-event-desc"
             value={updatedEvent?.description ?? ""}
             placeholder={updatedEvent?.description ?? ""}

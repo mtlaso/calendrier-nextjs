@@ -1,32 +1,64 @@
+$buttons-default-margin: 0.5rem
+
 .modal_container
-  display: flex
-  flex-direction: column
-  flex-wrap: wrap
-  background-color: var(--color-white)
+  background-color: var(--color-black)
   z-index: 15
-  border: 0.1rem solid var(--color-black)
+  border: 0.1rem solid var(--color-grey)
   border-radius: 0.5rem
+  color: var(--color-white)
 
-  & .modal_container hr
-    color: var(--color-black)
+  @media screen and (max-width: 960px)
+    width: 80%
 
-  & .modal_content
+  .modal_content
     padding: 2rem
 
-  & .modal_content h1
-    margin-bottom: 1rem
-    user-select: none
+    div[class="datetime_container"]
+      display: flex
+      flex-direction: row
+      gap: 1rem
+      flex-wrap: wrap
+      justify-content: flex-start
 
-  & .modal_content textarea
-    padding: 1rem
-    width: 100%
-    height: 100%
-    margin-top: 1rem
+      input, select
+        width: auto
 
-  & .modal_buttons
+    label
+      display: inline-block
+      width: 100%
+      margin: 0.5rem 0 0.5rem 0
+
+    input, textarea, select
+      display: block
+      width: 100%
+      background-color: var(--color-lightblack)
+      color: var(--color-white)
+      padding: 0.5rem
+      border: none
+      border-bottom: 1px var(--color-white) solid
+      border-radius: 0
+
+    input[type="date"]
+      padding: .3rem
+
+    h2
+      margin-bottom: 2rem
+      user-select: none
+
+    textarea
+      padding: 1rem
+      width: 100%
+      height: 100%
+      margin-top: 1rem
+
+  .modal_buttons
     display: flex
     justify-content: flex-end
+    padding: 0 calc( 2rem - $buttons-default-margin ) 0 0
 
-  & a
+  a
     color: var(--color-black)
     text-decoration: underline
+
+  hr
+    border: 0.1rem solid var(--color-white)

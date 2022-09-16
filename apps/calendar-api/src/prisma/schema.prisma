@@ -10,8 +10,12 @@ datasource db {
 model events {
   user_id             String   @db.VarChar(40)
   event_id            String   @id @db.VarChar(40)
-  event_creation_date DateTime @db.Timestamp(6)
-  event_date          DateTime @db.Timestamp(6)
+  /// En UTC
+  event_creation_date DateTime @default(now()) @db.Timestamp(6)
+  /// En UTC
+  event_start         DateTime @default(now()) @db.Timestamptz(6)
+  /// En UTC
+  event_end           DateTime @default(now()) @db.Timestamptz(6)
   title               String   @db.VarChar(60)
   is_completed        Boolean
   description         String   @db.VarChar(256)

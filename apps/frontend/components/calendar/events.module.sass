@@ -1,19 +1,37 @@
-.calendar_event
+.event
   display: flex
   align-items: flex-end
-  gap: .5rem
-  margin-top: 0.5rem
+  margin: 0.5rem 1rem 0 .5rem
   padding: .2rem
   border-radius: .3rem
   background-color: var(--color-blue)
-  color: var(--color-white)
+  color: var(--color-whtte)
   font-size: small
   user-select: none
   cursor: pointer
 
-  &::before
-    // content: "\25CF"
-    // color: var(--color-white)
-
   &:hover
     opacity: 0.8
+
+.event__multiple_days__head
+  margin-top: .3rem
+  padding: .2rem
+  background-color: var(--color-blue)
+  color: var(--color-whtte)
+  font-size: small
+  user-select: none
+  cursor: pointer
+
+  &:hover
+    // opacity: 0.8
+
+.event__multiple_days__body
+  display: flex
+  align-items: flex-end
+  margin-top: .3rem
+  padding: .2rem
+  background-color: var(--color-blue)
+  color: var(--color-whtte)
+  font-size: small
+  user-select: none
+  cursor: pointer

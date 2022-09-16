@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
  * @param events Événements à sauvegarder
  * @param jwt jwt de l'utilisateur
  */
-export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
+export async function SaveEventsToDb(events: TypeEvent[], jwt: any): Promise<void> {
   try {
     // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
     const userInfo = jwt;
@@ -20,7 +20,8 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
           user_id: userInfo.user_id,
           event_id: event.event_id,
           event_creation_date: event.event_creation_date,
-          event_date: event.event_date,
+          event_start: event.event_start,
+          event_end: event.event_end,
           title: event.title,
           is_completed: event.is_completed,
           description: event.description,
@@ -30,7 +31,8 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
           title: event.title,
           is_completed: event.is_completed,
           description: event.description,
-          event_date: event.event_date,
+          event_start: event.event_start,
+          event_end: event.event_end,
         },
         // Si l'événement existe déja avec cet id, on le met à jour...
         where: {
@@ -38,8 +40,6 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
         },
       });
     }
-
-    return true;
   } catch (err) {
     throw new ApiError((err as Error).message, 500);
   }
@@ -49,7 +49,7 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any) {
  * Retourne les événements de l'utilisateur
  * @param jwt string
  */
-export async function ReadEventsFromDb(jwt: any) {
+export async function ReadEventsFromDb(jwt: any): Promise<TypeEvent[]> {
   try {
     // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
     const userInfo = jwt;
@@ -66,7 +66,7 @@ export async function ReadEventsFromDb(jwt: any) {
 /**
  * Supprime un événement de la base de données
  */
-export async function DeleteEventFromDb(event_id: string, jwt: any) {
+export async function DeleteEventFromDb(event_id: string, jwt: any): Promise<void> {
   try {
     // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
     const userInfo = jwt;
@@ -77,23 +77,6 @@ export async function DeleteEventFromDb(event_id: string, jwt: any) {
         event_id: event_id,
         user_id: userInfo.user_id,
       },
-    });
-  } catch (err) {
-    throw new ApiError((err as Error).message, 500);
-  }
-}
-
-/**
- * Changer la data d'un événement dans la base de données (drag and drop)
- */
-export async function ChangeEventDateInDb(event_id: string, newDate: Date, jwt: any) {
-  try {
-    const userInfo = jwt;
-
-    // Met à jour la date de l'événement
-    await prisma.events.updateMany({
-      where: { event_id: event_id, user_id: userInfo.user_id },
-      data: { event_date: newDate },
     });
   } catch (err) {
     throw new ApiError((err as Error).message, 500);

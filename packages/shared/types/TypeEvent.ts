@@ -13,9 +13,14 @@ export type TypeEvent = {
   event_creation_date: Date;
 
   /**
-   * Date pour laquelle l'événement a lieu
+   * Date et heure de début de l'événement
    */
-  event_date: Date;
+  event_start: Date;
+
+  /**
+   * Date et heure de fin de l'événement
+   */
+  event_end: Date;
 
   /**
    * Le titre de l'événement

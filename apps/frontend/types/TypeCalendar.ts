@@ -1,6 +1,6 @@
 import { TypeWeekDays } from "./TypeWeekDays";
 import { TypeDay } from "./TypeDay";
-import { TypeEvent } from "./TypeEvent";
+import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
 import { TypeCalendarSyncStatus } from "./TypeCalendarSyncStatus";
 
 /**
@@ -38,17 +38,21 @@ export type TypeCalendar = {
   syncStatus: TypeCalendarSyncStatus;
 
   /**
-   * Fonction appelée lors de l'ajout d'un évènement
+   * Fonction appelée lors de l'ajout d'un événement
+   * @param event Événement à ajouter
    */
   onAddEvent: (year: number, month: number, date: number) => void;
 
   /**
-   * Fonction appelée lors de la modification d'un évènement
+   * Fonction appelée lors de la modification d'un événement
+   * @param event Événement à modifier
    */
   onUpdateEvent: (event: TypeEvent) => void;
 
   /**
    * Fonction appelée quand un événement est déplacé (drag and drop) sur un autre jour pour qu'il change de date
+   * @param event Événnement à déplacer
+   * @param newDate Nouvelle date de l'évènement
    */
-  onEmitEventDragged: (event: TypeEvent, newStartDate: TypeDay) => void;
+  onEmitEventDragged: (event: TypeEvent, newStartDate: Date) => void;
 };

@@ -1,14 +1,17 @@
 import { Server, Socket } from "socket.io";
-import { ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData } from "../../types/TypeSocketIO";
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData,
+} from "@calendar-nextjs/shared/types/TypeSocketIO";
 
 import {
-  ChangeEventDateInDb,
   DeleteEventFromDb,
   ReadEventsFromDb,
   SaveEventsToDb,
 } from "../../controllers/calendar:events/calendar:events.controller";
 import { DecodeJWTToken } from "../../utils/jwt/jwt-utils";
-import { CALENDAR_NAMESPACE } from "../../config/config";
 
 /**
  * Événement socket.io pour gérer la connection d'un client

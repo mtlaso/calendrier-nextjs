@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { TypeCalendar } from "../../types/TypeCalendar";
 import { TypeDay } from "../../types/TypeDay";
-import { TypeEvent } from "../../types/TypeEvent";
+import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
 
 import calendarStyles from "./calendar.module.sass";
 import eventsStyles from "./events.module.sass";
@@ -24,42 +24,44 @@ const Calendar = ({
   onEmitEventDragged,
 }: TypeCalendar) => {
   // Événement qui est bougé
-  const [draggedElement, setDraggedElement] = useState<TypeEvent | null>(null);
+  const [draggedEvent, setDraggedEvent] = useState<TypeEvent | null>(null);
+  const [isDraggedEventDropped, setIsDraggedEventDropped] = useState<boolean>(false);
   const [selectedDragCell, setSelectedDragCell] = useState<TypeDay | null>(null);
-  const [isDraggedElementDropped, setIsDraggedElementDropped] = useState<boolean>(false);
 
   // Drag and drop des événements du calendrier pour changer les dates
   useEffect(() => {
-    if (!isDraggedElementDropped) return;
+    if (!isDraggedEventDropped) return;
 
     // Vérifier que l'événement a été bougé
-    if (draggedElement && selectedDragCell) {
-      const draggedElementDate = new Date(draggedElement.event_date);
-      const selectedDragCellDate = new Date(selectedDragCell.year, selectedDragCell.month, selectedDragCell.date);
+    if (!draggedEvent || !selectedDragCell) return;
 
-      // Vérifier que l'événement a été bougé dans une autre cellule
-      if (
-        draggedElementDate.getDate() === selectedDragCellDate.getDate() &&
-        draggedElementDate.getMonth() === selectedDragCellDate.getMonth() &&
-        draggedElementDate.getFullYear() === selectedDragCellDate.getFullYear()
-      ) {
-        return;
-      }
+    const eventStartDate = new Date(draggedEvent.event_start);
+    const eventEndDate = new Date(draggedEvent.event_end);
+    const cellDate = new Date(selectedDragCell.year, selectedDragCell.month, selectedDragCell.date);
 
-      // Vérifier que l'utilisateur est connecté
-      if (syncStatus !== "synced") {
-        return;
-      }
-
-      // Émettre un événement pour mettre à jour l'événement
-      onEmitEventDragged(draggedElement, selectedDragCell);
-
-      // Réinitialiser les variables
-      setDraggedElement(null);
-      setSelectedDragCell(null);
-      setIsDraggedElementDropped(false);
+    // Vérifier que l'événement a été bougé dans une autre cellule
+    if (
+      eventStartDate.getDate() === cellDate.getDate() &&
+      eventStartDate.getMonth() === cellDate.getMonth() &&
+      eventStartDate.getFullYear() === cellDate.getFullYear()
+    ) {
+      return;
     }
-  }, [isDraggedElementDropped]);
+
+    // Vérifier que l'utilisateur est connecté
+    if (syncStatus !== "synced") {
+      return;
+    }
+
+    // Émettre un événement pour mettre à jour l'événement
+    const updatedDate = new Date(selectedDragCell.year, selectedDragCell.month, selectedDragCell.date);
+    onEmitEventDragged(draggedEvent, updatedDate);
+
+    // Réinitialiser les variables
+    setDraggedEvent(null);
+    setSelectedDragCell(null);
+    setIsDraggedEventDropped(false);
+  }, [isDraggedEventDropped]);
 
   // Modifier la date sur le header
   useEffect(() => {
@@ -75,115 +77,180 @@ const Calendar = ({
    * @param {TypeDay} day Objet contenant le jour
    */
   function RenderDay(index: number, day: TypeDay) {
-    // Vérifier si c'est la journée d'aujourd'hui, on ajoute la classe "current_day"
-    if (day.isCurrentDay && day.month === today.getMonth() && day.year === today.getFullYear()) {
-      return (
-        // Render le jour dans la colonne .container_column > .container_column_box
-        <div
-          onDragOverCapture={(e) => {
-            e.currentTarget.style.background = "var(--color-lightgrey)";
-            setSelectedDragCell(day);
-          }}
-          onDragLeaveCapture={(e) => {
-            e.currentTarget.style.background = "white";
-            setSelectedDragCell(null);
-          }}
-          className={`${calendarStyles.container_column_box} ${calendarStyles.current_day}`}
-          key={index}
-          onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
-          {/* header */}
-          <div className={calendarStyles.container_column_box__header}>
-            <p>{day.date}</p>
-          </div>
+    const isToday = day.isCurrentDay && day.month === today.getMonth() && day.year === today.getFullYear();
 
-          {/* événement */}
-          <div className={calendarStyles.container_column_box__content}>
-            {/* Afficher les événements du jour */}
-            {calendarEvents.map((evnt, index) => {
-              return RenderEvent(day, evnt, index);
-            })}
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        // Render le jour dans la colonne .container_column > .container_column_box
-        <div
-          onDragOverCapture={(e) => {
-            e.currentTarget.style.background = "var(--color-lightgrey)";
-            setSelectedDragCell(day);
-          }}
-          onDragLeaveCapture={(e) => {
-            e.currentTarget.style.background = "white";
-            setSelectedDragCell(null);
-          }}
-          className={calendarStyles.container_column_box}
-          key={index}
-          onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
-          {/* header */}
-          <div className={calendarStyles.container_column_box__header}>
-            <p>{day.date}</p>
-          </div>
+    return (
+      <div
+        onDragOverCapture={(e) => {
+          e.currentTarget.style.background = "var(--color-lightgrey)";
+          setSelectedDragCell(day);
+        }}
+        onDragLeaveCapture={(e) => {
+          e.currentTarget.style.background = "var(--color-black)";
+          setSelectedDragCell(null);
+        }}
+        className={`${calendarStyles.box}`}
+        key={index}
+        onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
+        {/* Contenu... */}
 
-          {/* événement */}
-          <div className={calendarStyles.container_column_box__content}>
-            {/* Afficher les événements du jour */}
-            {calendarEvents.map((evnt, index) => {
-              return RenderEvent(day, evnt, index);
-            })}
-          </div>
+        {/* header */}
+        <p className={`${calendarStyles.box__content_date} ${isToday ? calendarStyles.current_day : ""}`}>{day.date}</p>
+
+        {/* Afficher les événements du jour */}
+        <div className={calendarStyles.box__content}>
+          {calendarEvents.map((event, index) => {
+            return RenderEvents(day, event, index);
+          })}
         </div>
-      );
-    }
+      </div>
+    );
   }
 
   /**
-   * Render l'événement de ce jour
+   * Render l'événement de ce jour (événement sur plusieurs jours aussi)
    * @param day Objet contenant le jour
    * @param event Objet contenant l'événement
    * @param index Index, car  la fonction retourne une liste
    * @returns {JSX.Element} Retourne un événement JSX
    */
-  function RenderEvent(day: TypeDay, event: TypeEvent, index: number = 0) {
+  function RenderEvents(day: TypeDay, event: TypeEvent, index: number = 0) {
     // Titre de l'événement
-    const evntTitle = SmallTitle(event.title);
+    const eventSmallTitle = SmallTitle(event.title);
 
-    // Date de l'événement
-    const evntDate = new Date(event.event_date);
+    // Convertir la date UTC de l'événement en local time
+    const event_start = new Date(event.event_start);
+    const event_end = new Date(event.event_end);
+
+    // Vérifier si l'événement est sur plusieurs jours
+    const isEventOnMultipleDays = event_start.getDate() !== event_end.getDate();
 
     // Vérifier que l'événement est affiché pour le jour auquel il a lieu
-    if (day.date === evntDate.getDate() && day.month === evntDate.getMonth() && day.year === evntDate.getFullYear()) {
+    const isEventOnThisDay =
+      event_start.getDate() === day.date &&
+      event_start.getMonth() === day.month &&
+      event_start.getFullYear() === day.year;
+
+    // Afficher les l'événements sur un jour seulement
+    if (isEventOnThisDay && !isEventOnMultipleDays) {
       return (
         <div
           draggable
-          onDragStartCapture={(e) => {
-            setDraggedElement(event);
-            setIsDraggedElementDropped(false);
+          onDragStartCapture={() => {
+            setDraggedEvent(event);
+            setIsDraggedEventDropped(false);
           }}
-          onDragEndCapture={(e) => {
-            setIsDraggedElementDropped(true); // Doit être en premier
+          onDragEndCapture={() => {
+            setIsDraggedEventDropped(true); // Doit être en premier
           }}
           key={index}
-          className={eventsStyles.calendar_event}
+          className={eventsStyles.event}
           onClick={() => onUpdateEvent(event)}>
-          {evntTitle}
+          {eventSmallTitle}
           <br />
         </div>
       );
     }
+
+    // Afficher la première partie de l'événement sur plusieurs jours
+    if (isEventOnThisDay && isEventOnMultipleDays) {
+      return (
+        <div
+          draggable
+          onDragStartCapture={() => {
+            setDraggedEvent(event);
+            setIsDraggedEventDropped(false);
+          }}
+          onDragEndCapture={() => {
+            setIsDraggedEventDropped(true); // Doit être en premier
+          }}
+          key={index}
+          className={eventsStyles.event__multiple_days__head}
+          onClick={() => onUpdateEvent(event)}>
+          {eventSmallTitle}
+          <br />
+        </div>
+      );
+    }
+
+    // Afficher le reste des événements sur plusieurs jours
+    return RenderMultiDaysEvent(day, event, index);
   }
 
+  /**
+   * Afficher les événements sur plusieurs jours
+   * @param day Le jour
+   * @param event L'événement
+   * @param index Index, car  la fonction retourne une liste
+   */
+  const RenderMultiDaysEvent = (day: TypeDay, event: TypeEvent, index: number) => {
+    const event_start = new Date(event.event_start);
+    const event_end = new Date(event.event_end);
+
+    // Vérifier si l'événement est entre le début et la fin de ce jour
+    if (day.date < event_end.getDate() && day.date > event_start.getDate()) {
+      return (
+        <div
+          draggable
+          onDragStartCapture={() => {
+            setDraggedEvent(event);
+            setIsDraggedEventDropped(false);
+          }}
+          onDragEndCapture={() => {
+            setIsDraggedEventDropped(true); // Doit être en premier
+          }}
+          key={index}
+          className={eventsStyles.event__multiple_days__body}
+          onClick={() => onUpdateEvent(event)}>
+          &#8203;
+          <br />
+        </div>
+      );
+    }
+
+    // Vérifier si la fin de l'événement est dans ce jour
+    if (
+      day.date === event_end.getDate() &&
+      day.month === event_end.getMonth() &&
+      day.year === event_end.getFullYear()
+    ) {
+      return (
+        <div
+          draggable
+          onDragStartCapture={() => {
+            setDraggedEvent(event);
+            setIsDraggedEventDropped(false);
+          }}
+          onDragEndCapture={() => {
+            setIsDraggedEventDropped(true); // Doit être en premier
+          }}
+          key={index}
+          className={eventsStyles.event__multiple_days__body}
+          onClick={() => onUpdateEvent(event)}>
+          &#8203;
+          <br />
+        </div>
+      );
+    }
+  };
+
   return (
-    <div id="container" className={calendarStyles.container}>
-      <div id="container-column-sun" className={calendarStyles.container_column}>
-        <p>sun.</p>
-        <hr />
+    <div className={calendarStyles.container}>
+      {/* Contenu... */}
+
+      {/* Colonne dimanche */}
+      <div>
+        <p className={calendarStyles.column_header}>sun.</p>
+
+        {/* padding days */}
         {paddingDays.map((day, index) => {
           const padDay = day.slice(0, 3).toLocaleLowerCase(); // Trouver les 3 premières lettres du jours (en anglais)
           if (padDay === "sun") {
-            return <div className={calendarStyles.container_column_box_empty} key={index}></div>;
+            return <div className={calendarStyles.box_empty} key={index}></div>;
           }
         })}
+
+        {/* days */}
         {days.map((day, index) => {
           // Vérifier si le jour qui va être rendu fait parti de cette colonne
           if (day.dayName !== "Sunday") {
@@ -195,21 +262,21 @@ const Calendar = ({
 
           return RenderDay(index, day);
         })}
-
-        {
-          // Retirer les événements qui ont été render car nous avons plus besoin de les render
-          // calendarEvents =
-        }
       </div>
-      <div id="container-column-mon" className={calendarStyles.container_column}>
-        <p>mon.</p>
-        <hr />
+
+      {/* Colonne lundi */}
+      <div>
+        <p className={calendarStyles.column_header}>mon.</p>
+
+        {/* padding days */}
         {paddingDays.map((day, index) => {
           const padDay = day.slice(0, 3).toLocaleLowerCase(); // Trouver les 3 premières lettres du jours (en anglais)
           if (padDay === "mon") {
-            return <div className={calendarStyles.container_column_box_empty} key={index}></div>;
+            return <div className={calendarStyles.box_empty} key={index}></div>;
           }
         })}
+
+        {/* days */}
         {days.map((day, index) => {
           if (day.dayName !== "Monday") {
             return;
@@ -221,16 +288,20 @@ const Calendar = ({
           return RenderDay(index, day);
         })}
       </div>
-      <div id="container-column-tue" className={calendarStyles.container_column}>
-        <p>tue.</p>
-        <hr />
+
+      {/* Colonne mardi */}
+      <div>
+        <p className={calendarStyles.column_header}>tue.</p>
+
+        {/* padding days */}
         {paddingDays.map((day, index) => {
           const padDay = day.slice(0, 3).toLocaleLowerCase(); // Trouver les 3 premières lettres du jours (en anglais)
           if (padDay === "tue") {
-            return <div className={calendarStyles.container_column_box_empty} key={index}></div>;
+            return <div className={calendarStyles.box_empty} key={index}></div>;
           }
         })}
 
+        {/* days */}
         {days.map((day, index) => {
           if (day.dayName !== "Tuesday") {
             return;
@@ -242,16 +313,20 @@ const Calendar = ({
           return RenderDay(index, day);
         })}
       </div>
-      <div id="container-column-wed" className={calendarStyles.container_column}>
-        <p>wed.</p>
-        <hr />
+
+      {/* Colonne mercredi */}
+      <div>
+        <p className={calendarStyles.column_header}>wed.</p>
+
+        {/* padding days */}
         {paddingDays.map((day, index) => {
           const padDay = day.slice(0, 3).toLocaleLowerCase(); // Trouver les 3 premières lettres du jours (en anglais)
           if (padDay === "wed") {
-            return <div className={calendarStyles.container_column_box_empty} key={index}></div>;
+            return <div className={calendarStyles.box_empty} key={index}></div>;
           }
         })}
 
+        {/* days */}
         {days.map((day, index) => {
           if (day.dayName !== "Wednesday") {
             return;
@@ -263,16 +338,20 @@ const Calendar = ({
           return RenderDay(index, day);
         })}
       </div>
-      <div id="container-column-thu" className={calendarStyles.container_column}>
-        <p>thu.</p>
-        <hr />
+
+      {/* Colonne jeudi */}
+      <div>
+        <p className={calendarStyles.column_header}>thu.</p>
+
+        {/* padding days */}
         {paddingDays.map((day, index) => {
           const padDay = day.slice(0, 3).toLocaleLowerCase(); // Trouver les 3 premières lettres du jours (en anglais)
           if (padDay === "thu") {
-            return <div className={calendarStyles.container_column_box_empty} key={index}></div>;
+            return <div className={calendarStyles.box_empty} key={index}></div>;
           }
         })}
 
+        {/* days */}
         {days.map((day, index) => {
           if (day.dayName !== "Thursday") {
             return;
@@ -284,16 +363,20 @@ const Calendar = ({
           return RenderDay(index, day);
         })}
       </div>
-      <div id="container-column-fri" className={calendarStyles.container_column}>
-        <p>fri.</p>
-        <hr />
+
+      {/* Colonne vendredi */}
+      <div>
+        <p className={calendarStyles.column_header}>fri.</p>
+
+        {/* padding days */}
         {paddingDays.map((day, index) => {
           const padDay = day.slice(0, 3).toLocaleLowerCase(); // Trouver les 3 premières lettres du jours (en anglais)
           if (padDay === "fri") {
-            return <div className={calendarStyles.container_column_box_empty} key={index}></div>;
+            return <div className={calendarStyles.box_empty} key={index}></div>;
           }
         })}
 
+        {/* days */}
         {days.map((day, index) => {
           if (day.dayName !== "Friday") {
             return;
@@ -305,15 +388,20 @@ const Calendar = ({
           return RenderDay(index, day);
         })}
       </div>
-      <div id="container-column-sat" className={calendarStyles.container_column}>
-        <p>sat.</p>
-        <hr />
+
+      {/* Colonne samedi */}
+      <div>
+        <p className={calendarStyles.column_header}>sat.</p>
+
+        {/* padding days */}
         {paddingDays.map((day, index) => {
           const padDay = day.slice(0, 3).toLocaleLowerCase(); // Trouver les 3 premières lettres du jours (en anglais)
           if (padDay === "sat") {
-            return <div className={calendarStyles.container_column_box_empty} key={index}></div>;
+            return <div className={calendarStyles.box_empty} key={index}></div>;
           }
         })}
+
+        {/* days */}
         {days.map((day, index) => {
           if (day.dayName !== "Saturday") {
             return;

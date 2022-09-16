@@ -1,47 +1,47 @@
-$cell-height: 16.8vh
+$box-height: 16.8vh
+$box-color: var(--color-lightblack)
 
 .container
   user-select: none
   display: grid
   grid-template-columns: repeat(7, 1fr)
-  grid-template-areas: "col1 col2 col3 col4 col5 col6"
-  min-height: calc(100vh - 5vh - 5vh) // 5vh for header and footer
-  max-height: calc(100vh - 5vh - 5vh) // 5vh for header and footer
+  min-height: calc(100vh - 5vh - 5vh) // 5vh header + footer
+  max-height: calc(100vh - 5vh - 5vh) // 5vh header + footer
   width: 100vw
-  background: var(--color-white)
+  background: var(--color-black)
   overflow: scroll
+  color: var(--color-white)
 
-  .container_column > p
+  .column_header
     padding: 1rem
+    border-top: .1rem solid $box-color
+    border-bottom: .1rem solid $box-color
 
-  .container_column_box
+  .current_day
+    font-weight: 900
+    border-radius: 0.3rem
+    color: var(--color-green)
+
+  .box
     display: flex
     flex-direction: column
     justify-content: flex-start
     align-items: flex-start
     align-content: flex-start
-    background: var(--color-white)
-    height: $cell-height
-    padding: 1rem
-    border-bottom: 0.1rem solid var(--color-black)
-    overflow: scroll
+    height: $box-height
+    border-bottom: 0.1rem solid $box-color
+    overflow: hidden
 
-  .container_column_box:hover
-    background-color: var(--color-overlay)
-    color: var(--color-black)
-    transition: 0.3s
-
-  .container_column_box__content
+  .box__content
     display: block
     width: 100%
 
-  .container_column_box.current_day
-    background-color: var(--color-overlay)
+  .box__content_date
+    padding: 1rem .5rem 0 .5rem
 
-  .container_column_box_empty
-    border-bottom: 0.1rem solid var(--color-black)
-    height: $cell-height
-    background: var(--color-white)
+  .box_empty
+    border-bottom: 0.1rem solid $box-color
+    height: $box-height
 
-  .container_column_box_empty::before
+  .box_empty::before
     content: "\00a0"
