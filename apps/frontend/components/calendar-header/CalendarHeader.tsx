@@ -3,10 +3,15 @@ import Link from "next/link";
 
 import styles from "./CalendarHeader.module.sass";
 
-const CalendarHeader = (props: { clickBack: () => void; clickNext: () => void; showInfoModal: () => void }) => {
+const CalendarHeader = (props: {
+  headerText: string;
+  clickBack: () => void;
+  clickNext: () => void;
+  showInfoModal: () => void;
+}) => {
   return (
     <header className={styles.header}>
-      <p id="header-date">loading...</p>
+      <p id="header-date">{props.headerText}</p>
       <div>
         {/* bouton back */}
         <button

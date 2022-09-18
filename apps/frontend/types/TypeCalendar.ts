@@ -13,11 +13,6 @@ export type TypeCalendar = {
   daysInMonth: TypeDay[];
 
   /**
-   * Date à afficher sur le header
-   */
-  headerText: string;
-
-  /**
    * Évènements à afficher sur le calendrier
    */
   calendarEvents: TypeEvent[];

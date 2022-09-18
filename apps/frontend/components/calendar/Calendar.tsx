@@ -15,7 +15,7 @@ import SmallTitle from "../../utils/events-small-title";
  */
 const Calendar = ({
   daysInMonth,
-  headerText,
+  // headerText,
   calendarEvents,
   syncStatus,
   onAddEvent,
@@ -61,14 +61,6 @@ const Calendar = ({
     setSelectedDragCell(null);
     setIsDraggedEventDropped(false);
   }, [isDraggedEventDropped]);
-
-  // Modifier la date sur le header
-  useEffect(() => {
-    const headerDate = document.getElementById("header-date");
-    if (headerDate) {
-      headerDate.textContent = headerText;
-    }
-  }, [headerText]);
 
   /**
    * Fonction qui permet de render un jour (.container-column-box)

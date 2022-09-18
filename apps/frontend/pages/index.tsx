@@ -72,7 +72,7 @@ const Home: NextPage = () => {
     const [_daysInMonth, _headerText] = LoadCalendar(nav);
 
     setDaysInMonth(_daysInMonth);
-    setHeaderText(headerText);
+    setHeaderText(_headerText);
 
     // Synchroniser les événements avec le calendrier au chargement de la page
     InitCalendarSync();
@@ -136,7 +136,7 @@ const Home: NextPage = () => {
         // Associer les événements avec les jours
         const [_daysInMonth, _headerText] = LoadCalendar(nav);
 
-        _daysInMonth.forEach((day) => {
+        _daysInMonth.map((day) => {
           // Associer les événements avec les jours
           day.events = events.filter((event) => {
             const eventStart = new Date(event.event_start);
@@ -186,7 +186,6 @@ const Home: NextPage = () => {
           });
         });
 
-        // console.log(_days.filter((day) => day.events!.length > 0));
         setDaysInMonth(_daysInMonth);
 
         // Mettre à jour le statut de synchronisation
@@ -481,6 +480,7 @@ const Home: NextPage = () => {
 
       {/* Calendar Header */}
       <CalendarHeader
+        headerText={headerText}
         clickBack={() => ClickBack()}
         clickNext={() => ClickNext()}
         showInfoModal={() => setShowInfoModal((prev) => (prev === "flex" ? "none" : "flex"))}
@@ -642,7 +642,6 @@ const Home: NextPage = () => {
           <>
             <Calendar
               daysInMonth={daysInMonth}
-              headerText={headerText}
               calendarEvents={calendarEvents}
               syncStatus={calendarSyncStatus}
               onAddEvent={OpenAddEventModal}
