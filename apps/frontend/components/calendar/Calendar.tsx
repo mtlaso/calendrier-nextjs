@@ -15,7 +15,6 @@ import SmallTitle from "../../utils/events-small-title";
  */
 const Calendar = ({
   daysInMonth,
-  // headerText,
   calendarEvents,
   syncStatus,
   onAddEvent,
@@ -182,7 +181,13 @@ const Calendar = ({
     <div className={calendarStyles.container}>
       {/* Afficher les noms de jours */}
       {daysInMonth.map((day, index) => {
-        return index < 7 && <p className={calendarStyles.column_header}>{day.dayName}</p>;
+        return (
+          index < 7 && (
+            <p key={index} className={calendarStyles.column_header}>
+              {day.dayName}
+            </p>
+          )
+        );
       })}
 
       {/* Afficher les jours */}

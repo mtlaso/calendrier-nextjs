@@ -26,9 +26,6 @@ export default function LoadCalendar(
   const nbDaysInMonth = new Date(nav.year, nav.month + 1, 0).getDate();
   const nbDaysBeforeFirstDayOfMonth = FindNumberOfDaysBeforeFirstDayOfMonth(dt, calendarStartingDay);
 
-  console.log(`nbDaysInMonth: ${nbDaysInMonth}`);
-  console.log(`nbDaysBeforeFirstDayOfMonth: ${nbDaysBeforeFirstDayOfMonth}`);
-
   const daysInMonth: TypeDay[] = [];
 
   // Ajoute les jours du mois
