@@ -135,7 +135,9 @@ const Home: NextPage = () => {
 
         // Associer les événements avec les jours
         const [_daysInMonth, _headerText] = LoadCalendar(nav);
+
         _daysInMonth.forEach((day) => {
+          // Associer les événements avec les jours
           day.events = events.filter((event) => {
             const eventStart = new Date(event.event_start);
             const eventEnd = new Date(event.event_end);
