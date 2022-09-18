@@ -8,24 +8,14 @@ import { TypeCalendarSyncStatus } from "./TypeCalendarSyncStatus";
  */
 export type TypeCalendar = {
   /**
-   * Garde en mémoire la date d'aujourd'hui
+   * Liste des jours du mois
    */
-  today: Date;
+  daysInMonth: TypeDay[];
 
   /**
    * Date à afficher sur le header
    */
   headerText: string;
-
-  /**
-   * Liste des jours du mois
-   */
-  days: TypeDay[];
-
-  /**
-   * Liste des padding days (cases vides avant le premier jour du mois)
-   */
-  paddingDays: TypeWeekDays[];
 
   /**
    * Évènements à afficher sur le calendrier

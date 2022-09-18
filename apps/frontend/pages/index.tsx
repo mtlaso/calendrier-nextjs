@@ -17,7 +17,6 @@ import UpdateEventModalButtons from "../components/modals/update_modal/UpdateEve
 
 import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
-import { TypeWeekDays } from "../types/TypeWeekDays";
 import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
 
 import { TypeCalendarSyncStatus } from "../types/TypeCalendarSyncStatus";
@@ -36,16 +35,11 @@ const Home: NextPage = () => {
   // Recoil Js states
   const jwt = useRecoilValue(jwtState);
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
+  const [daysInMonth, setDaysInMonth] = useState<TypeDay[]>([]);
 
   const calendarEventsSocket = InitSocketIO(jwt);
   const [calendarSyncStatus, setCalendarSyncStatus] = useState<TypeCalendarSyncStatus>("notsynced"); // Sync status footer
   const [eventsChanged, setEventsChanged] = useState<boolean>(false); // Socket io calendar sync
-
-  const dt = new Date();
-  const today = useMemo(() => {
-    return new Date();
-  }, []);
-  7;
 
   const [showAddEventModal, setShowAddEventModal] = useState<"block" | "none">("none");
   const [newEvent, setNewEvent] = useState<TypeEvent>(DEFAULT_EVENT);
@@ -60,11 +54,10 @@ const Home: NextPage = () => {
 
   const [showInfoModal, setShowInfoModal] = useState<"flex" | "none">("none");
 
-  const [days, setDays] = useState<TypeDay[]>([]);
-  const [paddingDays, setPaddingDays] = useState<TypeWeekDays[]>([]);
   const [headerText, setHeaderText] = useState<string>("");
 
   // Utilisé pour la navigation entre les mois (back et next)
+  const dt = new Date();
   const [nav, setNav] = useState<TypeNav>({
     month: dt.getMonth(),
     year: dt.getFullYear(),
@@ -76,11 +69,10 @@ const Home: NextPage = () => {
   useEffect(() => {
     setIsLoading(true);
 
-    const [_paddingDays, _days, _headerText] = LoadCalendar(nav);
+    const [_daysInMonth, _headerText] = LoadCalendar(nav);
 
-    setDays(_days);
-    setPaddingDays(_paddingDays);
-    setHeaderText(_headerText);
+    setDaysInMonth(_daysInMonth);
+    setHeaderText(headerText);
 
     // Synchroniser les événements avec le calendrier au chargement de la page
     InitCalendarSync();
@@ -137,9 +129,65 @@ const Home: NextPage = () => {
       calendarEventsSocket.emit("calendar:sync", { jwt: jwt, events: calendarEvents });
 
       // Écouter les événement de synchronisation du calendrier (reçus du serveur)
-      calendarEventsSocket.on("calendar:sync", (events: TypeEvent[]) => {
-        console.info(`Received new events : ${JSON.stringify(events, null, 2)}`);
+      calendarEventsSocket.on("calendar:sync", async (events: TypeEvent[]) => {
         setCalendarEvents(events);
+        console.log(`Calendar synced with ${events.length} events`);
+
+        // Associer les événements avec les jours
+        const [_daysInMonth, _headerText] = LoadCalendar(nav);
+        _daysInMonth.forEach((day) => {
+          day.events = events.filter((event) => {
+            const eventStart = new Date(event.event_start);
+            const eventEnd = new Date(event.event_end);
+
+            // Vérifier si l'événnement est le même jour que le jour
+            // Vérifier si l'événement est dans le mois
+            const isEventOnSameDay = eventStart.getDate() === day.date;
+
+            // Vérifier si l'événement est entre le début et la fin du jour
+            const isEventBetweenDayStartAndEnd = eventStart.getDate() <= day.date && eventEnd.getDate() >= day.date;
+
+            // Vérifier si l'événement est sur le dernier jours
+            const isEventOnLastDay = eventEnd.getDate() === day.date;
+
+            // return isEventOnSameDay;
+            return isEventOnSameDay || isEventBetweenDayStartAndEnd || isEventOnLastDay;
+          });
+
+          // Trier les événements par longeur
+          day.events.sort((a, b) => {
+            const aStart = new Date(a.event_start);
+            const aEnd = new Date(a.event_end);
+            const bStart = new Date(b.event_start);
+            const bEnd = new Date(b.event_end);
+
+            // Si les dates de début sont les mêmes, la plus longue est en premier
+            if (aStart.getDate() === bStart.getDate()) {
+              // alert("debut parreil");
+              return bEnd.getDate() - aEnd.getDate();
+            }
+
+            // Si les dates de fin sont les mêmes, la plus courte est en premier
+            if (aEnd.getDate() === bEnd.getDate()) {
+              // alert(`fin parreil :`);
+              return aStart.getDate() - bStart.getDate();
+            }
+
+            // Si les événements se chevauchent, la plus courte est en premier
+            if (aEnd.getDate() === bStart.getDate() || aStart.getDate() === bEnd.getDate()) {
+              // alert("Chevauchement");
+              return aEnd.getDate() - aStart.getDate();
+            }
+
+            // Sinon, la plus courte est en premier
+            return aStart.getDate() - bStart.getDate();
+          });
+        });
+
+        // console.log(_days.filter((day) => day.events!.length > 0));
+        setDaysInMonth(_daysInMonth);
+
+        // Mettre à jour le statut de synchronisation
         setCalendarSyncStatus("synced");
       });
 
@@ -591,11 +639,9 @@ const Home: NextPage = () => {
         {!isLoading && (
           <>
             <Calendar
+              daysInMonth={daysInMonth}
               headerText={headerText}
-              paddingDays={paddingDays}
-              days={days}
               calendarEvents={calendarEvents}
-              today={today}
               syncStatus={calendarSyncStatus}
               onAddEvent={OpenAddEventModal}
               onUpdateEvent={OpenUpdateEventModal}

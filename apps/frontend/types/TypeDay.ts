@@ -1,4 +1,5 @@
 import { TypeWeekDays } from "./TypeWeekDays";
+import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
 
 /**
  * Interface représentant une journée
@@ -32,4 +33,9 @@ export type TypeDay = {
    * True si c'est un padding day (case vide)
    */
   isPadding: boolean;
+
+  /**
+   * Événements de la journée
+   */
+  events?: TypeEvent[];
 };

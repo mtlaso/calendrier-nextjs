@@ -1,10 +1,12 @@
+$calendar-width: calc(100%/7) // 100% width / 7 jours par semaine
 $box-height: 16.8vh
-$box-color: var(--color-lightblack)
+$box-border-color: var(--color-lightblack)
 
 .container
   user-select: none
   display: grid
-  grid-template-columns: repeat(7, 1fr)
+  grid-template-columns: repeat(7, $calendar-width)
+  grid-template-rows: repeat(5, auto)
   min-height: calc(100vh - 5vh - 5vh) // 5vh header + footer
   max-height: calc(100vh - 5vh - 5vh) // 5vh header + footer
   width: 100vw
@@ -14,8 +16,8 @@ $box-color: var(--color-lightblack)
 
   .column_header
     padding: 1rem
-    border-top: .1rem solid $box-color
-    border-bottom: .1rem solid $box-color
+    border-top: .1rem solid $box-border-color
+    border-bottom: .1rem solid $box-border-color
 
   .current_day
     font-weight: 900
@@ -29,18 +31,18 @@ $box-color: var(--color-lightblack)
     align-items: flex-start
     align-content: flex-start
     height: $box-height
-    border-bottom: 0.1rem solid $box-color
+    border-bottom: 0.1rem solid $box-border-color
     overflow: hidden
 
   .box__content
     display: block
     width: 100%
 
-  .box__content_date
+  .box_date
     padding: 1rem .5rem 0 .5rem
 
   .box_empty
-    border-bottom: 0.1rem solid $box-color
+    border-bottom: 0.1rem solid $box-border-color
     height: $box-height
 
   .box_empty::before

@@ -2,103 +2,107 @@ import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
 import { TypeWeekDays } from "../types/TypeWeekDays";
 
-const weekdays: TypeWeekDays[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+/**
+ * Jours sur lesquels le calendrier peut commencer
+ */
+type TypeStartingDaysCalendar = "Saturday" | "Sunday" | "Monday";
 
 /**
- * Retourne le nombre de padding days dans le mois
- * @param day - Objet Date représentant le jour le premier jour du mois
- * @returns {number} Le nombre de padding days
+ * Retourne les informations nécessaire pour render le calendrier
+ * @param nav - Objet TypeNav contenant le mois et l'année
+ * @param calendarStartingDay - Jour de la semaine où commence le calendrier
+ * @returns Retourne les jours dans le mois ainsi que le titre du header
+ * @example
+ * const [daysInMonth, headerText] = GetCalendarInfo({ month: 0, year: 2021 });
  */
-const NumOfPaddingDays = (day: Date): number => {
-  const dayName = day.toLocaleDateString("en-us", {
-    weekday: "long",
-  });
+export default function LoadCalendar(
+  nav: TypeNav,
+  calendarStartingDay: TypeStartingDaysCalendar = "Sunday"
+): [TypeDay[], string] {
+  const dt = new Date();
+  dt.setFullYear(nav.year);
+  dt.setMonth(nav.month);
 
-  return weekdays.indexOf(dayName as TypeWeekDays);
-};
+  const nbDaysInMonth = new Date(nav.year, nav.month + 1, 0).getDate();
+  const nbDaysBeforeFirstDayOfMonth = FindNumberOfDaysBeforeFirstDayOfMonth(dt, calendarStartingDay);
 
-/**
- * Retourne une liste des jours du mois
- * @param daysInMonth - Le nombre de jours dans le mois
- * @param date - Objet Date contenant le mois et l'année
- */
-function GetAllDaysInMonth(daysInMonth: number, date: Date): TypeDay[] {
-  const daysArr: TypeDay[] = [];
-  const todayDate = new Date().getDate();
+  console.log(`nbDaysInMonth: ${nbDaysInMonth}`);
+  console.log(`nbDaysBeforeFirstDayOfMonth: ${nbDaysBeforeFirstDayOfMonth}`);
 
-  // Trouver les jours du mois
-  for (let i = 1; i <= daysInMonth; i++) {
-    const today = new Date(date.getFullYear(), date.getMonth(), i);
-    const dayName = weekdays[today.getDay()];
+  const daysInMonth: TypeDay[] = [];
+
+  // Ajoute les jours du mois
+  for (let i = -nbDaysBeforeFirstDayOfMonth; i < nbDaysInMonth; i++) {
+    const today = new Date(dt.getFullYear(), dt.getMonth(), i + 1);
+    const dayName = today.toLocaleString("en-CA", { weekday: "long" }) as TypeWeekDays;
 
     const day: TypeDay = {
       date: today.getDate(),
       month: today.getMonth(),
       year: today.getFullYear(),
       dayName: dayName,
-      isCurrentDay: today.getDate() === todayDate,
-      isPadding: false,
+      isCurrentDay: today.getDate() === dt.getDate() && today.getMonth() === dt.getMonth(),
+      isPadding: today.getMonth() !== dt.getMonth(),
     };
 
-    daysArr.push(day);
+    daysInMonth.push(day);
   }
 
-  return daysArr;
+  // Header texte (barre de navigation)
+  const header = `${dt.toLocaleString("en-CA", { month: "long" })} ${dt.getFullYear()}`;
+
+  return [daysInMonth, header];
 }
 
 /**
- * Retourne les padding days du mois
- * @param nbPaddingDays - Nombre de padding days dans le mois
+ * Trouve le nombre de jours avant le premier jours du mois en fonction du premier jour de la semaine du calendrier
+ * @param dt - Date contenant le mois et l'année à calculer
+ * @param calendarStartingDay - Premier jour de la semaine @default "Sunday"
+ * @returns Trouve le nombre de jours avant le premier jours du mois
  */
-function GetPaddingDays(nbPaddingDays: number): TypeWeekDays[] {
-  const paddingDaysArr: TypeWeekDays[] = [];
+function FindNumberOfDaysBeforeFirstDayOfMonth(dt: Date, calendarStartingDay: TypeStartingDaysCalendar): number {
+  const firstDayToStartCalendar = FindFirstDayToStartCalendar(dt, calendarStartingDay); // ex: 28 juin 2021
+  const nbOfDaysInMonth = new Date(
+    firstDayToStartCalendar.getFullYear(),
+    firstDayToStartCalendar.getMonth() + 1,
+    0
+  ).getDate(); // ex: 30 jours dans le mois de juin 2021
 
-  // Trouver les padding days (nb cases vides)
-  for (let i = 0; i < nbPaddingDays; i++) {
-    paddingDaysArr.push(weekdays[i]);
+  // Vériier si le premier jours du mois correspond au premier jours du calendrier
+  if (firstDayToStartCalendar.getDate() === 1) {
+    return 0;
   }
-  return paddingDaysArr;
+
+  return nbOfDaysInMonth - firstDayToStartCalendar.getDate() + 1; // ex: 3 jours avant le 1er juillet 2021
 }
 
 /**
- * Retourne la date à afficher sur le header du calendrier
- * @param firstDayOfMonth - Objet Date représentant le premier jour du mois
+ * Trouve la date où dois commencer le calendrier en fonction du premier jour de la semaine
+ * @param dt - Date contenant le mois et l'année à calculer
+ * @param calendarStartingDay Premier jour de la semaine @default "Sunday"
  */
-function GetHeaderText(firstDayOfMonth: Date) {
-  const month = firstDayOfMonth.toLocaleString("en-CA", {
-    month: "long",
-  });
-  const year = firstDayOfMonth.getFullYear();
+function FindFirstDayToStartCalendar(dt: Date, calendarStartingDay: TypeStartingDaysCalendar): Date {
+  const firstDayOfMonth = new Date(dt.getFullYear(), dt.getMonth(), 1);
+  const firstDayOfMonthName = firstDayOfMonth.toLocaleString("en-CA", { weekday: "long" }) as TypeWeekDays;
 
-  return `${month} ${year}`;
-}
+  // Vérifier si le premier jours du mois correspond au premier jour de la semaine du calendrier
+  if (firstDayOfMonthName === calendarStartingDay) {
+    return firstDayOfMonth;
+  }
 
-/**
- * Retourne les informations nécessaire pour render le calendrier
- * @param {TypeNav} nav Objet contenant le mois et l'année à afficher
- * @returns Retourne le nombre de padding days (cases vides avant le premier jours),
- *          la liste des jours dans le mois et la date à afficher sur le header.
- *         Le tout sous forme d'objet.
- * @example
- *  = [paddingDays, daysInMonth, headerText] = LoadCalendar
- */
-export default function LoadCalendar(nav: TypeNav): [TypeWeekDays[], TypeDay[], string] {
-  const dt = new Date();
+  // Trouver le premier jours du mois qui correspond au premier jour de la semaine du calendrier
+  let i = 0; // pour ne pas faire plus de 10 itérations (pour éviter une boucle infinie)
+  while (i <= 10) {
+    const day = new Date(dt.getFullYear(), dt.getMonth(), 1 - i);
+    const dayName = day.toLocaleString("en-CA", { weekday: "long" }) as TypeWeekDays;
 
-  // Définir le mois et l'année à afficher (à partir de l'objet nav)
-  dt.setFullYear(nav.year);
-  dt.setMonth(nav.month, 1);
+    if (dayName === calendarStartingDay) {
+      return day;
+    }
 
-  const year = dt.getFullYear();
-  const month = dt.getMonth();
+    i++;
+  }
 
-  const firstDayOfMonth = new Date(year, month, 1);
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const nbPaddingDays = NumOfPaddingDays(firstDayOfMonth); // Trouver le nombre de padding days (cases vides avant le premier jour du mois)
-
-  return [
-    GetPaddingDays(nbPaddingDays),
-    GetAllDaysInMonth(daysInMonth, firstDayOfMonth),
-    GetHeaderText(firstDayOfMonth),
-  ];
+  // Si on ne trouve pas le premier jours du mois qui correspond au premier jour de la semaine du calendrier
+  return firstDayOfMonth;
 }
