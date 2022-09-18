@@ -134,57 +134,7 @@ const Home: NextPage = () => {
         console.log(`Calendar synced with ${events.length} events`);
 
         // Associer les événements avec les jours
-        const [_daysInMonth, _headerText] = LoadCalendar(nav);
-
-        _daysInMonth.map((day) => {
-          // Associer les événements avec les jours
-          day.events = events.filter((event) => {
-            const eventStart = new Date(event.event_start);
-            const eventEnd = new Date(event.event_end);
-
-            // Vérifier si l'événnement est le même jour que le jour
-            // Vérifier si l'événement est dans le mois
-            const isEventOnSameDay = eventStart.getDate() === day.date;
-
-            // Vérifier si l'événement est entre le début et la fin du jour
-            const isEventBetweenDayStartAndEnd = eventStart.getDate() <= day.date && eventEnd.getDate() >= day.date;
-
-            // Vérifier si l'événement est sur le dernier jours
-            const isEventOnLastDay = eventEnd.getDate() === day.date;
-
-            // return isEventOnSameDay;
-            return isEventOnSameDay || isEventBetweenDayStartAndEnd || isEventOnLastDay;
-          });
-
-          // Trier les événements par longeur
-          day.events.sort((a, b) => {
-            const aStart = new Date(a.event_start);
-            const aEnd = new Date(a.event_end);
-            const bStart = new Date(b.event_start);
-            const bEnd = new Date(b.event_end);
-
-            // Si les dates de début sont les mêmes, la plus longue est en premier
-            if (aStart.getDate() === bStart.getDate()) {
-              // alert("debut parreil");
-              return bEnd.getDate() - aEnd.getDate();
-            }
-
-            // Si les dates de fin sont les mêmes, la plus courte est en premier
-            if (aEnd.getDate() === bEnd.getDate()) {
-              // alert(`fin parreil :`);
-              return aStart.getDate() - bStart.getDate();
-            }
-
-            // Si les événements se chevauchent, la plus courte est en premier
-            if (aEnd.getDate() === bStart.getDate() || aStart.getDate() === bEnd.getDate()) {
-              // alert("Chevauchement");
-              return aEnd.getDate() - aStart.getDate();
-            }
-
-            // Sinon, la plus courte est en premier
-            return aStart.getDate() - bStart.getDate();
-          });
-        });
+        const _daysInMonth = AssociateEventsWithDays(events);
 
         setDaysInMonth(_daysInMonth);
 
@@ -469,6 +419,70 @@ const Home: NextPage = () => {
       return `${year}-${month}-${date}T00:00`;
     }
   };
+
+  // Retourne une liste des jours avec les événements associés
+  function AssociateEventsWithDays(events: TypeEvent[]): TypeDay[] {
+    const [_daysInMonth, _] = LoadCalendar(nav);
+
+    _daysInMonth.map((day) => {
+      // Associer les événements avec les jours
+      day.events = events.filter((event) => {
+        const eventStart = new Date(event.event_start);
+        const eventEnd = new Date(event.event_end);
+
+        // Vérifier si l'événnement est le même jour que le jour
+        const isEventOnSameDay =
+          eventStart.getDate() === day.date &&
+          eventStart.getMonth() === day.month &&
+          eventStart.getFullYear() === day.year;
+
+        // Vérifier si l'événement est entre le début et la fin du jour
+        const isEventBetweenDayStartAndEnd =
+          eventStart.getDate() <= day.date &&
+          eventEnd.getDate() >= day.date &&
+          eventStart.getMonth() === day.month &&
+          eventStart.getFullYear() === day.year;
+
+        // Vérifier si l'événement est sur le dernier jours
+        const isEventOnLastDay =
+          eventEnd.getDate() === day.date && eventEnd.getMonth() === day.month && eventEnd.getFullYear() === day.year;
+
+        // return isEventOnSameDay;
+        return isEventOnSameDay || isEventBetweenDayStartAndEnd || isEventOnLastDay;
+      });
+
+      // Trier les événements par longeur
+      day.events.sort((a, b) => {
+        const aStart = new Date(a.event_start);
+        const aEnd = new Date(a.event_end);
+        const bStart = new Date(b.event_start);
+        const bEnd = new Date(b.event_end);
+
+        // Si les dates de début sont les mêmes, la plus longue est en premier
+        if (aStart.getDate() === bStart.getDate()) {
+          // alert("debut parreil");
+          return bEnd.getDate() - aEnd.getDate();
+        }
+
+        // Si les dates de fin sont les mêmes, la plus courte est en premier
+        if (aEnd.getDate() === bEnd.getDate()) {
+          // alert(`fin parreil :`);
+          return aStart.getDate() - bStart.getDate();
+        }
+
+        // Si les événements se chevauchent, la plus courte est en premier
+        if (aEnd.getDate() === bStart.getDate() || aStart.getDate() === bEnd.getDate()) {
+          // alert("Chevauchement");
+          return aEnd.getDate() - aStart.getDate();
+        }
+
+        // Sinon, la plus courte est en premier
+        return aStart.getDate() - bStart.getDate();
+      });
+    });
+
+    return _daysInMonth;
+  }
 
   return (
     <div>
