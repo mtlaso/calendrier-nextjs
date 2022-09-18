@@ -1,11 +1,7 @@
+import { TypeStartingDaysCalendar } from "../types/TypeCalendarStartingDay";
 import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
-import { TypeWeekDays } from "../types/TypeWeekDays";
-
-/**
- * Jours sur lesquels le calendrier peut commencer
- */
-type TypeStartingDaysCalendar = "Saturday" | "Sunday" | "Monday";
+import { EnumWeekDays, TypeWeekDays } from "../types/TypeWeekDays";
 
 /**
  * Retourne les informations nécessaire pour render le calendrier
@@ -15,10 +11,7 @@ type TypeStartingDaysCalendar = "Saturday" | "Sunday" | "Monday";
  * @example
  * const [daysInMonth, headerText] = GetCalendarInfo({ month: 0, year: 2021 });
  */
-export default function LoadCalendar(
-  nav: TypeNav,
-  calendarStartingDay: TypeStartingDaysCalendar = "Sunday"
-): [TypeDay[], string] {
+export default function LoadCalendar(nav: TypeNav, calendarStartingDay: TypeStartingDaysCalendar): [TypeDay[], string] {
   const dt = new Date();
   dt.setFullYear(nav.year);
   dt.setMonth(nav.month);
@@ -76,14 +69,16 @@ function FindNumberOfDaysBeforeFirstDayOfMonth(dt: Date, calendarStartingDay: Ty
 /**
  * Trouve la date où dois commencer le calendrier en fonction du premier jour de la semaine
  * @param dt - Date contenant le mois et l'année à calculer
- * @param calendarStartingDay Premier jour de la semaine @default "Sunday"
+ * @param calendarStartingDay Premier jour de la semaine
  */
 function FindFirstDayToStartCalendar(dt: Date, calendarStartingDay: TypeStartingDaysCalendar): Date {
   const firstDayOfMonth = new Date(dt.getFullYear(), dt.getMonth(), 1);
   const firstDayOfMonthName = firstDayOfMonth.toLocaleString("en-CA", { weekday: "long" }) as TypeWeekDays;
 
   // Vérifier si le premier jours du mois correspond au premier jour de la semaine du calendrier
-  if (firstDayOfMonthName === calendarStartingDay) {
+  console.log(`firstDayOfMonthName: ${firstDayOfMonthName}`);
+  console.log(`calendarStartingDay: ${EnumWeekDays[calendarStartingDay]}`);
+  if (firstDayOfMonthName === EnumWeekDays[calendarStartingDay]) {
     return firstDayOfMonth;
   }
 
@@ -93,7 +88,7 @@ function FindFirstDayToStartCalendar(dt: Date, calendarStartingDay: TypeStarting
     const day = new Date(dt.getFullYear(), dt.getMonth(), 1 - i);
     const dayName = day.toLocaleString("en-CA", { weekday: "long" }) as TypeWeekDays;
 
-    if (dayName === calendarStartingDay) {
+    if (dayName.toString() === EnumWeekDays[calendarStartingDay]) {
       return day;
     }
 

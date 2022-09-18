@@ -18,8 +18,9 @@ import UpdateEventModalButtons from "../components/modals/update_modal/UpdateEve
 import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
 import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
-
+import { TypeStartingDaysCalendar } from "../types/TypeCalendarStartingDay";
 import { TypeCalendarSyncStatus } from "../types/TypeCalendarSyncStatus";
+import { EnumWeekDays } from "../types/TypeWeekDays";
 
 import { jwtState } from "../state/jwt-state";
 import { eventsState } from "../state/events-state";
@@ -35,6 +36,7 @@ const Home: NextPage = () => {
   // Recoil Js states
   const jwt = useRecoilValue(jwtState);
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
+  const [calendarStartingDay, setCalendarStartingDay] = useState<TypeStartingDaysCalendar>(EnumWeekDays.Sunday);
   const [daysInMonth, setDaysInMonth] = useState<TypeDay[]>([]);
 
   const calendarEventsSocket = InitSocketIO(jwt);
@@ -69,7 +71,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     setIsLoading(true);
 
-    const [_daysInMonth, _headerText] = LoadCalendar(nav);
+    const [_daysInMonth, _headerText] = LoadCalendar(nav, calendarStartingDay);
 
     setDaysInMonth(_daysInMonth);
     setHeaderText(_headerText);
@@ -422,7 +424,7 @@ const Home: NextPage = () => {
 
   // Retourne une liste des jours avec les événements associés
   function AssociateEventsWithDays(events: TypeEvent[]): TypeDay[] {
-    const [_daysInMonth, _] = LoadCalendar(nav);
+    const [_daysInMonth, _] = LoadCalendar(nav, calendarStartingDay);
 
     _daysInMonth.map((day) => {
       // Associer les événements avec les jours
