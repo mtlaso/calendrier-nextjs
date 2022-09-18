@@ -76,8 +76,6 @@ function FindFirstDayToStartCalendar(dt: Date, calendarStartingDay: TypeStarting
   const firstDayOfMonthName = firstDayOfMonth.toLocaleString("en-CA", { weekday: "long" }) as TypeWeekDays;
 
   // Vérifier si le premier jours du mois correspond au premier jour de la semaine du calendrier
-  console.log(`firstDayOfMonthName: ${firstDayOfMonthName}`);
-  console.log(`calendarStartingDay: ${EnumWeekDays[calendarStartingDay]}`);
   if (firstDayOfMonthName === EnumWeekDays[calendarStartingDay]) {
     return firstDayOfMonth;
   }

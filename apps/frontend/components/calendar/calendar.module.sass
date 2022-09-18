@@ -6,7 +6,7 @@ $box-border-color: var(--color-lightblack)
   user-select: none
   display: grid
   grid-template-columns: repeat(7, $calendar-width)
-  grid-template-rows: repeat(5, auto)
+  grid-template-rows: repeat(6, auto)
   min-height: calc(100vh - 5vh - 5vh) // 5vh header + footer
   max-height: calc(100vh - 5vh - 5vh) // 5vh header + footer
   width: 100vw
@@ -21,8 +21,11 @@ $box-border-color: var(--color-lightblack)
 
   .current_day
     font-weight: 900
-    border-radius: 0.3rem
+    border-radius: 1rem
     color: var(--color-green)
+    background: darkgreen
+    padding: .3rem
+    text-align: center
 
   .box
     display: flex
@@ -39,7 +42,7 @@ $box-border-color: var(--color-lightblack)
     width: 100%
 
   .box_date
-    padding: 1rem .5rem 0 .5rem
+    margin: 1rem .5rem 0 .5rem
 
   .box_empty
     border-bottom: 0.1rem solid $box-border-color
