@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { TypeCalendar } from "../../types/TypeCalendar";
 import { TypeDay } from "../../types/TypeDay";
 import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
-import { TypeWeekDays } from "../../types/TypeWeekDays";
 
 import calendarStyles from "./calendar.module.sass";
 import eventsStyles from "./events.module.sass";
@@ -66,9 +65,49 @@ const Calendar = ({
    * @param {number} index Index, car  la fonction retourne une liste
    * @param {TypeDay} day Objet contenant le jour
    */
-  function RenderDay(index: number, day: TypeDay) {
+  function RenderDay(dayIndex: number, day: TypeDay) {
     const today = new Date();
     const isToday = day.isCurrentDay && day.month === today.getMonth() && day.year === today.getFullYear();
+
+    // Trier les événements si il y en a
+    if (day.events) {
+      // Trier les événements par ordre croissant
+      day.events.sort((a, b) => {
+        const aStartDate = new Date(a.event_start);
+        const bStartDate = new Date(b.event_start);
+
+        const aEndDate = new Date(a.event_end);
+        const bEndDate = new Date(b.event_end);
+
+        // Vérifier si l'événement est sur plusieurs jours
+        const isAMultiDaysEvent = aStartDate.getDate() !== aEndDate.getDate();
+        const isBMultiDaysEvent = bStartDate.getDate() !== bEndDate.getDate();
+
+        // Si les événements sont sur plusieurs jours, trier par la date de fin
+        if (isAMultiDaysEvent && isBMultiDaysEvent) {
+          // Si l'événement est tous seul sur la journée, le mettre en premier
+
+          // Trier sur la longeur de l'événement
+          const along = aEndDate.getTime() - aStartDate.getTime();
+          const blong = bEndDate.getTime() - bStartDate.getTime();
+
+          if (along > blong) {
+            return -1;
+          }
+          if (along < blong) {
+            return 1;
+          }
+        }
+
+        // Si un des deux événements est sur plusieurs jours, celui qui est sur plusieurs jours en premier
+        if (isAMultiDaysEvent || isBMultiDaysEvent) {
+          return isAMultiDaysEvent ? -1 : 1;
+        }
+
+        // Si les deux événements ne sont pas sur plusieurs jours, trier par la date de début
+        return aStartDate.getTime() - bStartDate.getTime();
+      });
+    }
 
     return (
       <div
@@ -81,16 +120,28 @@ const Calendar = ({
           setSelectedDragCell(null);
         }}
         className={`${calendarStyles.box}`}
-        key={index}
+        key={dayIndex}
         onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
         {/* Contenu... */}
 
         {/* date */}
         <p className={`${calendarStyles.box_date} ${isToday ? calendarStyles.current_day : ""}`}>{day.date}</p>
 
+        {/* Si il n y a pas d'événements */}
+        {!day.events && <></>}
+
         {/* Afficher les événements du jour */}
         <div className={calendarStyles.box__content}>
-          {day.events !== undefined && day.events.map((event, index) => RenderEvents(day, event, index))}
+          {/* {day.events && day.events.map((event, index) => RenderEvents(day, event, index))} */}
+          {day.events?.map((event, index) => {
+            let prevDayEventsLength = 0;
+            if (index === 0) {
+              prevDayEventsLength = day.events!.length;
+            } else {
+              prevDayEventsLength = daysInMonth.filter((d) => d.date === day.date - 1)[0].events?.length || 0;
+            }
+            return RenderEvents(event, new Date(day.year, day.month, day.date), index);
+          })}
         </div>
       </div>
     );
@@ -98,41 +149,25 @@ const Calendar = ({
 
   /**
    * Render les événements de ce jour (événements sur plusieurs jours aussi)
-   * @param day Objet contenant le jour
-   * @param event Objet contenant l'événement
-   * @param index Index, car  la fonction retourne une liste
-   * @returns {JSX.Element} Retourne un événement JSX
    */
-  function RenderEvents(day: TypeDay, event: TypeEvent, index: number) {
-    // Titre de l'événement
+  function RenderEvents(event: TypeEvent, dayDate: Date, index: number) {
     const eventSmallTitle = SmallTitle(event.title);
 
     // Convertir la date UTC de l'événement en local time
-    const event_start = new Date(event.event_start);
-    const event_end = new Date(event.event_end);
+    const eventStart = new Date(event.event_start);
+    const eventEnd = new Date(event.event_end);
 
     // Vérifier si l'événement est sur plusieurs jours
-    const isEventOnMultipleDays = event_start.getDate() !== event_end.getDate();
+    const isMultiDaysEvent = eventStart.getDate() !== eventEnd.getDate();
 
-    // Vérifier que l'événement est affiché pour le jour auquel il a lieu
-    const isEventFirstDay =
-      event_start.getDate() === day.date &&
-      event_start.getMonth() === day.month &&
-      event_start.getFullYear() === day.year;
+    // Premier jours de l'événement
+    const isEventFirstDay = eventStart.getDate() === dayDate.getDate();
 
-    // Vérifier que l'événement est affiché pour le dernier jour auquel il a lieu
-    const isEventLastDay = isEventOnMultipleDays && event_end.getDate() === day.date;
+    // Vérifier si l'événement est entre la date de début et la date de fin
+    const isEventBetweenStartAndEnd =
+      dayDate.getTime() >= eventStart.getTime() && dayDate.getTime() <= eventEnd.getTime();
 
-    // Vérifier que l'événement est affiché pour un jour entre le premier et le dernier jour
-    const isInbetweenEvent = isEventOnMultipleDays && !isEventFirstDay && !isEventLastDay;
-
-    // Vérifier que le jours contient plusieurs événements
-    const isMultipleEventsOnDay = day.events && day.events.length > 1;
-
-    const isEventStartedEarlier = event_start.getDate() < day.date;
-
-    // Afficher les l'événements sur un jour seulement
-    if (!isEventOnMultipleDays) {
+    if (!isMultiDaysEvent) {
       return (
         <div
           draggable
@@ -147,14 +182,14 @@ const Calendar = ({
           className={eventsStyles.event}
           onClick={() => onUpdateEvent(event)}>
           <p>
-            {eventSmallTitle} - {event_start.toLocaleTimeString()}
+            {/* {eventSmallTitle} - {event_start.toLocaleTimeString()} - {event_end.toLocaleTimeString()} */}
+            {eventSmallTitle} - {eventStart.toLocaleTimeString()}
           </p>
         </div>
       );
     }
 
-    // Afficher la première partie de l'événement sur plusieurs jours
-    if (isEventOnMultipleDays) {
+    if (isMultiDaysEvent) {
       return (
         <div
           draggable
@@ -165,13 +200,15 @@ const Calendar = ({
           onDragEndCapture={() => {
             setIsDraggedEventDropped(true); // Doit être en premier
           }}
-          key={index}
+          key={event.event_id}
           className={eventsStyles.event__multiple_days__head}
-          onClick={() => onUpdateEvent(event)}
-          // style={isEventLastDay ? { background: "red" } : {}}
-        >
-          {isEventFirstDay && eventSmallTitle}
-          <br />
+          onClick={() => onUpdateEvent(event)}>
+          {isEventFirstDay && (
+            <p>
+              {eventSmallTitle} - {eventEnd.toLocaleTimeString()}
+            </p>
+          )}
+          {isEventBetweenStartAndEnd && <br />}
         </div>
       );
     }

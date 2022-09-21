@@ -45,11 +45,6 @@ const Home: NextPage = () => {
 
   const [showAddEventModal, setShowAddEventModal] = useState<"block" | "none">("none");
   const [newEvent, setNewEvent] = useState<TypeEvent>(DEFAULT_EVENT);
-  const [newEventDate, setNewEventDate] = useState<{
-    year: number;
-    month: number;
-    date: number;
-  } | null>(null);
 
   const [showUpdateEventModal, setShowUpdateEventModal] = useState<"block" | "none">("none");
   const [updatedEvent, setUpdatedEvent] = useState<TypeEvent | null>(null);
@@ -246,18 +241,15 @@ const Home: NextPage = () => {
 
   // Afficher modal AddEventModal
   const OpenAddEventModal = (year: number, month: number, date: number) => {
-    // Mettre à jour la date de l'événement
-    setNewEventDate({ year: year, month: month, date: date });
-
-    // Afficher modal AddEventModal
-    setShowAddEventModal("block");
-
     // Changer les dates de début et de fin de l'événement
     setNewEvent((prev) => ({
       ...prev,
       event_start: new Date(year, month, date),
       event_end: new Date(year, month, date),
     }));
+
+    // Afficher modal AddEventModal
+    setShowAddEventModal("block");
   };
 
   // Afficher modal UpdateEventModal
@@ -317,6 +309,9 @@ const Home: NextPage = () => {
 
     // Fermer AddEventModal
     setShowAddEventModal("none");
+
+    // Réinitialiser les valeurs de l'événement
+    setNewEvent(DEFAULT_EVENT);
   };
 
   // Modifier un évènement
@@ -387,15 +382,29 @@ const Home: NextPage = () => {
     };
 
     // Anciennes dates de l'événement (UTC -> localtime)
-    const oldStartDate = new Date(event.event_start);
-    const oldEndDate = new Date(event.event_end);
+    const oldDateStart = new Date(event.event_start);
+    const oldDateEnd = new Date(event.event_end);
 
-    // Calculer la différence entre les anciennes dates et la nouvelle date
-    const diff = newDate.getTime() - oldStartDate.getTime();
+    // Seulement changer le mois et la date
+    updatedEvent.event_start = new Date(
+      oldDateStart.getFullYear(),
+      newDate.getMonth(),
+      newDate.getDate(),
+      oldDateStart.getHours(),
+      oldDateStart.getMinutes()
+    );
 
-    // Ajouter la différence aux dates de l'événement
-    updatedEvent.event_start = new Date(oldStartDate.getTime() + diff);
-    updatedEvent.event_end = new Date(oldEndDate.getTime() + diff);
+    const diff = oldDateEnd.getTime() - oldDateStart.getTime();
+    updatedEvent.event_end = new Date(updatedEvent.event_start.getTime() + diff);
+
+    // // Seulement changer le mois et la date
+    // updatedEvent.event_end = new Date(
+    //   oldDateEnd.getFullYear(),
+    //   newDate.getMonth() + diff,
+    //   newDate.getDate() + diff,
+    //   oldDateEnd.getHours(),
+    //   oldDateEnd.getMinutes()
+    // );
 
     // Mettre à jour l'évènement. Calendrier est rafréchit automatiquement grâce à "useRecoilState"
     setCalendarEvents([
@@ -406,20 +415,9 @@ const Home: NextPage = () => {
 
     // Émettre les nouveaux événements au serveur
     setEventsChanged(true);
-  };
 
-  // Retourne la date pour les date inputs
-  const GetDate = () => {
-    if (newEventDate === null) {
-      return "";
-    } else {
-      // Afficher la date en format du local time
-      const year = newEventDate.year;
-      const month = newEventDate.month < 9 ? `0${newEventDate.month + 1}` : newEventDate.month + 1;
-      const date = newEventDate.date < 10 ? `0${newEventDate.date}` : newEventDate.date;
-
-      return `${year}-${month}-${date}T00:00`;
-    }
+    // Réinitialiser les valeurs de l'évènement
+    setUpdatedEvent(null);
   };
 
   // Retourne une liste des jours avec les événements associés
@@ -432,7 +430,7 @@ const Home: NextPage = () => {
         const eventStart = new Date(event.event_start);
         const eventEnd = new Date(event.event_end);
 
-        // Vérifier si l'événnement est le même jour que le jour
+        // Vérifier si l'événnement ce passe le même jour que le jour (day.date)
         const isEventOnSameDay =
           eventStart.getDate() === day.date &&
           eventStart.getMonth() === day.month &&
@@ -445,42 +443,41 @@ const Home: NextPage = () => {
           eventStart.getMonth() === day.month &&
           eventStart.getFullYear() === day.year;
 
-        // Vérifier si l'événement est sur le dernier jours
+        // Vérifier si l'événement est sur le dernier jour
         const isEventOnLastDay =
           eventEnd.getDate() === day.date && eventEnd.getMonth() === day.month && eventEnd.getFullYear() === day.year;
 
-        // return isEventOnSameDay;
-        return isEventOnSameDay || isEventBetweenDayStartAndEnd || isEventOnLastDay;
+        return isEventOnSameDay || isEventBetweenDayStartAndEnd;
       });
 
       // Trier les événements par longeur
-      day.events.sort((a, b) => {
-        const aStart = new Date(a.event_start);
-        const aEnd = new Date(a.event_end);
-        const bStart = new Date(b.event_start);
-        const bEnd = new Date(b.event_end);
+      // day.events.sort((a, b) => {
+      //   const aStart = new Date(a.event_start);
+      //   const aEnd = new Date(a.event_end);
+      //   const bStart = new Date(b.event_start);
+      //   const bEnd = new Date(b.event_end);
 
-        // Si les dates de début sont les mêmes, la plus longue est en premier
-        if (aStart.getDate() === bStart.getDate()) {
-          // alert("debut parreil");
-          return bEnd.getDate() - aEnd.getDate();
-        }
+      //   // Si les dates de début sont les mêmes, la plus longue est en premier
+      //   if (aStart.getDate() === bStart.getDate()) {
+      //     // alert("debut parreil");
+      //     return bEnd.getDate() - aEnd.getDate();
+      //   }
 
-        // Si les dates de fin sont les mêmes, la plus courte est en premier
-        if (aEnd.getDate() === bEnd.getDate()) {
-          // alert(`fin parreil :`);
-          return aStart.getDate() - bStart.getDate();
-        }
+      //   // Si les dates de fin sont les mêmes, la plus courte est en premier
+      //   if (aEnd.getDate() === bEnd.getDate()) {
+      //     // alert(`fin parreil :`);
+      //     return aStart.getDate() - bStart.getDate();
+      //   }
 
-        // Si les événements se chevauchent, la plus courte est en premier
-        if (aEnd.getDate() === bStart.getDate() || aStart.getDate() === bEnd.getDate()) {
-          // alert("Chevauchement");
-          return aEnd.getDate() - aStart.getDate();
-        }
+      //   // Si les événements se chevauchent, la plus courte est en premier
+      //   if (aEnd.getDate() === bStart.getDate() || aStart.getDate() === bEnd.getDate()) {
+      //     // alert("Chevauchement");
+      //     return aEnd.getDate() - aStart.getDate();
+      //   }
 
-        // Sinon, la plus courte est en premier
-        return aStart.getDate() - bStart.getDate();
-      });
+      //   // Sinon, la plus courte est en premier
+      //   return aStart.getDate() - bStart.getDate();
+      // });
     });
 
     return _daysInMonth;
@@ -514,9 +511,9 @@ const Home: NextPage = () => {
             <input
               id="new-event-start-date"
               type="datetime-local"
-              defaultValue={GetDate()}
+              // defaultValue={newEvent?.event_start.toLocaleString("sv").replace(" ", "T")}
               max={"2999-12-31"}
-              min={"2020-12-31"}
+              min={"1999-12-31"}
               onChange={(e) => {
                 // Convertir la date en format local time
                 const date = new Date(e.target.value);
@@ -533,9 +530,9 @@ const Home: NextPage = () => {
             <input
               id="new-event-end-date"
               type="datetime-local"
-              defaultValue={GetDate()}
+              // defaultValue={newEvent?.event_end.toLocaleString("sv").replace(" ", "T")}
               max={"2999-12-31"}
-              min={"2020-12-31"}
+              min={"1999-12-31"}
               onChange={(e) => {
                 // Convertir la date en format local time
                 const date = new Date(e.target.value);

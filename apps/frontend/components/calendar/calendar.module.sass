@@ -19,14 +19,6 @@ $box-border-color: var(--color-lightblack)
     border-top: .1rem solid $box-border-color
     border-bottom: .1rem solid $box-border-color
 
-  .current_day
-    font-weight: 900
-    border-radius: 1rem
-    color: var(--color-green)
-    background: darkgreen
-    padding: .3rem
-    text-align: center
-
   .box
     display: flex
     flex-direction: column
@@ -35,14 +27,22 @@ $box-border-color: var(--color-lightblack)
     align-content: flex-start
     height: $box-height
     border-bottom: 0.1rem solid $box-border-color
-    overflow: hidden
 
   .box__content
     display: block
     width: 100%
+    overflow: scroll
 
   .box_date
     margin: 1rem .5rem 0 .5rem
+    padding: .3rem
+
+  .current_day
+    font-weight: 900
+    border-radius: 1rem
+    color: var(--color-green)
+    background: darkgreen
+    text-align: center
 
   .box_empty
     border-bottom: 0.1rem solid $box-border-color

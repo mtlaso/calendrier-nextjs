@@ -21,6 +21,4 @@ const AddEventModal = (props: { children: React.ReactNode; display: "block" | "n
   );
 };
 
-
-
 export default AddEventModal;

@@ -1,3 +1,4 @@
+
 @mixin event
   user-select: none
   cursor: pointer
@@ -6,8 +7,17 @@
   color: var(--color-white)
   font-size: small
 
+  p::before
+    content: "\00a0"
+    display: inline-block
+    width: .2rem
+    height: 1rem
+    background-color: var(--color-blue)
+    margin-right: .5rem
+
 .event
   @include event
+  background: darken(blue, 20%)
   border-radius: .3rem
   margin: 0.5rem 1rem 0 .5rem
 
@@ -18,9 +28,13 @@
   @include event
   margin-top: .3rem
   flex: 1 1 auto
-  // position: absolute
-  // z-index: 12
+  background-color: darken(blue, 20%)
 
 .event__multiple_days__body
   @include event
   margin-top: .3rem
+
+.event__multiple_days__end
+  @include event
+  // margin-top: 3rem
+  backface-visibility: red
