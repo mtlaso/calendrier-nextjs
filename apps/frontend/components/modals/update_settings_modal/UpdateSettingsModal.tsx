@@ -6,7 +6,7 @@ import React from "react";
 const UpdateSettingsModal = (props: { children: React.ReactNode; display: "block" | "none" }) => {
   return (
     <div
-      // className={styles.modal_container}
+      // className={styles.modal_container} 
       style={{
         position: "absolute",
         left: "50%",

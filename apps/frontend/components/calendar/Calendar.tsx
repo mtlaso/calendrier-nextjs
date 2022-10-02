@@ -62,7 +62,7 @@ const Calendar = ({
 
   /**
    * Fonction qui permet de render un jour (.container-column-box)
-   * @param {number} index Index, car  la fonction retourne une liste
+   * @param {number} dayIndex Index, car  la fonction retourne une liste
    * @param {TypeDay} day Objet contenant le jour
    */
   function RenderDay(dayIndex: number, day: TypeDay) {
@@ -85,8 +85,6 @@ const Calendar = ({
 
         // Si les événements sont sur plusieurs jours, trier par la date de fin
         if (isAMultiDaysEvent && isBMultiDaysEvent) {
-          // Si l'événement est tous seul sur la journée, le mettre en premier
-
           // Trier sur la longeur de l'événement
           const along = aEndDate.getTime() - aStartDate.getTime();
           const blong = bEndDate.getTime() - bStartDate.getTime();
@@ -121,26 +119,16 @@ const Calendar = ({
         }}
         className={`${calendarStyles.box}`}
         key={dayIndex}
-        onDoubleClick={() => onAddEvent(day.year, day.month, day.date)}>
-        {/* Contenu... */}
-
+        onDoubleClick={() => {
+          onAddEvent(day.year, day.month, day.date);
+        }}>
         {/* date */}
-        <p className={`${calendarStyles.box_date} ${isToday ? calendarStyles.current_day : ""}`}>{day.date}</p>
-
-        {/* Si il n y a pas d'événements */}
-        {!day.events && <></>}
+        <p className={`${calendarStyles.box__date} ${isToday ? calendarStyles.current_day : ""}`}>{day.date}</p>
 
         {/* Afficher les événements du jour */}
         <div className={calendarStyles.box__content}>
-          {/* {day.events && day.events.map((event, index) => RenderEvents(day, event, index))} */}
           {day.events?.map((event, index) => {
-            let prevDayEventsLength = 0;
-            if (index === 0) {
-              prevDayEventsLength = day.events!.length;
-            } else {
-              prevDayEventsLength = daysInMonth.filter((d) => d.date === day.date - 1)[0].events?.length || 0;
-            }
-            return RenderEvents(event, new Date(day.year, day.month, day.date), index);
+            return RenderEvents(event, new Date(day.year, day.month, day.date));
           })}
         </div>
       </div>
@@ -150,24 +138,24 @@ const Calendar = ({
   /**
    * Render les événements de ce jour (événements sur plusieurs jours aussi)
    */
-  function RenderEvents(event: TypeEvent, dayDate: Date, index: number) {
+  function RenderEvents(event: TypeEvent, dayDate: Date) {
     const eventSmallTitle = SmallTitle(event.title);
 
     // Convertir la date UTC de l'événement en local time
     const eventStart = new Date(event.event_start);
     const eventEnd = new Date(event.event_end);
 
-    // Vérifier si l'événement est sur plusieurs jours
-    const isMultiDaysEvent = eventStart.getDate() !== eventEnd.getDate();
-
     // Premier jours de l'événement
     const isEventFirstDay = eventStart.getDate() === dayDate.getDate();
+
+    // Vérifier si l'événement est sur plusieurs jours
+    const isMultiDayEvent = eventStart.getDate() !== eventEnd.getDate();
 
     // Vérifier si l'événement est entre la date de début et la date de fin
     const isEventBetweenStartAndEnd =
       dayDate.getTime() >= eventStart.getTime() && dayDate.getTime() <= eventEnd.getTime();
 
-    if (!isMultiDaysEvent) {
+    if (!isMultiDayEvent) {
       return (
         <div
           draggable
@@ -182,14 +170,13 @@ const Calendar = ({
           className={eventsStyles.event}
           onClick={() => onUpdateEvent(event)}>
           <p>
-            {/* {eventSmallTitle} - {event_start.toLocaleTimeString()} - {event_end.toLocaleTimeString()} */}
-            {eventSmallTitle} - {eventStart.toLocaleTimeString()}
+            {eventSmallTitle} - {eventStart.toLocaleTimeString("en-CA", { hour: "2-digit", minute: "2-digit" })}
           </p>
         </div>
       );
     }
 
-    if (isMultiDaysEvent) {
+    if (isMultiDayEvent) {
       return (
         <div
           draggable
@@ -201,14 +188,14 @@ const Calendar = ({
             setIsDraggedEventDropped(true); // Doit être en premier
           }}
           key={event.event_id}
-          className={eventsStyles.event__multiple_days__head}
           onClick={() => onUpdateEvent(event)}>
           {isEventFirstDay && (
-            <p>
-              {eventSmallTitle} - {eventEnd.toLocaleTimeString()}
+            <p className={eventsStyles.event__multiple_days__head}>
+              {eventSmallTitle} - {eventStart.toLocaleTimeString("en-CA", { hour: "2-digit", minute: "2-digit" })}
             </p>
           )}
-          {isEventBetweenStartAndEnd && <br />}
+          {/* {!isEventFirstDay && <br />} */}
+          {!isEventFirstDay && <p className={eventsStyles.event__multiple_days__body}>{eventSmallTitle}</p>}
         </div>
       );
     }

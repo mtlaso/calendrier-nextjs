@@ -1,12 +1,12 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuidv4 } from "uuid";
 
 import CalendarHeader from "../components/calendar-header/CalendarHeader";
 import CalendarFooter from "../components/calendar-footer/CalendarFooter";
-import GuideModal from "../components/modals/guide_modal/GuideModal";
+import InfoModal from "../components/modals/info_modal/InfoModal";
 import Calendar from "../components/calendar/Calendar";
 import AddEventModal from "../components/modals/add_modal/AddEventModal";
 import AddEventModalContent from "../components/modals/add_modal/AddEventModalContent";
@@ -36,20 +36,20 @@ const Home: NextPage = () => {
   // Recoil Js states
   const jwt = useRecoilValue(jwtState);
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
-  const [calendarStartingDay, setCalendarStartingDay] = useState<TypeStartingDaysCalendar>(EnumWeekDays.Sunday);
+  const [calendarStartingDay] = useState<TypeStartingDaysCalendar>(EnumWeekDays.Sunday);
   const [daysInMonth, setDaysInMonth] = useState<TypeDay[]>([]);
 
   const calendarEventsSocket = InitSocketIO(jwt);
   const [calendarSyncStatus, setCalendarSyncStatus] = useState<TypeCalendarSyncStatus>("notsynced"); // Sync status footer
   const [eventsChanged, setEventsChanged] = useState<boolean>(false); // Socket io calendar sync
 
-  const [showAddEventModal, setShowAddEventModal] = useState<"block" | "none">("none");
+  const [showAddEventModal, setShowAddEventModal] = useState<boolean>(false);
   const [newEvent, setNewEvent] = useState<TypeEvent>(DEFAULT_EVENT);
 
-  const [showUpdateEventModal, setShowUpdateEventModal] = useState<"block" | "none">("none");
+  const [showUpdateEventModal, setShowUpdateEventModal] = useState<boolean>(false);
   const [updatedEvent, setUpdatedEvent] = useState<TypeEvent | null>(null);
 
-  const [showInfoModal, setShowInfoModal] = useState<"flex" | "none">("none");
+  const [showInfoModal, setShowInfoModal] = useState<boolean>(false);
 
   const [headerText, setHeaderText] = useState<string>("");
 
@@ -247,9 +247,8 @@ const Home: NextPage = () => {
       event_start: new Date(year, month, date),
       event_end: new Date(year, month, date),
     }));
-
     // Afficher modal AddEventModal
-    setShowAddEventModal("block");
+    setShowAddEventModal(true);
   };
 
   // Afficher modal UpdateEventModal
@@ -258,7 +257,7 @@ const Home: NextPage = () => {
     setUpdatedEvent(event);
 
     // Afficher update modal
-    setShowUpdateEventModal("block");
+    setShowUpdateEventModal(true);
   };
 
   // Créer un évènement
@@ -308,7 +307,7 @@ const Home: NextPage = () => {
     setEventsChanged(true);
 
     // Fermer AddEventModal
-    setShowAddEventModal("none");
+    setShowAddEventModal(false);
 
     // Réinitialiser les valeurs de l'événement
     setNewEvent(DEFAULT_EVENT);
@@ -353,7 +352,7 @@ const Home: NextPage = () => {
     setUpdatedEvent(null);
 
     // Fermer UpdateEventModal
-    setShowUpdateEventModal("none");
+    setShowUpdateEventModal(false);
   };
 
   // Supprimer un évènement
@@ -429,6 +428,7 @@ const Home: NextPage = () => {
       day.events = events.filter((event) => {
         const eventStart = new Date(event.event_start);
         const eventEnd = new Date(event.event_end);
+        const dayDate = new Date(day.year, day.month, day.date);
 
         // Vérifier si l'événnement ce passe le même jour que le jour (day.date)
         const isEventOnSameDay =
@@ -438,8 +438,8 @@ const Home: NextPage = () => {
 
         // Vérifier si l'événement est entre le début et la fin du jour
         const isEventBetweenDayStartAndEnd =
-          eventStart.getDate() <= day.date &&
-          eventEnd.getDate() >= day.date &&
+          eventStart.getDate() <= dayDate.getDate() &&
+          eventEnd.getTime() >= dayDate.getTime() &&
           eventStart.getMonth() === day.month &&
           eventStart.getFullYear() === day.year;
 
@@ -447,37 +447,8 @@ const Home: NextPage = () => {
         const isEventOnLastDay =
           eventEnd.getDate() === day.date && eventEnd.getMonth() === day.month && eventEnd.getFullYear() === day.year;
 
-        return isEventOnSameDay || isEventBetweenDayStartAndEnd;
+        return isEventOnSameDay || isEventBetweenDayStartAndEnd || isEventOnLastDay;
       });
-
-      // Trier les événements par longeur
-      // day.events.sort((a, b) => {
-      //   const aStart = new Date(a.event_start);
-      //   const aEnd = new Date(a.event_end);
-      //   const bStart = new Date(b.event_start);
-      //   const bEnd = new Date(b.event_end);
-
-      //   // Si les dates de début sont les mêmes, la plus longue est en premier
-      //   if (aStart.getDate() === bStart.getDate()) {
-      //     // alert("debut parreil");
-      //     return bEnd.getDate() - aEnd.getDate();
-      //   }
-
-      //   // Si les dates de fin sont les mêmes, la plus courte est en premier
-      //   if (aEnd.getDate() === bEnd.getDate()) {
-      //     // alert(`fin parreil :`);
-      //     return aStart.getDate() - bStart.getDate();
-      //   }
-
-      //   // Si les événements se chevauchent, la plus courte est en premier
-      //   if (aEnd.getDate() === bStart.getDate() || aStart.getDate() === bEnd.getDate()) {
-      //     // alert("Chevauchement");
-      //     return aEnd.getDate() - aStart.getDate();
-      //   }
-
-      //   // Sinon, la plus courte est en premier
-      //   return aStart.getDate() - bStart.getDate();
-      // });
     });
 
     return _daysInMonth;
@@ -496,7 +467,7 @@ const Home: NextPage = () => {
         headerText={headerText}
         clickBack={() => ClickBack()}
         clickNext={() => ClickNext()}
-        showInfoModal={() => setShowInfoModal((prev) => (prev === "flex" ? "none" : "flex"))}
+        showInfoModal={() => setShowInfoModal((prev) => !prev)}
       />
 
       {/* Add event modal */}
@@ -511,7 +482,7 @@ const Home: NextPage = () => {
             <input
               id="new-event-start-date"
               type="datetime-local"
-              // defaultValue={newEvent?.event_start.toLocaleString("sv").replace(" ", "T")}
+              defaultValue={newEvent?.event_start.toLocaleString("sv").replace(" ", "T")}
               max={"2999-12-31"}
               min={"1999-12-31"}
               onChange={(e) => {
@@ -530,7 +501,7 @@ const Home: NextPage = () => {
             <input
               id="new-event-end-date"
               type="datetime-local"
-              // defaultValue={newEvent?.event_end.toLocaleString("sv").replace(" ", "T")}
+              defaultValue={newEvent?.event_end.toLocaleString("sv").replace(" ", "T")}
               max={"2999-12-31"}
               min={"1999-12-31"}
               onChange={(e) => {
@@ -576,7 +547,7 @@ const Home: NextPage = () => {
           <button
             className="button-cancel"
             onClick={() => {
-              setShowAddEventModal("none");
+              setShowAddEventModal(false);
             }}>
             Cancel
           </button>
@@ -624,7 +595,7 @@ const Home: NextPage = () => {
             onClick={(e) => {
               if (window.confirm("Are you sure you want to delete this event?")) {
                 DeleteEvent();
-                setShowUpdateEventModal("none");
+                setShowUpdateEventModal(false);
               }
             }}>
             Delete
@@ -632,7 +603,7 @@ const Home: NextPage = () => {
           <button
             className="button-cancel"
             onClick={() => {
-              setShowUpdateEventModal("none");
+              setShowUpdateEventModal(false);
             }}>
             Cancel
           </button>
@@ -646,7 +617,7 @@ const Home: NextPage = () => {
       </UpdateEventModal>
 
       {/* Guide modal */}
-      <GuideModal display={showInfoModal} CloseModal={() => setShowInfoModal("none")} />
+      <InfoModal display={showInfoModal} CloseModal={() => setShowInfoModal(false)} />
 
       {/* Calendrier */}
       <main>

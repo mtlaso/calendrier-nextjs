@@ -30,9 +30,19 @@
   flex: 1 1 auto
   background-color: darken(blue, 20%)
 
+  &::before
+    content: "\00a0"
+    display: inline-block
+    width: .2rem
+    height: 1rem
+    background-color: var(--color-blue)
+    margin-right: .5rem
+
 .event__multiple_days__body
   @include event
   margin-top: .3rem
+  flex: 1 1 auto
+  background-color: darken(blue, 20%)
 
 .event__multiple_days__end
   @include event
