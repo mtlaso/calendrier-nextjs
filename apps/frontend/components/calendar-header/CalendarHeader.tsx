@@ -8,10 +8,13 @@ const CalendarHeader = (props: {
   clickBack: () => void;
   clickNext: () => void;
   showInfoModal: () => void;
+  goToCurrentMonth: () => void;
 }) => {
   return (
     <header className={styles.header}>
-      <p id="header-date">{props.headerText}</p>
+      <p id="header-date" style={{ cursor: "pointer" }} onClick={() => props.goToCurrentMonth()}>
+        {props.headerText}
+      </p>
       <div>
         {/* bouton back */}
         <button

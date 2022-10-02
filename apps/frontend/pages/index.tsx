@@ -468,6 +468,11 @@ const Home: NextPage = () => {
         clickBack={() => ClickBack()}
         clickNext={() => ClickNext()}
         showInfoModal={() => setShowInfoModal((prev) => !prev)}
+        goToCurrentMonth={() => {
+          // Aller sur la date d'aujourd'hui
+          const date = new Date();
+          setNav({ month: date.getMonth(), year: date.getFullYear() });
+        }}
       />
 
       {/* Add event modal */}
