@@ -8,7 +8,9 @@ import {
   GetUserEventsNumber,
   UpdateUserPassword,
   DeleteUserEvents,
+  UpdateFirstDayOfWeek,
 } from "../../controllers/users/users.controller";
+
 import IsLoggedIn from "../../middlewares/is-loggedIn";
 
 const usersRoute = Router();
@@ -29,6 +31,11 @@ usersRoute.get("/user/events", IsLoggedIn, GetUserEventsNumber);
  * Modifie le mot de passe d'un utilisateur
  */
 usersRoute.post("/user/password", IsLoggedIn, UpdateUserPassword);
+
+/**
+ * Changer le premier jour du calendrier
+ */
+usersRoute.post("/user/firstDayOfWeek", IsLoggedIn, UpdateFirstDayOfWeek);
 
 /**
  * Supprime tous les événement d'un utilisateur

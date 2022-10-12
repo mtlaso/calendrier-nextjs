@@ -21,4 +21,11 @@ export type TypeUserInfo = {
    * Date de dernière connexion de l'utilisateur
    */
   last_login: Date;
+
+  /**
+   * Jour de début de semaine
+   * MONDAY ou SUNDAY
+   * @default MONDAY
+   */
+  week_start_day: "MONDAY" | "SUNDAY";
 };

@@ -31,12 +31,13 @@ import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
 import { InitSocketIO } from "../utils/init-socketIO";
 
 import { DEFAULT_EVENT, MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
+import useUserInfo from "../utils/api_requests/useUserInfo";
 
 const Home: NextPage = () => {
   // Recoil Js states
   const jwt = useRecoilValue(jwtState);
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
-  const [calendarStartingDay] = useState<TypeStartingDaysCalendar>(EnumWeekDays.Sunday);
+  const DEFAULT_CALENDAR_STARTING_DAY: TypeStartingDaysCalendar = EnumWeekDays.Sunday;
   const [daysInMonth, setDaysInMonth] = useState<TypeDay[]>([]);
 
   const calendarEventsSocket = InitSocketIO(jwt);
@@ -66,7 +67,8 @@ const Home: NextPage = () => {
   useEffect(() => {
     setIsLoading(true);
 
-    const [_daysInMonth, _headerText] = LoadCalendar(nav, calendarStartingDay);
+    // Charger le calendrier (avant la connexion/synchronisation)
+    const [_daysInMonth, _headerText] = LoadCalendar(nav, DEFAULT_CALENDAR_STARTING_DAY);
 
     setDaysInMonth(_daysInMonth);
     setHeaderText(_headerText);
@@ -75,7 +77,6 @@ const Home: NextPage = () => {
     InitCalendarSync();
 
     setIsLoading(false);
-
     return () => {
       calendarEventsSocket.off("connect");
       calendarEventsSocket.off("connect_error");
@@ -100,6 +101,19 @@ const Home: NextPage = () => {
 
     setEventsChanged(false);
   }, [eventsChanged]);
+
+  // Trouver le premier jour du calendrier (lundi ou dimanche)
+  const FindFirstDayOfCalendar = async () => {
+    try {
+      const [err, userInfo] = await useUserInfo(jwt);
+
+      if (err) throw err;
+
+      const startingDay = userInfo.week_start_day === "MONDAY" ? EnumWeekDays.Monday : EnumWeekDays.Sunday;
+
+      return startingDay;
+    } catch (err) {}
+  };
 
   // Initiliaser la synchronisation des événements du calendrier
   const InitCalendarSync = async () => {
@@ -131,12 +145,12 @@ const Home: NextPage = () => {
         console.log(`Calendar synced with ${events.length} events`);
 
         // Associer les événements avec les jours
-        const _daysInMonth = AssociateEventsWithDays(events);
+        AssociateEventsWithDays(events).then((days) => {
+          setDaysInMonth(days);
 
-        setDaysInMonth(_daysInMonth);
-
-        // Mettre à jour le statut de synchronisation
-        setCalendarSyncStatus("synced");
+          // Mettre à jour le statut de synchronisation
+          setCalendarSyncStatus("synced");
+        });
       });
 
       // Évenement de connection
@@ -179,7 +193,7 @@ const Home: NextPage = () => {
         setCalendarSyncStatus("notsynced");
       });
     } catch (err) {
-      const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
+      // const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
     }
   };
 
@@ -420,8 +434,11 @@ const Home: NextPage = () => {
   };
 
   // Retourne une liste des jours avec les événements associés
-  function AssociateEventsWithDays(events: TypeEvent[]): TypeDay[] {
-    const [_daysInMonth, _] = LoadCalendar(nav, calendarStartingDay);
+  async function AssociateEventsWithDays(events: TypeEvent[]) {
+    let calendarStaringDay = await FindFirstDayOfCalendar();
+    if (!calendarStaringDay) calendarStaringDay = DEFAULT_CALENDAR_STARTING_DAY;
+
+    const [_daysInMonth, _] = LoadCalendar(nav, calendarStaringDay);
 
     _daysInMonth.map((day) => {
       // Associer les événements avec les jours

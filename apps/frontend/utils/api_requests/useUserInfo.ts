@@ -9,7 +9,13 @@ import { TypeUserInfo } from "../../types/TypeUserInfo";
  */
 export default async function useUserInfo(jwt: string): Promise<[string, TypeUserInfo]> {
   let errorMessage = "";
-  let userData: TypeUserInfo = { user_id: "", username: "", created_on: new Date(), last_login: new Date() };
+  let userData: TypeUserInfo = {
+    user_id: "",
+    username: "",
+    created_on: new Date(),
+    last_login: new Date(),
+    week_start_day: "MONDAY",
+  };
 
   try {
     // Vérifier jwt token
@@ -41,10 +47,17 @@ export default async function useUserInfo(jwt: string): Promise<[string, TypeUse
       username: userRes.data.username,
       created_on: userRes.data.created_on,
       last_login: userRes.data.last_login,
+      week_start_day: userRes.data.week_start_day,
     };
 
     // Verifier que tous les champs sont définis
-    if (!userData.user_id || !userData.username || !userData.created_on || !userData.last_login) {
+    if (
+      !userData.user_id ||
+      !userData.username ||
+      !userData.created_on ||
+      !userData.last_login ||
+      !userData.week_start_day
+    ) {
       const missingFields: string[] = [];
       FindMissingFields(userData, missingFields);
 
@@ -79,5 +92,8 @@ function FindMissingFields(userData: TypeUserInfo, missingFields: any[]) {
   }
   if (!userData.last_login) {
     missingFields.push("last_login");
+  }
+  if (!userData.week_start_day) {
+    missingFields.push("week_start_day");
   }
 }

@@ -97,6 +97,45 @@ export async function UpdateUserPassword(req: Request, res: Response, next: Next
 }
 
 /**
+ * Modifier le premier jour de la semaine du calendrier
+ */
+export async function UpdateFirstDayOfWeek(req: Request, res: Response, next: NextFunction) {
+  try {
+    // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
+    const userInfo = req.decodedJwt;
+
+    // Récupère le nouveau premier jour de la semaine
+    const { week_start_day } = req.body;
+
+    // Vérifier le jour de la semaine est soit SUNDAY ou MONDAY
+    if (!week_start_day || (week_start_day !== "SUNDAY" && week_start_day !== "MONDAY")) {
+      throw new ApiError("Invalid week_start_day, should be either `SUNDAY` or `MONDAY`.", 400);
+    }
+
+    // Changer la valeur dans la base de données
+    await prisma.users.update({
+      where: {
+        user_id:
+          // @ts-expect-error
+          userInfo.user_id,
+      },
+      data: { week_start_day: week_start_day },
+    });
+
+    // Renvoie le message de succès
+    const jsonReturn: TypeReturnMessage = {
+      message: "Calendar starting date updated successfully.",
+      statusCode: 200,
+      data: { week_start_day: week_start_day },
+    };
+
+    res.status(jsonReturn.statusCode).json(jsonReturn);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
  * Retourne le nombre d'événements que l'utilisateur à créé
  */
 export async function GetUserEventsNumber(req: Request, res: Response, next: NextFunction) {

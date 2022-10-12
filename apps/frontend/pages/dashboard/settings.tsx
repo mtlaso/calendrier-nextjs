@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { AiOutlineUser, AiOutlineInfoCircle, AiFillCloseCircle } from "react-icons/ai";
+import { AiOutlineUser, AiOutlineInfoCircle, AiFillCloseCircle, AiOutlineCalendar } from "react-icons/ai";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
@@ -36,6 +36,9 @@ export default function Settings() {
   // Champs utilisés pour afficher le status et le message de confirmation/erreur lors de la modification du mot de passe
   const [passwordUpdatedStatus, setPasswordUpdatedStatus] = useState<"success" | "error" | null>(null);
   const [passwordUpdatedMessage, setPasswordUpdatedMessage] = useState<string>("");
+
+  const [calendarFirstDayStatus, setCalendarFirstDayStatus] = useState<"success" | "error" | null>(null);
+  const [calendarFirstDayMessage, setCalendarFirstDayMessage] = useState<string>("");
 
   const [deleteEventsStatus, setDeleteEventsStatus] = useState<"success" | "error" | null>(null);
   const [deleteEventsMessage, setDeleteEventsMessage] = useState<string>("");
@@ -130,6 +133,57 @@ export default function Settings() {
     }
   };
 
+  // Changer le premier jour de le semaine
+  const ChangeFirstDayOfWeek = async (day: "SUNDAY" | "MONDAY") => {
+    try {
+      // Vider champs
+      setCalendarFirstDayMessage("");
+      setCalendarFirstDayStatus(null);
+
+      // Vérifier si le jour est différent de celui actuel
+      if (userInfo?.week_start_day === day) return;
+
+      const body = JSON.stringify({ week_start_day: day });
+
+      // Envoyer requête
+      const req = await fetch(API_URLS.users.updateUserFirstDayOfWeek, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${jwt}`,
+        },
+        body: body,
+      });
+
+      // Récupérer la réponse
+      const res = await req.json();
+
+      // Vérifier si la requête a réussi
+      if (res.statusCode !== 200) {
+        const errMessage = GenerateErrorMessage(
+          "An error occured while changing the starting day of your calendar.",
+          res.message
+        );
+        setCalendarFirstDayMessage(errMessage);
+        setCalendarFirstDayStatus("error");
+      }
+
+      // Message de succès
+      setCalendarFirstDayMessage(`Starting day of your calendar changed successfully, set to ${day.toLowerCase()}.`);
+      setCalendarFirstDayStatus("success");
+
+      // Changer la valeur dans le state
+      setUserInfo({ ...userInfo!, week_start_day: day });
+    } catch (err) {
+      const errMessage = GenerateErrorMessage(
+        "An error occured while chaning the first day of the calendar",
+        (err as Error).message
+      );
+      alert(errMessage);
+    }
+  };
+
   // Supprimer le compte de l'utilisateur
   const DeleteAllUserEvents = async () => {
     try {
@@ -184,6 +238,25 @@ export default function Settings() {
 
             <p>Username : {userInfo?.username}</p>
             <p>Password : *******</p>
+          </div>
+
+          {/* Changer premier jour du calendrier */}
+          <div className={`${styles.card} ${styles.card_noaction}`}>
+            <div className={styles.card__header}>
+              <h3>Week starting day</h3>
+              <span>
+                <AiOutlineCalendar size={25} />
+              </span>
+            </div>
+
+            <select
+              value={userInfo?.week_start_day === "SUNDAY" ? "SUNDAY" : "MONDAY"}
+              onChange={(e) => {
+                ChangeFirstDayOfWeek(e.currentTarget.value as "SUNDAY" | "MONDAY");
+              }}>
+              <option value="SUNDAY">Sunday</option>
+              <option value="MONDAY">Monday</option>
+            </select>
           </div>
 
           {/* Other info */}
@@ -286,6 +359,10 @@ export default function Settings() {
           }}>
           Delete all events
         </button>
+
+        {/* Afficher un message d'erreur/confirmation du changement du premier jour du calendrier */}
+        {calendarFirstDayStatus === "success" && <p className={styles.success}>{calendarFirstDayMessage}</p>}
+        {calendarFirstDayStatus === "error" && <p className={styles.error}>{calendarFirstDayMessage}</p>}
 
         {/* Afficher un message d'erreur/confirmation la suppression des événements */}
         {deleteEventsStatus === "success" && <p className={styles.success}>{deleteEventsMessage}</p>}

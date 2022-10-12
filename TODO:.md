@@ -9,3 +9,4 @@
 1. Pouvoir régler le début de la semaine du calendrier dans le paramètre de l'utilisateur
 1. Changer vidéo de présentation
 1. Recupérer les événements de l'API sur un mois à la fois
+1. Vérifier si `last_login` marche
