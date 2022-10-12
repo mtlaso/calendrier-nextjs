@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AiOutlineUser, AiOutlineInfoCircle, AiFillCloseCircle } from "react-icons/ai";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
-import DashboardHeader from "../../components/dashboard/DashboardLayout";
+import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import UpdateSettingsModal from "../../components/modals/update_settings_modal/UpdateSettingsModal";
 
 import { API_URLS, AUTH_VALIDATION } from "../../config/config";
@@ -25,7 +25,7 @@ export default function Settings() {
   const [loading, setIsLoading] = useState<boolean>(true);
   const [userInfo, setUserInfo] = useState<null | TypeUserInfo>(null);
 
-  const [showUserInfoModal, setShowUserInfoModal] = useState<"block" | "none">("none");
+  const [showUserInfoModal, setShowUserInfoModal] = useState<boolean>(false);
 
   const [oldPassword, setOldPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
@@ -169,15 +169,12 @@ export default function Settings() {
   }
 
   return (
-    <DashboardHeader title="Settings">
+    <DashboardLayout title="Settings">
       <div className={styles.content_container}>
-        <h2>Settings</h2>
-
+        {/* Cartes */}
         <div className={styles.cards_container}>
           {/* User info */}
-          <div
-            className={styles.card}
-            onClick={(e) => setShowUserInfoModal(showUserInfoModal === "block" ? "none" : "block")}>
+          <div className={styles.card} onClick={(e) => setShowUserInfoModal(!showUserInfoModal)}>
             <div className={styles.card__header}>
               <h3>User info</h3>
               <span>
@@ -219,7 +216,7 @@ export default function Settings() {
               <div className={styles.card}>
                 <div className={styles.card__header}>
                   <span className={styles.close_icon}>
-                    <AiFillCloseCircle size={50} onClick={(e) => setShowUserInfoModal("none")} />
+                    <AiFillCloseCircle size={50} onClick={(e) => setShowUserInfoModal(false)} />
                   </span>
                 </div>
 
@@ -294,6 +291,6 @@ export default function Settings() {
         {deleteEventsStatus === "success" && <p className={styles.success}>{deleteEventsMessage}</p>}
         {deleteEventsStatus === "error" && <p className={styles.error}>{deleteEventsMessage}</p>}
       </div>
-    </DashboardHeader>
+    </DashboardLayout>
   );
 }

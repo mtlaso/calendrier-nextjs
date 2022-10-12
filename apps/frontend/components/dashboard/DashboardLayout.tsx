@@ -32,6 +32,8 @@ export default function DashboardLayout(props: { title?: string; children: React
   return (
     <div className={styles.container}>
       <h1>{title ?? "Dashboard"}</h1>
+
+      {/* Navigation */}
       <nav className={styles.nav}>
         <ul>
           <li>
@@ -56,6 +58,7 @@ export default function DashboardLayout(props: { title?: string; children: React
       </nav>
       <hr />
 
+      {/* Contenu */}
       {children}
     </div>
   );

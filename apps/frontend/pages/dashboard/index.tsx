@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 
-import DashboardHeader from "../../components/dashboard/DashboardLayout";
+import DashboardLayout from "../../components/dashboard/DashboardLayout";
 
 import { jwtState } from "../../state/jwt-state";
 import { TypeUserInfo } from "../../types/TypeUserInfo";
@@ -57,11 +57,11 @@ export default function Dashboard() {
   }
 
   return (
-    <DashboardHeader>
+    <DashboardLayout>
       <div className={styles.content_container}>
         <h2>Welcome back, {userInfo?.username}.</h2>
         <p>You have {eventsCount} events in your calendar.</p>
       </div>
-    </DashboardHeader>
+    </DashboardLayout>
   );
 }
