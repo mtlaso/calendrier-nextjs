@@ -67,9 +67,11 @@ const CalendarHeader = (props: {
         </button>
 
         {/* lien login */}
-        <Link className="link" href={"/auth/login"}>
-          login
-        </Link>
+        {props.syncStatus !== "synced" && (
+          <Link className="link" href={"/auth/login"}>
+            login
+          </Link>
+        )}
       </div>
     </header>
   );
