@@ -19,7 +19,7 @@ model events {
   title               String   @db.VarChar(60)
   is_completed        Boolean
   description         String   @db.VarChar(256)
-  users               users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  users               users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model users {
