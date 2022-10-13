@@ -226,6 +226,7 @@ export default function Settings() {
   return (
     <DashboardLayout title="Settings">
       <div className={styles.content_container}>
+        <h2>General</h2>
         {/* Cartes */}
         <div className={styles.cards_container}>
           {/* User info */}

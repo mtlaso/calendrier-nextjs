@@ -201,9 +201,11 @@ const Home: NextPage = () => {
         throw new Error("Calendar is not ready to sync");
       }
 
+      // Émettre les événements au serveur
       calendarEventsSocket.emit("calendar:sync", { events: calendarEvents, jwt: jwt });
     } catch (err) {
       const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
+      alert(errMessage);
     }
   };
 
