@@ -4,7 +4,7 @@ import { AiOutlineUser, AiOutlineInfoCircle, AiFillCloseCircle, AiOutlineCalenda
 import { useRecoilState, useSetRecoilState } from "recoil";
 
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import UpdateSettingsModal from "../../components/modals/update_settings_modal/UpdateSettingsModal";
+import ModalContainer from "../../components/modals/ModalContainer";
 
 import { API_URLS, AUTH_VALIDATION } from "../../config/config";
 import { jwtState } from "../../state/jwt-state";
@@ -279,7 +279,7 @@ export default function Settings() {
           </div>
 
           {/* Modal changement mot de passe */}
-          <UpdateSettingsModal display={showUserInfoModal}>
+          <ModalContainer display={showUserInfoModal}>
             <form
               className={styles.form}
               method="post"
@@ -343,7 +343,7 @@ export default function Settings() {
                 <button>Update</button>
               </div>
             </form>
-          </UpdateSettingsModal>
+          </ModalContainer>
         </div>
 
         {/* Bouton supprimer tous les événements */}

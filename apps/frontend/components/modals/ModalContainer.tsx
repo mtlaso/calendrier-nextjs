@@ -1,11 +1,11 @@
 import React from "react";
 
-import styles from "../modal.module.sass";
+import styles from "./modal.module.sass";
 
 /**
- * Modal de modification d'un événement
+ * Container des modals
  */
-const UpdateEventModal = (props: { children: React.ReactNode; display: boolean }) => {
+const ModalContainer = (props: { children: React.ReactNode; display: boolean }) => {
   if (!props.display) return null;
   return (
     <div
@@ -22,4 +22,4 @@ const UpdateEventModal = (props: { children: React.ReactNode; display: boolean }
   );
 };
 
-export default UpdateEventModal;
+export default ModalContainer;

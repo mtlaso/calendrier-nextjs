@@ -1,24 +1,18 @@
 import React from "react";
 
-import styles from "../modal.module.sass";
+import ModalButtons from "../ModalButtons";
+import ModalContainer from "../ModalContainer";
+import ModalContent from "../ModalContent";
 
 /**
  * Modal qui affiche un guide
  */
-const GuideModal = (props: { display: boolean; CloseModal: () => void }) => {
+const InfoModal = (props: { display: boolean; CloseModal: () => void }) => {
   if (!props.display) return null;
 
   return (
-    <div
-      className={styles.modal_container}
-      style={{
-        position: "absolute",
-        left: "50%",
-        top: "50%",
-        transform: "translate(-50%, -50%)",
-        display: "block",
-      }}>
-      <div className={styles.modal_content}>
+    <ModalContainer display={props.display}>
+      <ModalContent>
         <h1>Guide</h1>
 
         <h2>1. Navigation</h2>
@@ -68,9 +62,11 @@ const GuideModal = (props: { display: boolean; CloseModal: () => void }) => {
           </a>
           .
         </p>
-      </div>
+      </ModalContent>
+
       <hr />
-      <div className={styles.modal_buttons}>
+
+      <ModalButtons>
         <button
           className="button-cancel"
           onClick={() => {
@@ -78,9 +74,9 @@ const GuideModal = (props: { display: boolean; CloseModal: () => void }) => {
           }}>
           Close
         </button>
-      </div>
-    </div>
+      </ModalButtons>
+    </ModalContainer>
   );
 };
 
-export default GuideModal;
+export default InfoModal;

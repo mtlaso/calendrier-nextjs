@@ -6,14 +6,11 @@ import { v4 as uuidv4 } from "uuid";
 
 import CalendarHeader from "../components/calendar-header/CalendarHeader";
 import CalendarFooter from "../components/calendar-footer/CalendarFooter";
-import InfoModal from "../components/modals/info_modal/InfoModal";
 import Calendar from "../components/calendar/Calendar";
-import AddEventModal from "../components/modals/add_modal/AddEventModal";
-import AddEventModalContent from "../components/modals/add_modal/AddEventModalContent";
-import AddEventModalButtons from "../components/modals/add_modal/AddEventModalButtons";
-import UpdateEventModal from "../components/modals/update_modal/UpdateEventModal";
-import UpdateEventModalContent from "../components/modals/update_modal/UpdateEventModalContent";
-import UpdateEventModalButtons from "../components/modals/update_modal/UpdateEventModalButtons";
+import ModalContainer from "../components/modals/ModalContainer";
+import ModalContent from "../components/modals/ModalContent";
+import ModalButtons from "../components/modals/ModalButtons";
+import InfoModal from "../components/modals/info-modal/InfoModal";
 
 import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
@@ -29,9 +26,9 @@ import GenerateErrorMessage from "../utils/generate-error-message";
 import LoadCalendar from "../utils/load-calendar";
 import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
 import { InitSocketIO } from "../utils/init-socketIO";
+import useUserInfo from "../utils/api_requests/useUserInfo";
 
 import { DEFAULT_EVENT, MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
-import useUserInfo from "../utils/api_requests/useUserInfo";
 
 const Home: NextPage = () => {
   // Recoil Js states
@@ -493,8 +490,8 @@ const Home: NextPage = () => {
       />
 
       {/* Add event modal */}
-      <AddEventModal display={showAddEventModal}>
-        <AddEventModalContent>
+      <ModalContainer display={showAddEventModal}>
+        <ModalContent>
           <h1>Events</h1>
           <h2>Create new event</h2>
 
@@ -561,11 +558,11 @@ const Home: NextPage = () => {
               setNewEvent((old) => ({ ...old!, description: e.target.value }));
             }}
           />
-        </AddEventModalContent>
+        </ModalContent>
 
         <hr />
 
-        <AddEventModalButtons>
+        <ModalButtons>
           <button
             className="button-cancel"
             onClick={() => {
@@ -579,12 +576,12 @@ const Home: NextPage = () => {
             }}>
             OK
           </button>
-        </AddEventModalButtons>
-      </AddEventModal>
+        </ModalButtons>
+      </ModalContainer>
 
       {/* Update event modal */}
-      <UpdateEventModal display={showUpdateEventModal}>
-        <UpdateEventModalContent>
+      <ModalContainer display={showUpdateEventModal}>
+        <ModalContent>
           <h1>Update event</h1>
 
           <label htmlFor="update-event-title">New title</label>
@@ -609,9 +606,11 @@ const Home: NextPage = () => {
               setUpdatedEvent((prev) => ({ ...prev!, description: e.target.value }));
             }}
           />
-        </UpdateEventModalContent>
+        </ModalContent>
+
         <hr />
-        <UpdateEventModalButtons>
+
+        <ModalButtons>
           <button
             className="button-delete"
             onClick={(e) => {
@@ -635,8 +634,8 @@ const Home: NextPage = () => {
             }}>
             OK
           </button>
-        </UpdateEventModalButtons>
-      </UpdateEventModal>
+        </ModalButtons>
+      </ModalContainer>
 
       {/* Guide modal */}
       <InfoModal display={showInfoModal} CloseModal={() => setShowInfoModal(false)} />
