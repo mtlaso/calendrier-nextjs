@@ -2,7 +2,7 @@ import { atom } from "recoil";
 import { getRecoil } from "recoil-nexus";
 
 import { API_URLS, EVENTS_LOCALSTORAGE_KEY, JWT_TOKEN_KEY } from "../config/config";
-import { TypeEvent } from "../types/TypeEvent";
+import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
 import { jwtState } from "./jwt-state";
 
 /**

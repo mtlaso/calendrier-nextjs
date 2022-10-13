@@ -25,7 +25,7 @@ import { eventsState } from "../state/events-state";
 import GenerateErrorMessage from "../utils/generate-error-message";
 import LoadCalendar from "../utils/load-calendar";
 import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
-import { InitSocketIO } from "../utils/init-socketIO";
+import InitSocketIO from "../utils/init-socketIO";
 import useUserInfo from "../utils/api_requests/useUserInfo";
 
 import { DEFAULT_EVENT, MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";

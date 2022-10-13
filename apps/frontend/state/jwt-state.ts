@@ -1,6 +1,5 @@
 import { atom } from "recoil";
 import { JWT_TOKEN_KEY } from "../config/config";
-import { TypeEvent } from "../types/TypeEvent";
 
 const localStorageEffect =
   (key: string) =>

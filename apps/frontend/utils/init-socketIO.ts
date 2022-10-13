@@ -8,7 +8,7 @@ import { CALENDAR_NAMESPACE } from "../config/config";
  * Initiliser socketIO
  * @param jwt Jwt
  */
-export function InitSocketIO(jwt: string): Socket<ServerToClientEvents, ClientToServerEvents> {
+export default function InitSocketIO(jwt: string): Socket<ServerToClientEvents, ClientToServerEvents> {
   return io("http://localhost:4000/calendar-sync", {
     withCredentials: true,
     upgrade: true,
