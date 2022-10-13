@@ -1,4 +1,6 @@
 import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
+import { TypeStartingDaysCalendar } from "../types/TypeCalendarStartingDay";
+import { EnumWeekDays } from "../types/TypeWeekDays";
 
 /**
  * Longeur maximum d'un événement
@@ -67,3 +69,8 @@ export const DEFAULT_EVENT: TypeEvent = {
  * Calendar namespace
  */
 export const CALENDAR_NAMESPACE = "/calendar-sync";
+
+/**
+ * Date de début du calendrier par défaut
+ */
+export const DEFAULT_CALENDAR_STARTING_DAY: TypeStartingDaysCalendar = EnumWeekDays.Sunday;

@@ -6,7 +6,7 @@
  */
 export default function GenerateErrorMessage(genericErrorMessage: string, reasonMessage?: string): string {
   if (process.env.NODE_ENV === "development") {
-    return `${genericErrorMessage}${reasonMessage ? ` : ${reasonMessage}` : ""}`;
+    return `${genericErrorMessage}${reasonMessage ? `: ${reasonMessage}` : ""}`;
   } else {
     return genericErrorMessage;
   }

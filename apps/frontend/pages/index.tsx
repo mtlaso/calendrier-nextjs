@@ -15,7 +15,6 @@ import InfoModal from "../components/modals/info-modal/InfoModal";
 import { TypeDay } from "../types/TypeDay";
 import { TypeNav } from "../types/TypeNav";
 import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
-import { TypeStartingDaysCalendar } from "../types/TypeCalendarStartingDay";
 import { TypeCalendarSyncStatus } from "../types/TypeCalendarSyncStatus";
 import { EnumWeekDays } from "../types/TypeWeekDays";
 
@@ -28,18 +27,17 @@ import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
 import InitSocketIO from "../utils/init-socketIO";
 import useUserInfo from "../utils/api_requests/useUserInfo";
 
+import { DEFAULT_CALENDAR_STARTING_DAY } from "../config/config";
 import { DEFAULT_EVENT, MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
 
 const Home: NextPage = () => {
-  // Recoil Js states
   const jwt = useRecoilValue(jwtState);
   const [calendarEvents, setCalendarEvents] = useRecoilState(eventsState);
-  const DEFAULT_CALENDAR_STARTING_DAY: TypeStartingDaysCalendar = EnumWeekDays.Sunday;
   const [daysInMonth, setDaysInMonth] = useState<TypeDay[]>([]);
 
   const calendarEventsSocket = InitSocketIO(jwt);
   const [calendarSyncStatus, setCalendarSyncStatus] = useState<TypeCalendarSyncStatus>("notsynced"); // Sync status footer
-  const [eventsChanged, setEventsChanged] = useState<boolean>(false); // Socket io calendar sync
+  const [eventsChanged, setEventsChanged] = useState<boolean>(false); // Utiliser pour notifier que des events ont été modifiés/ajoutés/supprimés
 
   const [showAddEventModal, setShowAddEventModal] = useState<boolean>(false);
   const [newEvent, setNewEvent] = useState<TypeEvent>(DEFAULT_EVENT);
@@ -62,29 +60,22 @@ const Home: NextPage = () => {
 
   // Charger le calendrier à chaque fois que la date de navigation change
   useEffect(() => {
+    const Load = async () => {
+      try {
+        // Initialiser la synchronisation du calendrier
+        await InitCalendarSync();
+      } catch (err) {}
+    };
+
     setIsLoading(true);
 
-    // Charger le calendrier (avant la connexion/synchronisation)
-    const [_daysInMonth, _headerText] = LoadCalendar(nav, DEFAULT_CALENDAR_STARTING_DAY);
+    Load().finally(() => {
+      setIsLoading(false);
+    });
 
-    setDaysInMonth(_daysInMonth);
-    setHeaderText(_headerText);
-
-    // Synchroniser les événements avec le calendrier au chargement de la page
-    InitCalendarSync();
-
-    setIsLoading(false);
     return () => {
-      calendarEventsSocket.off("connect");
-      calendarEventsSocket.off("connect_error");
-      calendarEventsSocket.off("disconnect");
-      calendarEventsSocket.off("calendar:sync");
-      calendarEventsSocket.io.off("close");
-      calendarEventsSocket.io.off("error");
-      calendarEventsSocket.io.off("reconnect");
-      calendarEventsSocket.io.off("reconnect_attempt");
-      calendarEventsSocket.io.off("reconnect_error");
-      calendarEventsSocket.io.off("reconnect_failed");
+      // Fermer la connexion socket.io
+      calendarEventsSocket.close();
     };
   }, [nav]);
 
@@ -109,19 +100,19 @@ const Home: NextPage = () => {
       const startingDay = userInfo.week_start_day === "MONDAY" ? EnumWeekDays.Monday : EnumWeekDays.Sunday;
 
       return startingDay;
-    } catch (err) {}
+    } catch (err) {
+      throw err;
+    }
   };
 
   // Initiliaser la synchronisation des événements du calendrier
   const InitCalendarSync = async () => {
     try {
+      // Vérifier si le calendrier est prêt à être synchronisé
       const [status, errMessage] = await IsCalendarReadyToSync(jwt);
-      if (errMessage.length > 0) {
-        throw new Error(errMessage);
-      }
 
       if (!status) {
-        throw new Error("Calendar is not ready to sync");
+        throw new Error(errMessage);
       }
 
       // Connection au serveur
@@ -138,16 +129,18 @@ const Home: NextPage = () => {
 
       // Écouter les événement de synchronisation du calendrier (reçus du serveur)
       calendarEventsSocket.on("calendar:sync", async (events: TypeEvent[]) => {
-        setCalendarEvents(events);
-        console.log(`Calendar synced with ${events.length} events`);
+        // setCalendarEvents(events);
+        console.log(`Calendar received ${events.length} events`);
 
         // Associer les événements avec les jours
-        AssociateEventsWithDays(events).then((days) => {
-          setDaysInMonth(days);
+        const [_daysInMonth, _headerText] = await AssociateEventsWithDays(events);
 
-          // Mettre à jour le statut de synchronisation
-          setCalendarSyncStatus("synced");
-        });
+        // Mettre à jour le calendrier
+        setDaysInMonth(_daysInMonth);
+        setHeaderText(_headerText);
+
+        // Mettre à jour le statut de synchronisation
+        setCalendarSyncStatus("synced");
       });
 
       // Évenement de connection
@@ -190,7 +183,8 @@ const Home: NextPage = () => {
         setCalendarSyncStatus("notsynced");
       });
     } catch (err) {
-      // const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
+      const errMessage = GenerateErrorMessage("Calendar sync error", (err as Error).message);
+      alert(errMessage);
     }
   };
 
@@ -431,11 +425,11 @@ const Home: NextPage = () => {
   };
 
   // Retourne une liste des jours avec les événements associés
-  async function AssociateEventsWithDays(events: TypeEvent[]) {
-    let calendarStaringDay = await FindFirstDayOfCalendar();
-    if (!calendarStaringDay) calendarStaringDay = DEFAULT_CALENDAR_STARTING_DAY;
+  async function AssociateEventsWithDays(events: TypeEvent[]): Promise<[TypeDay[], string]> {
+    let userCalendarStaringDay = await FindFirstDayOfCalendar();
+    if (!userCalendarStaringDay) userCalendarStaringDay = DEFAULT_CALENDAR_STARTING_DAY;
 
-    const [_daysInMonth, _] = LoadCalendar(nav, calendarStaringDay);
+    const [_daysInMonth, _headerText] = LoadCalendar(nav, userCalendarStaringDay);
 
     _daysInMonth.map((day) => {
       // Associer les événements avec les jours
@@ -465,7 +459,7 @@ const Home: NextPage = () => {
       });
     });
 
-    return _daysInMonth;
+    return [_daysInMonth, _headerText];
   }
 
   return (
