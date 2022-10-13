@@ -118,14 +118,15 @@ export default function Settings() {
 
       const res = await req.json();
 
-      if (res.statusCode === 200) {
-        setPasswordUpdatedStatus("success");
-        setPasswordUpdatedMessage("Password updated successfully.");
-      } else {
+      if (res.statusCode !== 200) {
         setPasswordUpdatedStatus("error");
         const errMessage = GenerateErrorMessage("An error occured while updating your password.", res.message);
         setPasswordUpdatedMessage(errMessage);
+        return;
       }
+
+      setPasswordUpdatedStatus("success");
+      setPasswordUpdatedMessage("Password updated successfully.");
     } catch (error) {
       setPasswordUpdatedStatus("error");
       const errMessage = GenerateErrorMessage("An error occured while creating your account", (error as Error).message);
