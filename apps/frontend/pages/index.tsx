@@ -481,6 +481,7 @@ const Home: NextPage = () => {
           const date = new Date();
           setNav({ month: date.getMonth(), year: date.getFullYear() });
         }}
+        syncStatus={calendarSyncStatus}
       />
 
       {/* Add event modal */}
