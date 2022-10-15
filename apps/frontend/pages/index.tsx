@@ -392,7 +392,7 @@ const Home: NextPage = () => {
     // Émettre les nouveaux événements au serveur
     setEventsChanged(true);
 
-    // Effacer modal
+    // Effacer l'événement en mémoire
     setUpdatedEvent(null);
 
     // Fermer UpdateEventModal

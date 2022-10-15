@@ -27,7 +27,7 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any): Promise<voi
           title: event.title,
           is_completed: event.is_completed,
           description: event.description,
-          location: event?.location ?? undefined,
+          location: event.location ?? null,
         },
         // Si l'événement existe déja, on le met à jour...
         update: {
@@ -36,6 +36,7 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any): Promise<voi
           description: event.description,
           event_start: event.event_start,
           event_end: event.event_end,
+          location: event.location ?? null,
         },
         // Si l'événement existe déja avec cet id, on le met à jour...
         where: {
