@@ -305,7 +305,6 @@ const Home: NextPage = () => {
 
     // Valider localisation (seulement si la localisation est définie)
     if (newEvent.location) {
-      console.log(`validation de la localisation: ${newEvent.location.trim().length}`);
       if (newEvent.location.trim().length > MAX_LENGTH_EVENT_LOCATION || newEvent.location.trim().length <= 0) {
         alert(`Event location has to be less than ${MAX_LENGTH_EVENT_LOCATION} characters.`);
         return;
@@ -357,6 +356,14 @@ const Home: NextPage = () => {
     ) {
       alert(`Event description has to be less than ${MAX_LENGTH_EVENT_DESC} characters.`);
       return;
+    }
+
+    // Valider location (seulement si la localisation est définie)
+    if (updatedEvent.location) {
+      if (updatedEvent.location.trim().length > MAX_LENGTH_EVENT_LOCATION || updatedEvent.location.trim().length <= 0) {
+        alert(`Event location has to be less than ${MAX_LENGTH_EVENT_LOCATION} characters.`);
+        return;
+      }
     }
 
     // Trouver l'index de l'évènement à modifier
@@ -604,6 +611,7 @@ const Home: NextPage = () => {
         <ModalContent>
           <h1>Update event</h1>
 
+          {/* titre */}
           <label htmlFor="update-event-title">New title</label>
           <input
             id="update-event-title"
@@ -615,15 +623,31 @@ const Home: NextPage = () => {
               setUpdatedEvent((prev) => ({ ...prev!, title: e.target.value }));
             }}
           />
+
+          {/* desc */}
           <label htmlFor="update-event-desc">New description</label>
           <input
             id="update-event-desc"
             value={updatedEvent?.description ?? ""}
             placeholder={updatedEvent?.description ?? ""}
-            autoFocus
             maxLength={MAX_LENGTH_EVENT_DESC}
             onChange={(e) => {
               setUpdatedEvent((prev) => ({ ...prev!, description: e.target.value }));
+            }}
+          />
+
+          {/* location */}
+          <label htmlFor="update-event-location">
+            New location <em>(optional)</em>
+          </label>
+          <input
+            id="update-event-location"
+            autoComplete="street-address"
+            value={updatedEvent?.location ?? ""}
+            placeholder="Location"
+            maxLength={MAX_LENGTH_EVENT_LOCATION}
+            onChange={(e) => {
+              setUpdatedEvent((old) => ({ ...old!, location: e.target.value }));
             }}
           />
         </ModalContent>
