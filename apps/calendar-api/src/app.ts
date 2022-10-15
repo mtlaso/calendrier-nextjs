@@ -19,7 +19,7 @@ import {
   SocketData,
 } from "@calendar-nextjs/shared/types/TypeSocketIO";
 
-import { CALENDAR_NAMESPACE } from "./config/config";
+import { CALENDAR_NAMESPACE } from "@calendar-nextjs/shared/config/global-config";
 
 const app = Express();
 const port = process.env.PORT || 4000;

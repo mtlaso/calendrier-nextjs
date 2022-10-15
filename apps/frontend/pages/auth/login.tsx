@@ -5,7 +5,8 @@ import { useRecoilState } from "recoil";
 
 import styles from "./auth.module.sass";
 
-import { API_URLS, AUTH_VALIDATION } from "../../config/config";
+import { API_URLS } from "../../config/config";
+import { AUTH_VALIDATION } from "@calendar-nextjs/shared/config/global-config";
 import { jwtState } from "../../state/jwt-state";
 import GenerateErrorMessage from "../../utils/generate-error-message";
 import { TypeFormValidationError } from "../../types/TypeFormValidationError";

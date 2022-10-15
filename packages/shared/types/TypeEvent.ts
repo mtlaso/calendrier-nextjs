@@ -1,5 +1,6 @@
 /**
  * Type representant un événement
+ * @important Doit suivre le même shéma que la table "events" dans la base de données (voir le fichier "prisma/schema.prisma")
  */
 export type TypeEvent = {
   /**
@@ -36,4 +37,10 @@ export type TypeEvent = {
    * True si complété
    */
   is_completed: boolean;
+
+  /**
+   * Localisation de l'événement
+   * @optional
+   */
+  location: string | null;
 };

@@ -1,21 +1,22 @@
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRecoilState } from "recoil";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
 
 import styles from "./auth.module.sass";
 
-import { API_URLS, AUTH_VALIDATION } from "../../config/config";
-import GenerateErrorMessage from "../../utils/generate-error-message";
-import { TypeFormValidationError } from "../../types/TypeFormValidationError";
+import { AUTH_VALIDATION } from "@calendar-nextjs/shared/config/global-config";
+import { API_URLS } from "../../config/config";
 import { jwtState } from "../../state/jwt-state";
+import { TypeFormValidationError } from "../../types/TypeFormValidationError";
+import GenerateErrorMessage from "../../utils/generate-error-message";
 
 /**
  * Page de création de compte
  */
 export default function Login() {
   const router = useRouter();
-  const [jwtToken, setJwtToken] = useRecoilState(jwtState);
+  const jwtToken = useRecoilValue(jwtState);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

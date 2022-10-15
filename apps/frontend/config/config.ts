@@ -3,22 +3,6 @@ import { TypeStartingDaysCalendar } from "../types/TypeCalendarStartingDay";
 import { EnumWeekDays } from "../types/TypeWeekDays";
 
 /**
- * Longeur maximum d'un événement
- */
-export const MAX_LENGTH_EVENT_TITLE = 60;
-export const MAX_LENGTH_EVENT_DESC = 256;
-
-/**
- * Validations des champs lors de la connection/creation d'un utilisateur
- */
-export const AUTH_VALIDATION = {
-  username_max_length: 30,
-  username_min_length: 1,
-  password_max_length: 60,
-  password_min_length: 8,
-};
-
-/**
  * Urls de l'API
  */
 export const API_URLS = {
@@ -63,12 +47,8 @@ export const DEFAULT_EVENT: TypeEvent = {
   title: "New Event...",
   description: "New description...",
   is_completed: false,
+  location: null,
 };
-
-/**
- * Calendar namespace
- */
-export const CALENDAR_NAMESPACE = "/calendar-sync";
 
 /**
  * Date de début du calendrier par défaut

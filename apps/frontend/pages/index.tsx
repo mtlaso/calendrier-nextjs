@@ -4,31 +4,36 @@ import { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuidv4 } from "uuid";
 
-import CalendarHeader from "../components/calendar-header/CalendarHeader";
 import CalendarFooter from "../components/calendar-footer/CalendarFooter";
+import CalendarHeader from "../components/calendar-header/CalendarHeader";
 import Calendar from "../components/calendar/Calendar";
+import InfoModal from "../components/modals/info-modal/InfoModal";
+import ModalButtons from "../components/modals/ModalButtons";
 import ModalContainer from "../components/modals/ModalContainer";
 import ModalContent from "../components/modals/ModalContent";
-import ModalButtons from "../components/modals/ModalButtons";
-import InfoModal from "../components/modals/info-modal/InfoModal";
 
-import { TypeDay } from "../types/TypeDay";
-import { TypeNav } from "../types/TypeNav";
 import { TypeEvent } from "@calendar-nextjs/shared/types/TypeEvent";
 import { TypeCalendarSyncStatus } from "../types/TypeCalendarSyncStatus";
+import { TypeDay } from "../types/TypeDay";
+import { TypeNav } from "../types/TypeNav";
 import { EnumWeekDays } from "../types/TypeWeekDays";
 
-import { jwtState } from "../state/jwt-state";
 import { eventsState } from "../state/events-state";
+import { jwtState } from "../state/jwt-state";
 
-import GenerateErrorMessage from "../utils/generate-error-message";
-import LoadCalendar from "../utils/load-calendar";
-import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
-import InitSocketIO from "../utils/init-socketIO";
 import useUserInfo from "../utils/api_requests/useUserInfo";
+import GenerateErrorMessage from "../utils/generate-error-message";
+import InitSocketIO from "../utils/init-socketIO";
+import IsCalendarReadyToSync from "../utils/is-calendar-ready-to-sync";
+import LoadCalendar from "../utils/load-calendar";
 
-import { DEFAULT_CALENDAR_STARTING_DAY } from "../config/config";
-import { DEFAULT_EVENT, MAX_LENGTH_EVENT_DESC, MAX_LENGTH_EVENT_TITLE } from "../config/config";
+import { DEFAULT_CALENDAR_STARTING_DAY, DEFAULT_EVENT } from "../config/config";
+
+import {
+  MAX_LENGTH_EVENT_DESC,
+  MAX_LENGTH_EVENT_LOCATION,
+  MAX_LENGTH_EVENT_TITLE,
+} from "@calendar-nextjs/shared/config/global-config";
 
 const Home: NextPage = () => {
   const jwt = useRecoilValue(jwtState);
@@ -188,7 +193,7 @@ const Home: NextPage = () => {
     }
   };
 
-  // Émettre les nouveaux événments au serveur
+  // Émettre les nouveaux événements au serveur
   const EmitNewEvents = async () => {
     try {
       const [status, errMessage] = await IsCalendarReadyToSync(jwt);
@@ -203,6 +208,8 @@ const Home: NextPage = () => {
 
       // Émettre les événements au serveur
       calendarEventsSocket.emit("calendar:sync", { events: calendarEvents, jwt: jwt });
+
+      return true;
     } catch (err) {
       const errMessage = GenerateErrorMessage("Cannot sync calendar", (err as Error).message);
       alert(errMessage);
@@ -296,15 +303,25 @@ const Home: NextPage = () => {
       }
     }
 
+    // Valider localisation (seulement si la localisation est définie)
+    if (newEvent.location) {
+      console.log(`validation de la localisation: ${newEvent.location.trim().length}`);
+      if (newEvent.location.trim().length > MAX_LENGTH_EVENT_LOCATION || newEvent.location.trim().length <= 0) {
+        alert(`Event location has to be less than ${MAX_LENGTH_EVENT_LOCATION} characters.`);
+        return;
+      }
+    }
+
     // Nouveau évènement à ajouter (les dates sont sauvegardées en UTC, format ISO8601 (YYYY-MM-DDTHH:mm:ss.sssZ))
     const eventToAdd: TypeEvent = {
       event_id: uuidv4(),
       event_creation_date: new Date(),
       event_start: newEvent.event_start,
       event_end: newEvent.event_end,
-      title: newEvent!.title,
-      description: newEvent!.description,
+      title: newEvent.title,
+      description: newEvent.description,
       is_completed: false,
+      location: newEvent.location ?? "",
     };
 
     // Sauvegarder nouveau évènement
@@ -402,15 +419,6 @@ const Home: NextPage = () => {
 
     const diff = oldDateEnd.getTime() - oldDateStart.getTime();
     updatedEvent.event_end = new Date(updatedEvent.event_start.getTime() + diff);
-
-    // // Seulement changer le mois et la date
-    // updatedEvent.event_end = new Date(
-    //   oldDateEnd.getFullYear(),
-    //   newDate.getMonth() + diff,
-    //   newDate.getDate() + diff,
-    //   oldDateEnd.getHours(),
-    //   oldDateEnd.getMinutes()
-    // );
 
     // Mettre à jour l'évènement. Calendrier est rafréchit automatiquement grâce à "useRecoilState"
     setCalendarEvents([
@@ -553,6 +561,21 @@ const Home: NextPage = () => {
             maxLength={MAX_LENGTH_EVENT_DESC}
             onChange={(e) => {
               setNewEvent((old) => ({ ...old!, description: e.target.value }));
+            }}
+          />
+
+          {/* Event location */}
+          <label htmlFor="new-event-location">
+            Location <em>(optional)</em>
+          </label>
+          <input
+            id="new-event-location"
+            autoComplete="street-address"
+            value={newEvent?.location ?? ""}
+            placeholder="Location"
+            maxLength={MAX_LENGTH_EVENT_LOCATION}
+            onChange={(e) => {
+              setNewEvent((old) => ({ ...old, location: e.target.value }));
             }}
           />
         </ModalContent>

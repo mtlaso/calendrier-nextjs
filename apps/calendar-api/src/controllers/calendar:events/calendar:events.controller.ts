@@ -10,6 +10,8 @@ const prisma = new PrismaClient();
  */
 export async function SaveEventsToDb(events: TypeEvent[], jwt: any): Promise<void> {
   try {
+    // TODO: Valider les événements
+
     // Récupère l'id de l'utilisateur (passé par le middleware IsLoggedIn)
     const userInfo = jwt;
 
@@ -25,6 +27,7 @@ export async function SaveEventsToDb(events: TypeEvent[], jwt: any): Promise<voi
           title: event.title,
           is_completed: event.is_completed,
           description: event.description,
+          location: event?.location ?? undefined,
         },
         // Si l'événement existe déja, on le met à jour...
         update: {
@@ -57,6 +60,7 @@ export async function ReadEventsFromDb(jwt: any): Promise<TypeEvent[]> {
     // Récupère les événements de l'utilisateur
     const events = await prisma.events.findMany({ where: { user_id: userInfo.user_id } });
 
+    // Retourne les événements
     return events;
   } catch (err) {
     throw new ApiError((err as Error).message, 500);
