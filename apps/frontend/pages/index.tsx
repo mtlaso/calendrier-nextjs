@@ -253,8 +253,18 @@ const Home: NextPage = () => {
     }
   };
 
+  // Fermer toutes les autres modals
+  const CloseAllModals = () => {
+    setShowAddEventModal(false);
+    setShowUpdateEventModal(false);
+    setShowInfoModal(false);
+  };
+
   // Afficher modal AddEventModal
   const OpenAddEventModal = (year: number, month: number, date: number) => {
+    // Fermer toutes les autres modals
+    CloseAllModals();
+
     // Changer les dates de début et de fin de l'événement
     setNewEvent((prev) => ({
       ...prev,
@@ -267,6 +277,9 @@ const Home: NextPage = () => {
 
   // Afficher modal UpdateEventModal
   const OpenUpdateEventModal = (event: TypeEvent) => {
+    // Fermer toutes les autres modals
+    CloseAllModals();
+
     // Mettre en mémoire l'événement à modifier
     setUpdatedEvent(event);
 
@@ -682,7 +695,12 @@ const Home: NextPage = () => {
       </ModalContainer>
 
       {/* Guide modal */}
-      <InfoModal display={showInfoModal} CloseModal={() => setShowInfoModal(false)} />
+      <InfoModal
+        display={showInfoModal}
+        CloseModal={() => {
+          setShowInfoModal(false);
+        }}
+      />
 
       {/* Calendrier */}
       <main>

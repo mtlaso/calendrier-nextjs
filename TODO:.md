@@ -6,4 +6,3 @@
 1. Validation des événements (calendar:events.controller.ts)
 1. Changer vidéo de présentation
 1. Recupérer les événements de l'API sur un mois à la fois
-1. Fermer les autres modals quand on ouvre une modal
