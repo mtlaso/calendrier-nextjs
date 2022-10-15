@@ -6,7 +6,8 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import ModalContainer from "../../components/modals/ModalContainer";
 
-import { API_URLS, AUTH_VALIDATION } from "../../config/config";
+import { API_URLS } from "../../config/config";
+import { AUTH_VALIDATION } from "@calendar-nextjs/shared/config/global-config";
 import { jwtState } from "../../state/jwt-state";
 import useUserInfo from "../../utils/api_requests/useUserInfo";
 import GenerateErrorMessage from "../../utils/generate-error-message";
