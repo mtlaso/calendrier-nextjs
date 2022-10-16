@@ -1,5 +1,5 @@
 import ApiError from "../../../types/ApiError";
-import { AUTH_VALIDATION } from "../../../config/config";
+import { AUTH_VALIDATION } from "@calendar-nextjs/shared/config/global-config";
 
 /**
  * Valide les champs lors de la modification du mot de passe
