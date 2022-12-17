@@ -1,6 +1,6 @@
 [screen-recorder-sat-oct-15-2022-22-12-27.webm](https://user-images.githubusercontent.com/29934021/196014795-b031197a-5806-405f-b5bd-85a4c8179af9.webm)
 
-# Calendrier
+# Calendrier - Synchronisation entre appareils en temps réel (avec websockets)
 
 Calendrier créé avec Nextjs, avec possibilité de créer des évènements.
 
